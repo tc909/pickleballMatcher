@@ -3,42 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pickleball Master PRO - OFFLINE</title>
+    <title>Pickleball Master V8.3 - Full Features</title>
     <style>
-        /* Base Styling (Tailwind Replacement) */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background-color: #f8fafc; min-height: 100vh; color: #0f172a; -webkit-tap-highlight-color: transparent; }
         .max-w-md { max-width: 28rem; margin: 0 auto; display: flex; flex-direction: column; min-height: 100vh; }
-        
-        /* Layout Components */
-        header { background: #0f172a; padding: 2rem 1.5rem 1.5rem; border-bottom: 4px solid #f97316; position: sticky; top: 0; z-index: 30; box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.1); }
-        .tab-bar { display: flex; background: white; border-bottom: 1px solid #e2e8f0; position: sticky; top: 215px; z-index: 20; }
+        header { background: #0f172a; padding: 2rem 1.5rem 1.5rem; border-bottom: 4px solid #f97316; position: sticky; top: 0; z-index: 30; }
+        .tab-bar { display: flex; background: white; border-bottom: 1px solid #e2e8f0; position: sticky; top: 220px; z-index: 20; }
         .tab-btn { flex: 1; padding: 1rem; font-size: 0.75rem; font-weight: 900; border: none; background: none; color: #94a3b8; letter-spacing: 0.1em; cursor: pointer; }
         .tab-active { border-bottom: 4px solid #f97316; color: #f97316; }
-
-        /* Match Cards */
         .card { background: white; border-radius: 2rem; padding: 1.5rem; margin-top: 1rem; border: 1px solid #e2e8f0; }
         .preview-card { background: #1e293b; color: #94a3b8; border-color: #334155; opacity: 0.6; }
         .score-input { width: 2.5rem; height: 2.5rem; text-align: center; background: #f1f5f9; border-radius: 0.75rem; border: 2px solid transparent; font-weight: 900; font-size: 1.25rem; }
-        .score-input:focus { border-color: #f97316; outline: none; }
-
-        /* Typography & Utilities */
-        .title { color: white; font-weight: 900; font-style: italic; text-transform: uppercase; text-align: center; font-size: 1.5rem; }
-        .orange { color: #f97316; }
-        .btn-orange { background: #f97316; color: white; border: none; padding: 1.25rem; border-radius: 1.5rem; font-weight: 900; font-size: 1.1rem; width: 100%; cursor: pointer; text-transform: uppercase; letter-spacing: 0.1em; }
-        .btn-orange:disabled { background: #cbd5e1; cursor: not-allowed; }
+        .btn-orange { background: #f97316; color: white; border: none; padding: 1.25rem; border-radius: 1.5rem; font-weight: 900; width: 100%; cursor: pointer; text-transform: uppercase; }
         .hidden { display: none; }
         .stat-badge { background: #f1f5f9; padding: 0.4rem; border-radius: 0.75rem; text-align: center; min-width: 2.5rem; border-bottom: 4px solid #cbd5e1; font-weight: 900; }
-        .win-tag { background: #ecfdf5; color: #059669; padding: 0 4px; border-radius: 4px; font-size: 9px; }
-        .loss-tag { background: #fef2f2; color: #f87171; padding: 0 4px; border-radius: 4px; font-size: 9px; }
     </style>
 </head>
 <body>
     <div class="max-w-md">
-        <header id="header-section">
-            <div class="title">Pickleball <span class="orange">Matcher</span></div>
-            <div id="current-match-slot"></div>
+        <header>
+            <div style="color: white; font-weight: 900; font-style: italic; text-transform: uppercase; text-align: center; font-size: 1.5rem;">Pickleball <span style="color: #f97316;">Matcher</span></div>
+            <div id="current-match-ui"></div>
         </header>
 
         <div id="navigation" class="tab-bar hidden">
@@ -49,77 +36,83 @@
         <main style="padding: 1.5rem; flex: 1;">
             <div id="view-setup">
                 <div class="card">
-                    <h2 style="font-size: 0.7rem; font-weight: 900; margin-bottom: 1rem; color: #64748b; letter-spacing: 0.1em;">ADD PLAYERS</h2>
+                    <h2 style="font-size: 0.7rem; font-weight: 900; margin-bottom: 1rem; color: #94a3b8;">ADD PLAYERS</h2>
                     <div style="display: flex; gap: 0.5rem;">
-                        <input type="text" id="setup-name" placeholder="NAME" style="flex: 1; padding: 1rem; border-radius: 1rem; border: none; background: #f1f5f9; font-weight: 700; outline: none;">
-                        <button onclick="addPlayer('setup-name')" style="background:#0f172a; color:white; border:none; padding: 0 1.5rem; border-radius: 1rem; font-weight: 900; cursor: pointer;">＋</button>
+                        <input type="text" id="setup-name" placeholder="NAME" style="flex: 1; padding: 1rem; border-radius: 1rem; border: none; background: #f1f5f9; font-weight: 700; outline:none;">
+                        <button onclick="addPlayer('setup-name')" style="background:#0f172a; color:white; border:none; padding: 0 1.5rem; border-radius: 1rem; font-weight: 900; cursor:pointer;">＋</button>
                     </div>
-                    <div id="setup-player-list" style="margin-top: 1rem; max-height: 250px; overflow-y: auto;"></div>
+                    <div id="setup-list" style="margin-top: 1rem; max-height:250px; overflow-y:auto;"></div>
                 </div>
                 <button id="start-btn" onclick="startApp()" class="btn-orange" style="margin-top: 1.5rem;" disabled>Start Matching</button>
             </div>
 
             <div id="view-game" class="hidden">
                 <div id="tab-players">
-                    <div id="stats-list" class="card" style="padding: 0; overflow: hidden;"></div>
-                    <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem; padding: 0.5rem;">
-                        <input type="text" id="game-add-name" placeholder="ADD PLAYER" style="flex: 1; background: transparent; border: none; border-bottom: 2px solid #e2e8f0; font-weight: 700; outline: none; text-transform: uppercase; font-size: 0.8rem;">
-                        <button onclick="addPlayer('game-add-name')" style="background: #0f172a; color: white; padding: 0.5rem 1rem; border-radius: 0.75rem; border: none; font-size: 0.7rem; font-weight: 900;">ADD</button>
+                    <div id="player-stats-list" class="card" style="padding: 0; overflow: hidden;"></div>
+                    <div style="display:flex; gap:0.5rem; margin-top:1rem;">
+                        <input type="text" id="add-more" placeholder="ADD PLAYER" style="flex:1; padding:1rem; border:none; border-bottom:2px solid #e2e8f0; font-weight:700; text-transform:uppercase; outline:none;">
+                        <button onclick="addPlayer('add-more')" style="background:#0f172a; color:white; border:none; padding:0 1.2rem; border-radius:1rem; font-weight:900; cursor:pointer;">ADD</button>
                     </div>
                 </div>
-
                 <div id="tab-schedule" class="hidden">
-                    <div id="schedule-container"></div>
-                    <button onclick="previewLimit += 4; render();" style="width:100%; padding:1rem; background:white; border:2px solid #e2e8f0; border-radius:1.5rem; color:#94a3b8; font-weight:900; font-size:0.7rem; margin: 1rem 0 3rem;">MORE GAMES (+4)</button>
+                    <div id="schedule-list"></div>
+                    <button onclick="previewLimit+=4; render();" style="width:100%; padding:1rem; background:white; border-radius:1.5rem; color:#94a3b8; font-weight:900; margin: 1rem 0 3rem;">MORE GAMES (+4)</button>
                 </div>
             </div>
         </main>
     </div>
 
     <script>
-        // --- State Management ---
         let players = [];
-        let matchHistory = []; // [ {round, teamAIds, teamBIds, scoreA, scoreB, completed, allIds} ]
+        let matchHistory = [];
         let isStarted = false;
-        let currentTab = 'players';
+        let activeTab = 'players';
         let previewLimit = 8;
 
-        // --- Core Functions ---
-        function addPlayer(inputId) {
-            const input = document.getElementById(inputId);
+        function addPlayer(id) {
+            const input = document.getElementById(id);
             const name = input.value.trim();
             if (!name) return;
-            if (players.some(p => p.name.toLowerCase() === name.toLowerCase())) {
-                alert("此姓名已存在");
-                return;
-            }
-            players.push({ id: Date.now(), name: name, playCount: 0, wins: 0, losses: 0, consecutive: 0, isActive: true });
+            if (players.some(p => p.name.toLowerCase() === name.toLowerCase())) { alert("此姓名已存在"); return; }
+            players.push({ id: Date.now(), name, playCount: 0, wins: 0, losses: 0, consecutive: 0, isActive: true });
             input.value = '';
+            if (isStarted) syncMatch();
             render();
         }
 
-        function calculateMatch(pool, lastIds) {
+        function syncMatch() {
+            if (!isStarted || matchHistory.length === 0) return;
+            let current = matchHistory[0];
+            if (!current.completed) {
+                const activeOnes = players.filter(p => p.isActive);
+                const stillValid = (current.allIds || []).length === 4 && current.allIds.every(id => activeOnes.some(p => p.id === id));
+                if (!stillValid) {
+                    const lastFinished = matchHistory[1]?.allIds || null;
+                    const newMatch = calculateMatchLogic(players, lastFinished);
+                    if (newMatch) matchHistory[0] = { ...current, ...newMatch };
+                }
+            }
+        }
+
+        function calculateMatchLogic(pool, lastIds) {
             const active = pool.filter(p => p.isActive);
             if (active.length < 4) return null;
-
             let sorted = [...active].sort((a, b) => (a.playCount - b.playCount) || (a.consecutive - b.consecutive));
             const canRest = sorted.filter(p => p.consecutive < 2);
             let selected = (canRest.length >= 4) ? canRest.slice(0, 4) : sorted.slice(0, 4);
-
             if (lastIds && active.length > 4) {
-                const currentStr = selected.map(p => p.id).sort().join(',');
-                if (currentStr === [...lastIds].sort().join(',')) {
-                    const sub = sorted.find(p => !selected.map(s => s.id).includes(p.id));
+                if (selected.map(p=>p.id).sort().join(',') === [...lastIds].sort().join(',')) {
+                    const sub = sorted.find(p => !selected.map(s=>s.id).includes(p.id));
                     if (sub) selected[3] = sub;
                 }
             }
-
             return { teamAIds: [selected[0].id, selected[3].id], teamBIds: [selected[1].id, selected[2].id], allIds: selected.map(p => p.id) };
         }
 
         function startApp() {
-            const first = calculateMatch(players, null);
-            matchHistory.unshift({ round: 1, ...first, scoreA: '', scoreB: '', completed: false });
+            const m = calculateMatchLogic(players, null);
+            if (!m) return;
+            matchHistory.push({ round: 1, ...m, scoreA: '', scoreB: '', completed: false });
             isStarted = true;
             document.getElementById('view-setup').classList.add('hidden');
             document.getElementById('view-game').classList.remove('hidden');
@@ -127,195 +120,158 @@
             render();
         }
 
-        function finishRound() {
-            const sA = parseInt(document.getElementById('scoreA').value);
-            const sB = parseInt(document.getElementById('scoreB').value);
-            if (isNaN(sA) || isNaN(sB)) return alert("請輸入比分");
-
-            let current = matchHistory[0];
-            current.scoreA = sA; current.scoreB = sB; current.completed = true;
-
-            // Update Player Stats
+        function updateStats(match, sA, sB, factor) {
             players = players.map(p => {
-                const isPlaying = current.allIds.includes(p.id);
-                if (!isPlaying) return { ...p, consecutive: 0 };
-                
-                const isA = current.teamAIds.includes(p.id);
-                const won = (isA && sA > sB) || (!isA && sB > sA);
-                return { 
-                    ...p, 
-                    playCount: p.playCount + 1, 
-                    consecutive: p.consecutive + 1,
-                    wins: p.wins + (won && sA !== sB ? 1 : 0),
-                    losses: p.losses + (!won && sA !== sB ? 1 : 0)
-                };
-            });
-
-            const next = calculateMatch(players, current.allIds);
-            matchHistory.unshift({ round: current.round + 1, ...next, scoreA: '', scoreB: '', completed: false });
-            render();
-        }
-
-        function handleEdit(round) {
-            const m = matchHistory.find(x => x.round === round);
-            const nA = prompt(`Edit Game ${round} Team A score:`, m.scoreA);
-            const nB = prompt(`Edit Game ${round} Team B score:`, m.scoreB);
-            if (nA === null || nB === null) return;
-            
-            // Revert old stats
-            updatePlayerStatsFromMatch(m, m.scoreA, m.scoreB, -1);
-            // Apply new stats
-            m.scoreA = parseInt(nA); m.scoreB = parseInt(nB);
-            updatePlayerStatsFromMatch(m, m.scoreA, m.scoreB, 1);
-            render();
-        }
-
-        function updatePlayerStatsFromMatch(m, sA, sB, factor) {
-            players = players.map(p => {
-                const isA = m.teamAIds.includes(p.id);
-                const isB = m.teamBIds.includes(p.id);
+                const isA = match.teamAIds.includes(p.id);
+                const isB = match.teamBIds.includes(p.id);
                 if (!isA && !isB) return p;
                 const won = (isA && sA > sB) || (isB && sB > sA);
                 if (sA === sB) return p;
-                return { ...p, wins: p.wins + (won ? factor : 0), losses: p.losses + (!won ? factor : 0) };
+                return { ...p, wins: p.wins + (won ? factor : 0), losses: p.losses + (won ? 0 : factor) };
             });
+        }
+
+        function endRound() {
+            const sA = parseInt(document.getElementById('scA').value);
+            const sB = parseInt(document.getElementById('scB').value);
+            if (isNaN(sA) || isNaN(sB)) { alert("請輸入比分"); return; }
+            let curr = matchHistory[0];
+            curr.scoreA = sA; curr.scoreB = sB; curr.completed = true;
+            
+            updateStats(curr, sA, sB, 1);
+            players = players.map(p => {
+                if (!curr.allIds.includes(p.id)) return { ...p, consecutive: 0 };
+                return { ...p, playCount: p.playCount + 1, consecutive: p.consecutive + 1 };
+            });
+
+            matchHistory.unshift({ round: curr.round + 1, completed: false, allIds: [], teamAIds: [], teamBIds: [] });
+            syncMatch(); render();
+        }
+
+        function handleEdit(round) {
+            const idx = matchHistory.findIndex(m => m.round === round);
+            const m = matchHistory[idx];
+            const nA = prompt(`修改 Game ${round} Team A 分數:`, m.scoreA);
+            const nB = prompt(`修改 Game ${round} Team B 分數:`, m.scoreB);
+            if (nA === null || nB === null) return;
+            const newSA = parseInt(nA), newSB = parseInt(nB);
+            
+            updateStats(m, m.scoreA, m.scoreB, -1);
+            updateStats(m, newSA, newSB, 1);
+            matchHistory[idx] = { ...m, scoreA: newSA, scoreB: newSB };
+            render();
         }
 
         function handleSubs(oldId) {
             const name = prompt("輸入新球員姓名:");
             if (!name || !name.trim()) return;
+            if (players.some(p => p.name.toLowerCase() === name.trim().toLowerCase())) { alert("此姓名已存在"); return; }
             players = players.map(p => p.id === oldId ? { ...p, isActive: false, consecutive: 0 } : p);
             players.push({ id: Date.now(), name: name.trim(), playCount: 0, wins: 0, losses: 0, consecutive: 0, isActive: true });
-            render();
+            syncMatch(); render();
         }
 
         function switchTab(t) {
-            currentTab = t;
-            document.getElementById('nav-players').className = `tab-btn ${t==='players'?'tab-active':''}`;
-            document.getElementById('nav-schedule').className = `tab-btn ${t==='schedule'?'tab-active':''}`;
+            activeTab = t;
             document.getElementById('tab-players').className = t === 'players' ? '' : 'hidden';
             document.getElementById('tab-schedule').className = t === 'schedule' ? '' : 'hidden';
+            document.getElementById('nav-players').className = `tab-btn ${t==='players'?'tab-active':''}`;
+            document.getElementById('nav-schedule').className = `tab-btn ${t==='schedule'?'tab-active':''}`;
             render();
         }
 
-        // --- Render Engine ---
         function render() {
+            const getP = (id) => players.find(p => p.id === id) || { name: '已離場' };
             document.getElementById('start-btn').disabled = players.length < 4;
 
-            // Setup Screen List
-            document.getElementById('setup-player-list').innerHTML = players.map(p => `
-                <div style="display:flex; justify-content:space-between; padding:0.75rem; background:#f8fafc; margin-bottom:0.5rem; border-radius:0.75rem; align-items:center;">
-                    <span style="font-weight:700; color:#1e293b;">${p.name}</span>
-                    <button onclick="players=players.filter(x=>x.id!==${p.id});render();" style="color:#f87171; border:none; background:none; font-weight:900; font-size:0.6rem; cursor:pointer;">REMOVE</button>
+            // Setup List
+            document.getElementById('setup-list').innerHTML = players.map(p => `
+                <div style="display:flex; justify-content:space-between; padding:0.75rem; background:#f8fafc; margin-bottom:4px; border-radius:0.75rem; align-items:center;">
+                    <span style="font-weight:700;">${p.name}</span>
+                    <button onclick="players=players.filter(x=>x.id!==${p.id});render();" style="color:#f87171; border:none; background:none; font-size:10px; font-weight:900;">REMOVE</button>
                 </div>
             `).join('');
 
-            // Current Match Header
+            // Header (Current Match)
             const curr = matchHistory.find(m => !m.completed);
-            const slot = document.getElementById('current-match-slot');
-            if (isStarted && curr) {
-                const pName = (ids) => ids.map(id => (players.find(p => p.id === id) || {name:'??'}).name).join('<br>');
+            const slot = document.getElementById('current-match-ui');
+            if (isStarted && curr && (curr.allIds || []).length === 4) {
                 slot.innerHTML = `
-                <div class="card" style="margin-top:1.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid #f1f5f9; padding-bottom:0.75rem;">
-                        <span style="font-size:10px; font-weight:900; background:#0f172a; color:white; padding:4px 12px; border-radius:1rem; text-transform:uppercase;">G${curr.round} · In Progress</span>
-                        <div style="display:flex; gap:0.5rem; align-items:center;">
-                            <input type="number" id="scoreA" class="score-input" value="${curr.scoreA}">
-                            <span style="font-weight:900; color:#cbd5e1;">:</span>
-                            <input type="number" id="scoreB" class="score-input" value="${curr.scoreB}">
-                            <button onclick="finishRound()" style="background:#f97316; color:white; border:none; padding:0.5rem 1rem; border-radius:0.75rem; font-weight:900; font-size:0.7rem; margin-left:0.5rem; cursor:pointer;">END</button>
+                <div class="card" style="box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid #f1f5f9; padding-bottom:0.5rem;">
+                        <span style="font-size:10px; font-weight:900; background:#0f172a; color:white; padding:4px 10px; border-radius:10px;">G${curr.round} · LIVE</span>
+                        <div style="display:flex; gap:5px;">
+                            <input type="number" id="scA" class="score-input">
+                            <input type="number" id="scB" class="score-input">
+                            <button onclick="endRound()" style="background:#f97316; color:white; border:none; padding:0 15px; border-radius:10px; font-weight:900; cursor:pointer;">END</button>
                         </div>
                     </div>
-                    <div style="display:flex; justify-content:space-around; align-items:center; text-align:center;">
-                        <div style="width:40%; font-weight:900; font-size:1.1rem; line-height:1.2;">${pName(curr.teamAIds)}</div>
-                        <div style="color:#e2e8f0; font-weight:900; font-style:italic; font-size:1.2rem;">VS</div>
-                        <div style="width:40%; font-weight:900; font-size:1.1rem; line-height:1.2;">${pName(curr.teamBIds)}</div>
+                    <div style="display:flex; justify-content:space-around; text-align:center; font-weight:900;">
+                        <div style="width:40%">${getP(curr.teamAIds[0]).name}<br>${getP(curr.teamAIds[1]).name}</div>
+                        <div style="color:#e2e8f0; font-style:italic;">VS</div>
+                        <div style="width:40%">${getP(curr.teamBIds[0]).name}<br>${getP(curr.teamBIds[1]).name}</div>
                     </div>
                 </div>`;
+            } else if (isStarted) {
+                slot.innerHTML = `<div class="card" style="text-align:center; color:#94a3b8; font-weight:700;">需要 4 位活躍球員</div>`;
             }
 
             // Players Tab
-            document.getElementById('stats-list').innerHTML = players.map(p => `
-                <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem 1.5rem; border-bottom:1px solid #f8fafc; ${p.isActive?'':'opacity:0.3; filter:grayscale(1);'}">
-                    <div style="display:flex; align-items:center; gap:1rem;">
+            document.getElementById('player-stats-list').innerHTML = players.map(p => `
+                <div style="display:flex; justify-content:space-between; padding:1rem; border-bottom:1px solid #f1f5f9; ${p.isActive?'':'opacity:0.3'}">
+                    <div style="display:flex; gap:1rem; align-items:center;">
                         <div class="stat-badge"><div style="font-size:8px; color:#94a3b8;">G</div>${p.playCount}</div>
-                        <div>
-                            <div style="font-weight:900; font-size:0.9rem;">${p.name}</div>
-                            <div style="display:flex; gap:0.5rem; margin-top:2px;">
-                                <span class="win-tag">W: ${p.wins}</span>
-                                <span class="loss-tag">L: ${p.losses}</span>
-                            </div>
-                        </div>
+                        <div><div style="font-weight:900;">${p.name}</div><div style="font-size:10px; color:#059669; font-weight:900;">W:${p.wins} L:${p.losses}</div></div>
                     </div>
-                    ${p.isActive ? `
-                        <div style="display:flex; gap:1rem;">
-                            <button onclick="handleSubs(${p.id})" style="border:none; background:none; font-weight:900; color:#3b82f6; font-size:10px; cursor:pointer;">SUBS</button>
-                            <button onclick="players=players.map(x=>x.id===${p.id}?{...x, isActive:false}:x);render();" style="border:none; background:none; font-weight:900; color:#94a3b8; font-size:10px; cursor:pointer;">DROP</button>
-                        </div>
-                    ` : ''}
+                    ${p.isActive ? `<div>
+                        <button onclick="handleSubs(${p.id})" style="border:none; background:none; color:#3b82f6; font-weight:900; font-size:10px; margin-right:10px; cursor:pointer;">SUBS</button>
+                        <button onclick="players=players.map(x=>x.id===${p.id}?{...x,isActive:false}:x);syncMatch();render();" style="border:none; background:none; color:#94a3b8; font-weight:900; font-size:10px; cursor:pointer;">DROP</button>
+                    </div>` : `
+                        <button onclick="players=players.map(x=>x.id===${p.id}?{...x,isActive:true}:x);syncMatch();render();" style="border:none; background:none; color:#059669; font-weight:900; font-size:10px; cursor:pointer;">ACTIVATE</button>
+                    `}
                 </div>
             `).join('');
 
-            // Schedule Tab (Completed + Previews)
-            const scheduleBox = document.getElementById('schedule-container');
-            let html = '';
+            // Schedule Tab (DONE + LIVE + PREVIEW)
+            let schedHTML = '';
+            let history = [...matchHistory].filter(m => m.completed).reverse();
+            let tPlayers = players.map(p => ({...p}));
             
-            // 1. Completed History
-            const history = matchHistory.filter(m => m.completed).reverse();
             history.forEach(m => {
-                const pName = (ids) => ids.map(id => (players.find(p => p.id === id) || {name:'??'}).name).join('<br>');
-                html += `
-                <div class="card">
-                    <div style="display:flex; justify-content:space-between; font-size:10px; font-weight:900; color:#94a3b8; margin-bottom:1rem; letter-spacing:0.1em;">
-                        <span>GAME ${m.round}</span>
-                        <div><span style="font-style:italic; background:#f8fafc; padding:2px 8px; border-radius:10px; margin-right:8px;">completed</span><button onclick="handleEdit(${m.round})" style="color:#f97316; border:none; background:none; font-weight:900; text-decoration:underline;">EDIT</button></div>
+                schedHTML += `<div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <span style="font-size:10px; color:#94a3b8; font-weight:900;">GAME ${m.round}</span>
+                        <div><span style="font-size:10px; color:#94a3b8; font-style:italic; margin-right:8px;">DONE</span><button onclick="handleEdit(${m.round})" style="color:#f97316; font-size:10px; font-weight:900; border:none; background:none; text-decoration:underline; cursor:pointer;">EDIT</button></div>
                     </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; text-align:center;">
-                        <div style="width:40%;">
-                            <div style="font-size:0.8rem; font-weight:900; ${m.scoreA > m.scoreB ? 'text-decoration:underline; text-decoration-color:#f97316; text-decoration-thickness:4px;' : 'color:#94a3b8;'}">${pName(m.teamAIds)}</div>
-                            <div style="font-size:1.5rem; font-weight:900; margin-top:8px;">${m.scoreA}</div>
-                        </div>
-                        <div style="color:#e2e8f0; font-weight:900; font-style:italic;">VS</div>
-                        <div style="width:40%;">
-                            <div style="font-size:0.8rem; font-weight:900; ${m.scoreB > m.scoreA ? 'text-decoration:underline; text-decoration-color:#f97316; text-decoration-thickness:4px;' : 'color:#94a3b8;'}">${pName(m.teamBIds)}</div>
-                            <div style="font-size:1.5rem; font-weight:900; margin-top:8px;">${m.scoreB}</div>
-                        </div>
+                    <div style="display:flex; justify-content:space-between; text-align:center; font-weight:900;">
+                        <div style="width:40%;">${getP(m.teamAIds[0]).name}<br>${getP(m.teamAIds[1]).name}<div style="color:#f97316; font-size:1.5rem;">${m.scoreA}</div></div>
+                        <div style="color:#e2e8f0;">VS</div>
+                        <div style="width:40%;">${getP(m.teamBIds[0]).name}<br>${getP(m.teamBIds[1]).name}<div style="color:#f97316; font-size:1.5rem;">${m.scoreB}</div></div>
                     </div>
                 </div>`;
             });
 
-            // 2. Future Previews
-            let tPlayers = players.map(p => ({...p}));
-            let lastIdSet = curr ? curr.allIds : (history.length > 0 ? history[history.length-1].allIds : null);
-            let nextRound = curr ? curr.round + 1 : 1;
+            let lastIdSet = history[history.length-1]?.allIds || null;
+            let currentRoundNum = history.length + 1;
 
             for(let i=0; i < previewLimit; i++) {
-                const nextM = calculateMatch(tPlayers, lastIdSet);
-                if (!nextM) break;
-                const pName = (ids) => ids.map(id => tPlayers.find(p => p.id === id).name).join('<br>');
+                let m = (i === 0 && curr && curr.allIds.length === 4) ? curr : calculateMatchLogic(tPlayers, lastIdSet);
+                if (!m) break;
                 
-                html += `
-                <div class="card preview-card">
-                    <div style="font-size:10px; font-weight:900; color:#f97316; margin-bottom:1rem; letter-spacing:0.1em;">GAME ${nextRound} · PREVIEW</div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; text-align:center;">
-                        <div style="width:40%; font-weight:900; color:white; font-size:0.8rem;">${pName(nextM.teamAIds)}</div>
-                        <div style="color:#475569; font-weight:900; font-style:italic;">VS</div>
-                        <div style="width:40%; font-weight:900; color:white; font-size:0.8rem;">${pName(nextM.teamBIds)}</div>
+                schedHTML += `<div class="card ${i > 0 ? 'preview-card' : ''}">
+                    <div style="font-size:10px; color:#f97316; font-weight:900; margin-bottom:10px;">GAME ${currentRoundNum} · ${i===0?'LIVE':'PREVIEW'}</div>
+                    <div style="display:flex; justify-content:space-between; text-align:center; font-weight:900;">
+                        <div style="width:40%;">${getP(m.teamAIds[0]).name}<br>${getP(m.teamAIds[1]).name}</div>
+                        <div style="color:#475569;">VS</div>
+                        <div style="width:40%;">${getP(m.teamBIds[0]).name}<br>${getP(m.teamBIds[1]).name}</div>
                     </div>
                 </div>`;
-
-                // Logic to update temp players for the next iteration of preview
-                nextM.allIds.forEach(id => {
-                    let p = tPlayers.find(x => x.id === id);
-                    p.playCount++; p.consecutive++;
-                });
-                tPlayers.forEach(p => { if(!nextM.allIds.includes(p.id)) p.consecutive = 0; });
-                lastIdSet = nextM.allIds;
-                nextRound++;
+                m.allIds.forEach(id => { let p = tPlayers.find(x => x.id === id); if(p){ p.playCount++; p.consecutive++; } });
+                tPlayers.forEach(p => { if(!m.allIds.includes(p.id)) p.consecutive = 0; });
+                lastIdSet = m.allIds; currentRoundNum++;
             }
-            scheduleBox.innerHTML = html;
+            document.getElementById('schedule-list').innerHTML = schedHTML;
         }
-
         render();
     </script>
 </body>
