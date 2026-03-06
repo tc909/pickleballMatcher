@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pickleball Matcher v9.1.8 - Beta</title>
+    <title>Pickleball Matcher v9.3 - Beta</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background-color: #f8fafc; min-height: 100vh; color: #0f172a; -webkit-tap-highlight-color: transparent; }
         .max-w-md { max-width: 28rem; margin: 0 auto; display: flex; flex-direction: column; min-height: 100vh; }
         
+        /* 頂部固定區塊 */
         .sticky-header { position: sticky; top: 0; z-index: 50; width: 100%; background: #0f172a; }
         header { padding: 1.5rem 1.5rem 1rem; border-bottom: 4px solid #f97316; }
         
@@ -17,11 +18,14 @@
         .tab-btn { flex: 1; padding: 1rem; font-size: 0.75rem; font-weight: 900; border: none; background: none; color: #94a3b8; letter-spacing: 0.1em; cursor: pointer; }
         .tab-active { border-bottom: 4px solid #f97316; color: #f97316; }
 
+        /* ✅ Sticky 的 Regenerate 面板 */
+        #sticky-match-settings { background: #f8fafc; padding: 0.75rem 1.5rem; border-bottom: 1px solid #cbd5e1; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
         main { padding: 1rem 1.5rem; flex: 1; }
         .card { background: white; border-radius: 1.5rem; padding: 1.5rem; margin-top: 0.5rem; border: 1px solid #e2e8f0; position: relative; overflow: hidden; }
         
-        /* 賽程與 LIVE 樣式 */
-        .card-live { border-left: 8px solid #f97316; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        /* 賽程樣式 */
+        .card-live { border: 2px solid #f97316; box-shadow: 0 10px 25px rgba(249,115,22,0.15); padding: 1.25rem; }
         .card-done { background: #0f172a; border-color: #1e293b; color: white; }
         .card-preview { background: #1e293b; color: #94a3b8; border-color: #334155; opacity: 0.6; }
 
@@ -29,14 +33,6 @@
         .label-done { font-size: 10px; font-weight: 900; color: #f97316; background: rgba(249, 115, 22, 0.2); padding: 2px 8px; border-radius: 10px; }
         .score-done { color: #f97316; font-size: 1.8rem; font-weight: 900; }
         
-        /* Q&A 與選項 */
-        .qa-box { padding-bottom: 2rem; }
-        .qa-title-group { margin-bottom: 1rem; border-left: 4px solid #f97316; padding-left: 10px; margin-top: 1.5rem; }
-        .qa-cn { font-weight: 900; font-size: 1rem; color: #0f172a; }
-        .qa-en { font-weight: 700; font-size: 0.7rem; color: #f97316; text-transform: uppercase; }
-        .qa-desc { font-size: 0.85rem; line-height: 1.6; color: #334155; margin-bottom: 10px; }
-        .qa-desc-en { font-size: 0.75rem; line-height: 1.5; color: #64748b; font-style: italic; background: #f8fafc; padding: 10px; border-radius: 10px; }
-
         .option-group { margin-top: 1rem; padding: 1rem; background: #f1f5f9; border-radius: 1.5rem; }
         .option-title { font-size: 0.65rem; font-weight: 900; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase; }
         .radio-box { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
@@ -44,9 +40,9 @@
         input[type="radio"]:checked + .radio-label { border-color: #f97316; color: #f97316; }
         input[type="radio"] { display: none; }
         
-        .score-input { width: 3rem; height: 3rem; text-align: center; background: #f1f5f9; border-radius: 0.75rem; border: 2px solid transparent; font-weight: 900; font-size: 1.5rem; }
+        .score-input { width: 4.5rem; height: 4.5rem; text-align: center; background: #f1f5f9; border-radius: 1rem; border: 2px solid transparent; font-weight: 900; font-size: 1.5rem; }
         .score-input:focus { border-color: #f97316; outline: none; }
-        .btn-orange { background: #f97316; color: white; border: none; padding: 1.25rem; border-radius: 1.5rem; font-weight: 900; width: 100%; cursor: pointer; text-transform: uppercase; }
+        .btn-orange { background: #f97316; color: white; border: none; padding: 1rem; border-radius: 1rem; font-weight: 900; width: 100%; cursor: pointer; text-transform: uppercase; font-size: 0.95rem; letter-spacing: 0.1em; }
         .btn-reset { background: transparent; color: #f87171; border: 2px solid #fecaca; padding: 0.8rem; border-radius: 1.25rem; font-weight: 900; font-size: 0.7rem; width: 100%; cursor: pointer; margin-top: 1rem; text-transform: uppercase; }
         .hidden { display: none !important; }
         .stat-badge { background: #f1f5f9; padding: 0.4rem; border-radius: 0.75rem; text-align: center; min-width: 2.5rem; border-bottom: 4px solid #cbd5e1; font-weight: 900; }
@@ -67,6 +63,23 @@
                 <button onclick="switchTab('players')" id="nav-players" class="tab-btn tab-active">PLAYERS</button>
                 <button onclick="switchTab('schedule')" id="nav-schedule" class="tab-btn">SCHEDULE</button>
             </div>
+
+            <div id="sticky-match-settings" class="hidden">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                    <span style="font-size: 0.65rem; font-weight: 900; color: #64748b;">DYNAMIC SETTINGS (影響目前與未來賽程)</span>
+                </div>
+                <div style="display:flex; gap:0.5rem; margin-bottom: 0.5rem;">
+                    <select id="game_matchMode" style="flex:1; padding:0.5rem; border-radius:0.5rem; border:1px solid #cbd5e1; font-weight:700; outline:none; background:white; font-size:0.75rem;">
+                        <option value="social">Social Double</option>
+                        <option value="rr">Round Robin</option>
+                    </select>
+                    <select id="game_maxRounds" style="flex:1; padding:0.5rem; border-radius:0.5rem; border:1px solid #cbd5e1; font-weight:700; outline:none; background:white; font-size:0.75rem;">
+                        <option value="2">Max 2 Rounds</option>
+                        <option value="3">Max 3 Rounds</option>
+                    </select>
+                </div>
+                <button onclick="regenerateSchedule()" style="background:#0f172a; color:white; border:none; padding:0.6rem; border-radius:0.5rem; font-weight:900; width: 100%; font-size: 0.7rem; cursor:pointer; letter-spacing: 0.05em;">REGENERATE SCHEDULE</button>
+            </div>
         </div>
 
         <main>
@@ -86,7 +99,7 @@
                                 <label class="radio-label" for="mode-rr">Round Robin</label>
                             </div>
                             <div class="option-title">Consecutive Limit 連場限制</div>
-                            <div id="hint-6" style="color:#f97316; font-size:0.7rem; font-weight:900; text-align:center; margin-bottom:5px;" class="hidden">💡 6人局建議選擇 Max 3</div>
+                            <div id="hint-6" style="color:#f97316; font-size:0.7rem; font-weight:900; text-align:center; margin-bottom:5px;" class="hidden">💡 6人局強烈建議選擇 Max 3</div>
                             <div class="radio-box">
                                 <input type="radio" id="max-2" name="maxRounds" value="2" checked onchange="saveOptions()">
                                 <label class="radio-label" for="max-2">Max 2</label>
@@ -100,27 +113,19 @@
                 </div>
 
                 <div id="setup-qa-content" class="hidden">
-                    <div class="card qa-box">
-                        <div class="qa-title-group">
-                            <div class="qa-cn">Social Double (社交優先模式)</div>
-                            <div class="qa-en">Social Priority Mode</div>
+                    <div class="card" style="padding-bottom: 2rem;">
+                        <div style="margin-bottom: 1rem; border-left: 4px solid #f97316; padding-left: 10px; margin-top: 1.5rem;">
+                            <div style="font-weight: 900; font-size: 1rem; color: #0f172a;">Social Double</div>
+                            <div style="font-size: 0.85rem; color: #334155; margin-bottom: 5px;">系統會追蹤搭檔紀錄，優先讓從未搭檔過的人組成一隊，新鮮感最高。</div>
                         </div>
-                        <div class="qa-desc">這是最受歡迎的休閒模式。系統會追蹤「搭檔矩陣 (Partner Matrix)」，優先讓從未搭檔過、或很久沒搭檔的人組成一隊。目標是確保在一場球聚中，每個人都能與所有成員輪流合作。</div>
-                        <div class="qa-desc-en">The primary goal is variety. The algorithm checks historical data to pair players who haven't played together recently, ensuring a highly social and dynamic experience for everyone.</div>
-
-                        <div class="qa-title-group">
-                            <div class="qa-cn">Round Robin (標準循環賽)</div>
-                            <div class="qa-en">Tournament Round Robin</div>
+                        <div style="margin-bottom: 1rem; border-left: 4px solid #f97316; padding-left: 10px; margin-top: 1.5rem;">
+                            <div style="font-weight: 900; font-size: 1rem; color: #0f172a;">Round Robin</div>
+                            <div style="font-size: 0.85rem; color: #334155; margin-bottom: 5px;">系統根據完美循環公式生成對戰表，確保對手與搭檔的「數學公平性」。</div>
                         </div>
-                        <div class="qa-desc">這是正式比賽使用的模式。系統會根據標準循環賽公式（如旋轉法）生成對戰表。重點在於對手與搭檔的「數學公平性」，確保每個人的總場次完全一致，適合需要計算積分的競賽。</div>
-                        <div class="qa-desc-en">Focuses on mathematical fairness. Matches are generated using standard tournament rotation schemes (Carousel Method). Ideal for competitive play where game counts and point tracking are critical.</div>
-
-                        <div class="qa-title-group">
-                            <div class="qa-cn">Max Consecutive (連場限制)</div>
-                            <div class="qa-en">Stamina & Rotation Management</div>
+                        <div style="margin-bottom: 1rem; border-left: 4px solid #f97316; padding-left: 10px; margin-top: 1.5rem;">
+                            <div style="font-weight: 900; font-size: 1rem; color: #0f172a;">Max Consecutive</div>
+                            <div style="font-size: 0.85rem; color: #334155; margin-bottom: 5px;">強制保護體力的設定。在 5-6 人局中，為了維持配對流暢度，建議放寬至 Max 3。</div>
                         </div>
-                        <div class="qa-desc">此功能用來強制保護體力。當設定為 Max 2 時，球員打完兩場後必須休息一場。在 5-6 人局中，為了維持配對流暢度，建議放寬至 Max 3。</div>
-                        <div class="qa-desc-en">A safety valve for player stamina. Max 2 forces a break after two consecutive games. For small groups (5-6 players), Max 3 is recommended to prevent logic deadlocks.</div>
                     </div>
                 </div>
                 <button onclick="resetData()" class="btn-reset">Reset All Data / 清除資料</button>
@@ -131,12 +136,12 @@
                     <div id="player-stats-list" class="card" style="padding: 0; overflow: hidden;"></div>
                     <div style="display:flex; gap:0.5rem; margin-top:1rem;">
                         <input type="text" id="add-more" placeholder="ADD NEW PLAYER" style="flex:1; padding:1rem; border:none; border-bottom:2px solid #e2e8f0; font-weight:700; outline:none; text-transform:uppercase;">
-                        <button onclick="addPlayer('add-more')" style="background:#0f172a; color:white; border:none; padding:0 1.2rem; border-radius:1rem; font-weight:900;">ADD</button>
+                        <button onclick="addPlayer('add-more')" style="background:#0f172a; color:white; border:none; padding:0 1.2rem; border-radius:1rem; font-weight:900; cursor:pointer;">ADD</button>
                     </div>
                     <button onclick="resetData()" class="btn-reset">Reset All Data / 清除資料</button>
                 </div>
+                
                 <div id="tab-schedule-content" class="hidden">
-                    <div id="mode-indicator" style="font-size:0.6rem;font-weight:900;color:#94a3b8;text-align:center;margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.1em;"></div>
                     <div id="schedule-list"></div>
                     <button onclick="previewLimit+=4; render();" style="width:100%;padding:1rem;background:white;border-radius:1.5rem;color:#94a3b8;font-weight:900;margin:1rem 0 3rem;cursor:pointer;">SHOW MORE (+4)</button>
                 </div>
@@ -145,6 +150,7 @@
     </div>
 
     <script>
+        // --- DATA & STORAGE ---
         let players = JSON.parse(localStorage.getItem('pb_players')) || [];
         let matchHistory = JSON.parse(localStorage.getItem('pb_history')) || [];
         let isStarted = localStorage.getItem('pb_isStarted') === 'true';
@@ -154,24 +160,38 @@
         let maxRounds = parseInt(localStorage.getItem('pb_maxRounds')) || 2;
         let activeTab = 'players', setupTab = 'add', previewLimit = 8;
 
+        // ✅ 完美輪替的 Round Robin 公式 (保證絕不連續遇到同搭檔)
         const RR_SCHEMES = { 
-            5: [[0,1,2,3],[1,2,3,4],[2,3,4,0],[3,4,0,1],[4,0,1,2]], 
-            6: [[0,1,2,3],[4,5,0,1],[2,3,4,5],[0,2,1,4],[3,5,0,2],[1,4,3,5]] 
+            4: [[0,1,2,3], [0,2,1,3], [0,3,1,2]],
+            5: [[0,1,2,3], [0,4,1,2], [3,4,0,2], [1,3,2,4], [0,3,1,4]], 
+            6: [[0,1,2,3], [0,4,1,5], [2,4,3,5], [0,2,1,4], [1,3,2,5], [0,5,3,4]] 
         };
 
-        function calculateMatch(pool, roundIdx) {
+        // ✅ 計算比賽核心演算法 (加入了 currentMatrix 參數以供預覽時精準預測)
+        function calculateMatch(pool, roundIdx, currentMatrix = partnerMatrix) {
             const active = pool.filter(p => p.isActive); if (active.length < 4) return null;
+            
+            // RR 模式
             if (matchMode === 'rr' && RR_SCHEMES[active.length]) {
-                const scheme = RR_SCHEMES[active.length], pair = scheme[roundIdx % scheme.length];
+                const scheme = RR_SCHEMES[active.length];
+                const pair = scheme[roundIdx % scheme.length];
                 return { teamAIds: [active[pair[0]].id, active[pair[1]].id], teamBIds: [active[pair[2]].id, active[pair[3]].id], allIds: pair.map(i => active[i].id) };
             }
+            
+            // Social 模式
             let sorted = [...active].sort((a,b) => (a.playCount - b.playCount) || (a.consecutive - b.consecutive) || (Math.random()-0.5));
             const canPlay = sorted.filter(p => p.consecutive < maxRounds);
             let selected = (canPlay.length >= 4) ? canPlay.slice(0,4) : sorted.slice(0,4);
+            
             let best = { a: [selected[0].id, selected[1].id], b: [selected[2].id, selected[3].id], minW: 9999 };
-            [[0,1,2,3], [0,2,1,3], [0,3,1,2]].forEach(c => {
+            let combs = [[0,1,2,3], [0,2,1,3], [0,3,1,2]];
+            
+            // 加入隨機洗牌，避免權重相同時永遠選第一組
+            combs.sort(() => Math.random() - 0.5); 
+            
+            combs.forEach(c => {
                 let p1 = selected[c[0]].id, p2 = selected[c[1]].id, p3 = selected[c[2]].id, p4 = selected[c[3]].id;
-                let w = (partnerMatrix[p1]?.[p2] || 0) + (partnerMatrix[p3]?.[p4] || 0);
+                let w = (currentMatrix[p1]?.[p2] || 0) + (currentMatrix[p3]?.[p4] || 0);
                 if(w < best.minW) best = { a: [p1,p2], b: [p3,p4], minW: w };
             });
             return { teamAIds: best.a, teamBIds: best.b, allIds: [...best.a, ...best.b] };
@@ -189,30 +209,70 @@
             saveData(); render();
         }
 
+        // ✅ 動態重算機制 (只影響 Live & Preview，不影響已結束的 Done)
+        function regenerateSchedule() {
+            matchMode = document.getElementById('game_matchMode').value;
+            maxRounds = parseInt(document.getElementById('game_maxRounds').value);
+            saveOptions();
+            
+            if (isStarted && matchHistory.length > 0 && !matchHistory[0].completed) {
+                let curr = matchHistory[0];
+                let simRoundIdx = matchHistory.length - 1; 
+                let newMatch = calculateMatch(players, simRoundIdx, partnerMatrix);
+                if (newMatch) { matchHistory[0] = { ...curr, ...newMatch }; }
+            }
+            saveData(); render();
+        }
+
         function resetData() { if(confirm("確定要重設所有資料嗎？(此動作無法復原)")) { localStorage.clear(); location.reload(); } }
 
         function addPlayer(id) {
             const input = document.getElementById(id); let name = input.value.trim(); if(!name) return;
+            if(players.some(p => p.name.toLowerCase() === name.toLowerCase())) { alert("此姓名已存在！"); return; }
             name = name.charAt(0).toUpperCase() + name.slice(1);
             players.push({ id: Date.now(), playerNum: nextPlayerNum++, name, playCount: 0, wins: 0, losses: 0, consecutive: 0, isActive: true });
+            if (!isStarted) { players.forEach((p, i) => { p.playerNum = i + 1; }); nextPlayerNum = players.length + 1; } 
+            else { syncMatch(); }
             input.value = ''; saveData(); render();
+        }
+
+        function removePlayerSetup(id) {
+            players = players.filter(p => p.id !== id);
+            if (!isStarted) { players.forEach((p, i) => { p.playerNum = i + 1; }); nextPlayerNum = players.length + 1; }
+            saveData(); render();
         }
 
         function handleSubs(oldId) {
             const name = prompt("New Player Name:"); if (!name) return;
+            const newName = name.trim();
+            if(players.some(p => p.name.toLowerCase() === newName.toLowerCase() && p.isActive)) { alert("此姓名已在場上！"); return; }
             players = players.map(p => p.id === oldId ? { ...p, isActive: false, consecutive: 0 } : p);
-            players.push({ id: Date.now(), playerNum: nextPlayerNum++, name: name.trim().charAt(0).toUpperCase() + name.trim().slice(1), playCount: 0, wins: 0, losses: 0, consecutive: 0, isActive: true });
+            players.push({ id: Date.now(), playerNum: nextPlayerNum++, name: newName.charAt(0).toUpperCase() + newName.slice(1), playCount: 0, wins: 0, losses: 0, consecutive: 0, isActive: true });
             if (isStarted && !matchHistory[0].completed) { 
-                const newM = calculateMatch(players, matchHistory.length - 1);
+                const newM = calculateMatch(players, matchHistory.length - 1, partnerMatrix);
                 if(newM) matchHistory[0] = { ...matchHistory[0], ...newM }; 
             }
             saveData(); render();
         }
 
+        function syncMatch() {
+            if (!isStarted || matchHistory.length === 0) return;
+            let current = matchHistory[0];
+            if (!current.completed) {
+                const active = players.filter(p => p.isActive);
+                const valid = (current.allIds || []).length === 4 && current.allIds.every(id => active.some(p => p.id === id));
+                if (!valid) {
+                    const newM = calculateMatch(players, matchHistory.length - 1, partnerMatrix);
+                    if (newM) matchHistory[0] = { ...current, ...newM };
+                }
+            }
+        }
+
         function endRound() {
             const sA = Math.max(0, parseInt(document.getElementById('scA').value)), sB = Math.max(0, parseInt(document.getElementById('scB').value));
-            if(isNaN(sA) || isNaN(sB)) return;
+            if(isNaN(sA) || isNaN(sB)) { alert("請輸入有效比分"); return; }
             let curr = matchHistory[0]; curr.scoreA = sA; curr.scoreB = sB; curr.completed = true;
+            
             [[curr.teamAIds[0], curr.teamAIds[1]], [curr.teamBIds[0], curr.teamBIds[1]]].forEach(p => {
                 if(!partnerMatrix[p[0]]) partnerMatrix[p[0]] = {}; partnerMatrix[p[0]][p[1]] = (partnerMatrix[p[0]][p[1]] || 0) + 1;
                 if(!partnerMatrix[p[1]]) partnerMatrix[p[1]] = {}; partnerMatrix[p[1]][p[0]] = (partnerMatrix[p[1]][p[0]] || 0) + 1;
@@ -223,7 +283,7 @@
                 return { ...p, playCount: p.playCount + 1, consecutive: p.consecutive + 1, wins: p.wins + (won?1:0), losses: p.losses + (won?0:1) };
             });
             matchHistory.unshift({ round: curr.round + 1, completed: false, allIds: [], teamAIds: [], teamBIds: [] });
-            const nextM = calculateMatch(players, matchHistory.length - 1); if(nextM) matchHistory[0] = { ...matchHistory[0], ...nextM };
+            const nextM = calculateMatch(players, matchHistory.length - 1, partnerMatrix); if(nextM) matchHistory[0] = { ...matchHistory[0], ...nextM };
             saveData(); render();
         }
 
@@ -234,7 +294,7 @@
         }
 
         function startApp() { 
-            const m = calculateMatch(players, 0); 
+            const m = calculateMatch(players, 0, partnerMatrix); 
             matchHistory.push({ round: 1, ...m, scoreA: '', scoreB: '', completed: false }); 
             isStarted = true; saveData(); render(); 
         }
@@ -248,7 +308,15 @@
             if(isStarted) {
                 document.getElementById('view-setup').classList.add('hidden'); document.getElementById('setup-tabs').classList.add('hidden');
                 document.getElementById('navigation').classList.remove('hidden'); document.getElementById('view-game').classList.remove('hidden');
-                document.getElementById('mode-indicator').innerText = `${matchMode.toUpperCase()} | MAX ${maxRounds}`;
+                
+                // 控制 Sticky 面板顯示
+                if(activeTab === 'schedule') {
+                    document.getElementById('sticky-match-settings').classList.remove('hidden');
+                    document.getElementById('game_matchMode').value = matchMode;
+                    document.getElementById('game_maxRounds').value = maxRounds;
+                } else {
+                    document.getElementById('sticky-match-settings').classList.add('hidden');
+                }
             } else {
                 document.getElementById('setup-tab-add').className = `tab-btn ${setupTab==='add'?'tab-active':''}`;
                 document.getElementById('setup-tab-qa').className = `tab-btn ${setupTab==='qa'?'tab-active':''}`;
@@ -258,33 +326,30 @@
 
             document.getElementById('hint-6').className = players.filter(p=>p.isActive).length === 6 ? 'hint-text' : 'hidden';
             document.getElementById('start-btn').disabled = players.length < 4;
-            document.getElementById('setup-list').innerHTML = players.map(p => `<div style="display:flex;justify-content:space-between;padding:0.75rem;border-bottom:1px solid #f1f5f9;align-items:center;"><span style="font-weight:700;">${p.playerNum}. ${p.name}</span><button onclick="players=players.filter(x=>x.id!==${p.id});saveData();render();" style="color:#f87171;border:none;background:none;font-size:10px;font-weight:900;">REMOVE</button></div>`).join('');
+            document.getElementById('setup-list').innerHTML = players.map(p => `<div style="display:flex;justify-content:space-between;padding:0.75rem;border-bottom:1px solid #f1f5f9;align-items:center;"><span style="font-weight:700;">${p.playerNum}. ${p.name}</span><button onclick="removePlayerSetup(${p.id})" style="color:#f87171;border:none;background:none;font-size:10px;font-weight:900;cursor:pointer;">REMOVE</button></div>`).join('');
 
-            // ==========================================
-            // ✅ 優化區域: Live Game UI (Header 區塊)
-            // ==========================================
+            // ==============================================
+            // ✅ LIVE GAME UI: 置中標籤 -> 名字 -> 分數與VS -> SUBMIT 按鈕
+            // ==============================================
             const curr = matchHistory.find(m => !m.completed);
             const slot = document.getElementById('current-match-ui');
             if (isStarted && curr && curr.allIds.length === 4) {
                 slot.innerHTML = `
-                <div class="card" style="box-shadow: 0 10px 25px rgba(249,115,22,0.15); border: 2px solid #f97316; padding: 1.25rem;">
-                    
-                    <div style="display:flex; justify-content:space-between; text-align:center; font-weight:900; margin-bottom: 1rem;">
-                        <div style="width:45%; font-size: 0.95rem; line-height: 1.4;">${getP(curr.teamAIds[0]).name}<br>${getP(curr.teamAIds[1]).name}</div>
-                        <div style="width:45%; font-size: 0.95rem; line-height: 1.4;">${getP(curr.teamBIds[0]).name}<br>${getP(curr.teamBIds[1]).name}</div>
-                    </div>
-
-                    <div style="text-align: center; margin-bottom: 0.75rem;">
+                <div class="card card-live">
+                    <div style="text-align: center; margin-bottom: 1.25rem;">
                         <span style="font-size: 1.1rem; font-weight: 900; background: #f97316; color: white; padding: 6px 16px; border-radius: 8px; letter-spacing: 0.05em; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">GAME ${curr.round} · LIVE</span>
                     </div>
-
-                    <div style="display:flex; justify-content:center; align-items:center; gap: 1rem; margin-bottom: 1rem;">
-                        <input type="number" id="scA" class="score-input" min="0" placeholder="0" style="font-size: 1.5rem; width: 4rem; height: 4rem;">
-                        <div class="vs-orange" style="font-size: 1.2rem;">VS</div>
-                        <input type="number" id="scB" class="score-input" min="0" placeholder="0" style="font-size: 1.5rem; width: 4rem; height: 4rem;">
+                    <div style="display:flex; justify-content:space-between; text-align:center; font-weight:900; margin-bottom: 0.75rem;">
+                        <div style="width:45%; font-size: 1.05rem; line-height: 1.4;">${getP(curr.teamAIds[0]).name}<br>${getP(curr.teamAIds[1]).name}</div>
+                        <div style="width:10%;"></div>
+                        <div style="width:45%; font-size: 1.05rem; line-height: 1.4;">${getP(curr.teamBIds[0]).name}<br>${getP(curr.teamBIds[1]).name}</div>
                     </div>
-
-                    <button onclick="endRound()" style="background:#0f172a; color:white; border:none; padding:1rem; border-radius:1rem; font-weight:900; cursor:pointer; width: 100%; font-size: 0.9rem; letter-spacing: 0.1em;">SUBMIT SCORE</button>
+                    <div style="display:flex; justify-content:center; align-items:center; gap: 1rem; margin-bottom: 1.25rem;">
+                        <input type="number" id="scA" class="score-input" min="0" placeholder="0">
+                        <div class="vs-orange">VS</div>
+                        <input type="number" id="scB" class="score-input" min="0" placeholder="0">
+                    </div>
+                    <button onclick="endRound()" class="btn-orange">SUBMIT SCORE</button>
                 </div>`;
             } else { slot.innerHTML = ''; }
 
@@ -299,24 +364,44 @@
             document.getElementById('tab-schedule-content').className = activeTab === 'schedule' ? '' : 'hidden';
 
             let schedHTML = '';
-            matchHistory.filter(m => m.completed).forEach(m => {
+            
+            // ✅ 已結束的比賽：第一場在最上方 (由小到大)
+            let historyDones = [...matchHistory].filter(m => m.completed).sort((a,b) => a.round - b.round);
+            historyDones.forEach(m => {
                 schedHTML += `<div class="card card-done"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-size:10px;color:white;font-weight:900;opacity:0.6;">GAME ${m.round}</span><div><span class="label-done">DONE</span><button onclick="handleEdit(${m.round})" style="color:white;font-size:10px;font-weight:900;border:none;background:none;text-decoration:underline;margin-left:8px;cursor:pointer;">EDIT</button></div></div>
                     <div style="display:flex;justify-content:space-between;text-align:center;font-weight:900;"><div style="width:40%;">${getP(m.teamAIds[0]).name}<br>${getP(m.teamAIds[1]).name}<div class="score-done">${m.scoreA}</div></div><div class="vs-orange">VS</div><div style="width:40%;">${getP(m.teamBIds[0]).name}<br>${getP(m.teamBIds[1]).name}<div class="score-done">${m.scoreB}</div></div></div></div>`;
             });
+            
+            // ✅ LIVE Game in List
             if (curr && curr.allIds.length === 4) {
-                schedHTML += `<div class="card card-live"><div style="font-size:11px;color:#f97316;font-weight:900;margin-bottom:10px;text-align:center;letter-spacing:0.05em;">GAME ${curr.round} · LIVE NOW</div>
+                schedHTML += `<div class="card card-live" style="border:none; border-left:4px solid #f97316; padding:1.25rem;"><div style="font-size:11px;color:#f97316;font-weight:900;margin-bottom:10px;text-align:center;letter-spacing:0.05em;">GAME ${curr.round} · LIVE NOW</div>
                     <div style="display:flex;justify-content:space-between;text-align:center;font-weight:900;"><div style="width:40%;">${getP(curr.teamAIds[0]).name}<br>${getP(curr.teamAIds[1]).name}</div><div class="vs-orange">VS</div><div style="width:40%;">${getP(curr.teamBIds[0]).name}<br>${getP(curr.teamBIds[1]).name}</div></div></div>`;
             }
+            
+            // ✅ 未來預覽 (修復預覽迴圈傳入 tMatrix)
             let tPlayers = players.map(p => ({...p}));
-            let simRoundIdx = matchHistory.filter(m => m.completed).length + (curr ? 1 : 0);
-            if(curr) { curr.allIds.forEach(id => { let p = tPlayers.find(x => x.id === id); if(p){ p.playCount++; p.consecutive++; } }); tPlayers.forEach(p => { if(!curr.allIds.includes(p.id)) p.consecutive = 0; }); }
+            let tMatrix = JSON.parse(JSON.stringify(partnerMatrix));
+            let simRoundIdx = historyDones.length + (curr ? 1 : 0);
+            
+            if(curr) { 
+                curr.allIds.forEach(id => { let p = tPlayers.find(x => x.id === id); if(p){ p.playCount++; p.consecutive++; } }); 
+                tPlayers.forEach(p => { if(!curr.allIds.includes(p.id)) p.consecutive = 0; }); 
+                [[curr.teamAIds[0], curr.teamAIds[1]], [curr.teamBIds[0], curr.teamBIds[1]]].forEach(pair => {
+                    if(!tMatrix[pair[0]]) tMatrix[pair[0]] = {}; tMatrix[pair[0]][pair[1]] = (tMatrix[pair[0]][pair[1]] || 0) + 1;
+                    if(!tMatrix[pair[1]]) tMatrix[pair[1]] = {}; tMatrix[pair[1]][pair[0]] = (tMatrix[pair[1]][pair[0]] || 0) + 1;
+                });
+            }
 
             for(let i=0; i < previewLimit; i++) {
-                let m = calculateMatch(tPlayers, simRoundIdx); if (!m) break;
+                let m = calculateMatch(tPlayers, simRoundIdx, tMatrix); if (!m) break;
                 schedHTML += `<div class="card card-preview"><div style="font-size:10px;color:#94a3b8;font-weight:900;margin-bottom:10px;text-align:center;">GAME ${simRoundIdx + 1} · PREVIEW</div>
                     <div style="display:flex;justify-content:space-between;text-align:center;font-weight:900;"><div style="width:40%;">${getP(m.teamAIds[0]).name}<br>${getP(m.teamAIds[1]).name}</div><div class="vs-orange" style="opacity:0.5;">VS</div><div style="width:40%;">${getP(m.teamBIds[0]).name}<br>${getP(m.teamBIds[1]).name}</div></div></div>`;
                 m.allIds.forEach(id => { let p = tPlayers.find(x => x.id === id); if(p){ p.playCount++; p.consecutive++; } });
                 tPlayers.forEach(p => { if(!m.allIds.includes(p.id)) p.consecutive = 0; });
+                [[m.teamAIds[0], m.teamAIds[1]], [m.teamBIds[0], m.teamBIds[1]]].forEach(pair => {
+                    if(!tMatrix[pair[0]]) tMatrix[pair[0]] = {}; tMatrix[pair[0]][pair[1]] = (tMatrix[pair[0]][pair[1]] || 0) + 1;
+                    if(!tMatrix[pair[1]]) tMatrix[pair[1]] = {}; tMatrix[pair[1]][pair[0]] = (tMatrix[pair[1]][pair[0]] || 0) + 1;
+                });
                 simRoundIdx++;
             }
             document.getElementById('schedule-list').innerHTML = schedHTML;
