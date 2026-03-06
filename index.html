@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pickleball Matcher v8.9.3 - beta</title>
+    <title>Pickleball Matcher v8.9.5 - Beta</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
@@ -25,6 +25,7 @@
         .score-input { width: 2.5rem; height: 2.5rem; text-align: center; background: #f1f5f9; border-radius: 0.75rem; border: 2px solid transparent; font-weight: 900; font-size: 1.25rem; }
         .score-input:focus { border-color: #f97316; outline: none; }
         .btn-orange { background: #f97316; color: white; border: none; padding: 1.25rem; border-radius: 1.5rem; font-weight: 900; width: 100%; cursor: pointer; text-transform: uppercase; }
+        .btn-reset { background: transparent; color: #f87171; border: 2px solid #fecaca; padding: 0.8rem; border-radius: 1.25rem; font-weight: 900; font-size: 0.7rem; width: 100%; cursor: pointer; margin-top: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
         .hidden { display: none; }
         .stat-badge { background: #f1f5f9; padding: 0.4rem; border-radius: 0.75rem; text-align: center; min-width: 2.5rem; border-bottom: 4px solid #cbd5e1; font-weight: 900; }
     </style>
@@ -52,6 +53,7 @@
                     <div id="setup-list" style="margin-top: 1rem; max-height:420px; overflow-y:auto; border: 1px solid #f1f5f9; border-radius: 1rem;"></div>
                 </div>
                 <button id="start-btn" onclick="startApp()" class="btn-orange" style="margin-top: 1.5rem;" disabled>Start Matching</button>
+                <button onclick="resetData()" class="btn-reset">Reset All Data</button>
             </div>
 
             <div id="view-game" class="hidden">
@@ -61,6 +63,7 @@
                         <input type="text" id="add-more" placeholder="ADD PLAYER" style="flex:1; padding:1rem; border:none; border-bottom:2px solid #e2e8f0; font-weight:700; outline:none; text-transform:uppercase;">
                         <button onclick="addPlayer('add-more')" style="background:#0f172a; color:white; border:none; padding:0 1.2rem; border-radius:1rem; font-weight:900; cursor:pointer;">ADD</button>
                     </div>
+                    <button onclick="resetData()" class="btn-reset">Reset All Data</button>
                 </div>
                 <div id="tab-schedule" class="hidden">
                     <div id="schedule-list"></div>
@@ -71,13 +74,30 @@
     </div>
 
     <script>
-        let players = [];
-        let matchHistory = [];
-        let isStarted = false;
+        // --- 本地存儲載入 ---
+        let players = JSON.parse(localStorage.getItem('pb_players')) || [];
+        let matchHistory = JSON.parse(localStorage.getItem('pb_history')) || [];
+        let isStarted = localStorage.getItem('pb_isStarted') === 'true';
+        let partnerMatrix = JSON.parse(localStorage.getItem('pb_matrix')) || {}; 
+        let nextPlayerNum = parseInt(localStorage.getItem('pb_nextNum')) || 1;
+        
         let activeTab = 'players';
         let previewLimit = 8;
-        let partnerMatrix = {}; 
-        let nextPlayerNum = 1;
+
+        function saveData() {
+            localStorage.setItem('pb_players', JSON.stringify(players));
+            localStorage.setItem('pb_history', JSON.stringify(matchHistory));
+            localStorage.setItem('pb_isStarted', isStarted);
+            localStorage.setItem('pb_matrix', JSON.stringify(partnerMatrix));
+            localStorage.setItem('pb_nextNum', nextPlayerNum);
+        }
+
+        function resetData() {
+            if (confirm("確定要重設所有資料嗎？")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
 
         function formatName(name) {
             return name.charAt(0).toUpperCase() + name.slice(1);
@@ -92,7 +112,7 @@
             players.push({ id: Date.now(), playerNum: nextPlayerNum++, name, playCount: 0, wins: 0, losses: 0, consecutive: 0, isActive: true });
             input.value = '';
             if (isStarted) syncMatch();
-            render();
+            saveData(); render();
         }
 
         function syncMatch() {
@@ -112,9 +132,14 @@
         function calculateDynamicMatch(pool, lastIds, matrix) {
             const active = pool.filter(p => p.isActive);
             if (active.length < 4) return null;
-            let maxConsecutive = active.length === 6 ? 4 : 3;
+
+            // --- 修改點：不論人數，連續上場上限一律為 2 ---
+            let maxConsecutive = 2; 
+
             let sorted = [...active].sort((a, b) => (a.playCount - b.playCount) || (a.consecutive - b.consecutive) || (Math.random() - 0.5));
             const priorityGroup = sorted.filter(p => p.consecutive < maxConsecutive);
+            
+            // 如果滿足「連 2 必休」的人數不足 4 人，則退而求其次從全部人中選
             let selected = (priorityGroup.length >= 4) ? priorityGroup.slice(0, 4) : sorted.slice(0, 4);
 
             let combinations = [{ a: [0, 1], b: [2, 3] }, { a: [0, 2], b: [1, 3] }, { a: [0, 3], b: [1, 2] }];
@@ -136,22 +161,25 @@
             if (!m) return;
             matchHistory.push({ round: 1, ...m, scoreA: '', scoreB: '', completed: false });
             isStarted = true;
-            document.getElementById('view-setup').classList.add('hidden');
-            document.getElementById('view-game').classList.remove('hidden');
-            document.getElementById('navigation').classList.remove('hidden');
-            render();
+            saveData(); render();
         }
 
         function endRound() {
-            // 禁止負數：Math.max(0, ...)
             const sA = Math.max(0, parseInt(document.getElementById('scA').value));
             const sB = Math.max(0, parseInt(document.getElementById('scB').value));
             if (isNaN(sA) || isNaN(sB)) { alert("請輸入比分"); return; }
             
             let curr = matchHistory[0];
             curr.scoreA = sA; curr.scoreB = sB; curr.completed = true;
-            if(!partnerMatrix[curr.teamAIds[0]]) partnerMatrix[curr.teamAIds[0]] = {};
-            partnerMatrix[curr.teamAIds[0]][curr.teamAIds[1]] = (partnerMatrix[curr.teamAIds[0]][curr.teamAIds[1]] || 0) + 1;
+            
+            // 紀錄搭檔矩陣以供後續社交配對參考
+            const tA = curr.teamAIds, tB = curr.teamBIds;
+            [ [tA[0], tA[1]], [tB[0], tB[1]] ].forEach(pair => {
+                if(!partnerMatrix[pair[0]]) partnerMatrix[pair[0]] = {};
+                partnerMatrix[pair[0]][pair[1]] = (partnerMatrix[pair[0]][pair[1]] || 0) + 1;
+                if(!partnerMatrix[pair[1]]) partnerMatrix[pair[1]] = {};
+                partnerMatrix[pair[1]][pair[0]] = (partnerMatrix[pair[1]][pair[0]] || 0) + 1;
+            });
             
             players = players.map(p => {
                 const isPlaying = curr.allIds.includes(p.id);
@@ -160,7 +188,7 @@
                 return { ...p, playCount: p.playCount + 1, consecutive: p.consecutive + 1, wins: p.wins + (won?1:0), losses: p.losses + (won?0:1) };
             });
             matchHistory.unshift({ round: curr.round + 1, completed: false, allIds: [], teamAIds: [], teamBIds: [] });
-            syncMatch(); render();
+            syncMatch(); saveData(); render();
         }
 
         function handleEdit(round) {
@@ -169,10 +197,9 @@
             const nA = prompt("Team A Score:", m.scoreA);
             const nB = prompt("Team B Score:", m.scoreB);
             if (nA === null || nB === null) return;
-            // 禁止負數：Math.max(0, ...)
             matchHistory[idx].scoreA = Math.max(0, parseInt(nA));
             matchHistory[idx].scoreB = Math.max(0, parseInt(nB));
-            render();
+            saveData(); render();
         }
 
         function handleSubs(oldId) {
@@ -180,33 +207,42 @@
             if (!name) return;
             players = players.map(p => p.id === oldId ? { ...p, isActive: false, consecutive: 0 } : p);
             players.push({ id: Date.now(), playerNum: nextPlayerNum++, name: formatName(name.trim()), playCount: 0, wins: 0, losses: 0, consecutive: 0, isActive: true });
-            syncMatch(); render();
+            syncMatch(); saveData(); render();
         }
 
         function switchTab(t) {
             activeTab = t;
-            document.getElementById('tab-players').className = t === 'players' ? '' : 'hidden';
-            document.getElementById('tab-schedule').className = t === 'schedule' ? '' : 'hidden';
-            document.getElementById('nav-players').className = `tab-btn ${t==='players'?'tab-active':''}`;
-            document.getElementById('nav-schedule').className = `tab-btn ${t==='schedule'?'tab-active':''}`;
             render();
         }
 
         function render() {
+            if(isStarted) {
+                document.getElementById('view-setup').classList.add('hidden');
+                document.getElementById('view-game').classList.remove('hidden');
+                document.getElementById('navigation').classList.remove('hidden');
+            } else {
+                document.getElementById('view-setup').classList.remove('hidden');
+                document.getElementById('view-game').classList.add('hidden');
+                document.getElementById('navigation').classList.add('hidden');
+            }
+
             const getP = (id) => players.find(p => p.id === id) || { name: '已離場', playerNum: '?' };
             document.getElementById('start-btn').disabled = players.length < 4;
-            
+            document.getElementById('nav-players').className = `tab-btn ${activeTab==='players'?'tab-active':''}`;
+            document.getElementById('nav-schedule').className = `tab-btn ${activeTab==='schedule'?'tab-active':''}`;
+            document.getElementById('tab-players').className = activeTab === 'players' ? '' : 'hidden';
+            document.getElementById('tab-schedule').className = activeTab === 'schedule' ? '' : 'hidden';
+
             document.getElementById('setup-list').innerHTML = players.map(p => `
                 <div style="display:flex; justify-content:space-between; padding:0.75rem; background:#f8fafc; border-bottom:1px solid #f1f5f9; align-items:center;">
                     <span style="font-weight:700;">${p.playerNum}. ${p.name}</span>
-                    <button onclick="players=players.filter(x=>x.id!==${p.id});render();" style="color:#f87171; border:none; background:none; font-size:10px; font-weight:900;">REMOVE</button>
+                    <button onclick="players=players.filter(x=>x.id!==${p.id});saveData();render();" style="color:#f87171; border:none; background:none; font-size:10px; font-weight:900;">REMOVE</button>
                 </div>
             `).join('');
 
             const curr = matchHistory.find(m => !m.completed);
             const slot = document.getElementById('current-match-ui');
             if (isStarted && curr && (curr.allIds || []).length === 4) {
-                // 禁止負數：min="0"
                 slot.innerHTML = `
                 <div class="card" style="box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid #f1f5f9; padding-bottom:0.5rem;">
@@ -240,9 +276,9 @@
                     <div style="margin-left: 1rem; display: flex; align-items: center;">
                         ${p.isActive ? `
                             <button onclick="handleSubs(${p.id})" style="border:none; background:none; color:#3b82f6; font-weight:900; font-size:10px; margin-right:10px; cursor:pointer;">SUBS</button>
-                            <button onclick="players=players.map(x=>x.id===${p.id}?{...x,isActive:false}:x);syncMatch();render();" style="border:none; background:none; color:#94a3b8; font-weight:900; font-size:10px; cursor:pointer;">DROP</button>
+                            <button onclick="players=players.map(x=>x.id===${p.id}?{...x,isActive:false}:x);syncMatch();saveData();render();" style="border:none; background:none; color:#94a3b8; font-weight:900; font-size:10px; cursor:pointer;">DROP</button>
                         ` : `
-                            <button onclick="players=players.map(x=>x.id===${p.id}?{...x,isActive:true}:x);syncMatch();render();" style="border:none; background:none; color:#059669; font-weight:900; font-size:10px; cursor:pointer;">ACTIVATE</button>
+                            <button onclick="players=players.map(x=>x.id===${p.id}?{...x,isActive:true}:x);syncMatch();saveData();render();" style="border:none; background:none; color:#059669; font-weight:900; font-size:10px; cursor:pointer;">ACTIVATE</button>
                         `}
                     </div>
                 </div>
@@ -251,6 +287,7 @@
             let schedHTML = '';
             let history = [...matchHistory].filter(m => m.completed).reverse();
             let tPlayers = players.map(p => ({...p}));
+            let tMatrix = JSON.parse(JSON.stringify(partnerMatrix));
             
             history.forEach(m => {
                 schedHTML += `<div class="card card-done">
@@ -269,7 +306,7 @@
             let currentRoundNum = history.length + 1;
             let lastIdSet = history[history.length-1]?.allIds || null;
             for(let i=0; i < previewLimit; i++) {
-                let m = (i === 0 && curr && (curr.allIds || []).length === 4) ? curr : calculateDynamicMatch(tPlayers, lastIdSet, {});
+                let m = (i === 0 && curr && (curr.allIds || []).length === 4) ? curr : calculateDynamicMatch(tPlayers, lastIdSet, tMatrix);
                 if (!m) break;
                 schedHTML += `<div class="card ${i > 0 ? 'preview-card' : ''}">
                     <div style="font-size:10px; color:#f97316; font-weight:900; margin-bottom:10px;">GAME ${currentRoundNum} · ${i===0?'LIVE':'PREVIEW'}</div>
@@ -281,6 +318,14 @@
                 </div>`;
                 m.allIds.forEach(id => { let p = tPlayers.find(x => x.id === id); if(p){ p.playCount++; p.consecutive++; } });
                 tPlayers.forEach(p => { if(!m.allIds.includes(p.id)) p.consecutive = 0; });
+                
+                // 預覽中也模擬搭檔紀錄更新
+                [m.teamAIds, m.teamBIds].forEach(pair => {
+                    if(!tMatrix[pair[0]]) tMatrix[pair[0]] = {}; if(!tMatrix[pair[1]]) tMatrix[pair[1]] = {};
+                    tMatrix[pair[0]][pair[1]] = (tMatrix[pair[0]][pair[1]] || 0) + 1;
+                    tMatrix[pair[1]][pair[0]] = (tMatrix[pair[1]][pair[0]] || 0) + 1;
+                });
+
                 lastIdSet = m.allIds; currentRoundNum++;
             }
             document.getElementById('schedule-list').innerHTML = schedHTML;
