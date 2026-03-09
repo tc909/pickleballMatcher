@@ -3,28 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pickleball Matcher v9.3 - Beta</title>
+    <title>Pickleball Matcher v9.8 - Dynamic Leaderboard</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background-color: #f8fafc; min-height: 100vh; color: #0f172a; -webkit-tap-highlight-color: transparent; }
         .max-w-md { max-width: 28rem; margin: 0 auto; display: flex; flex-direction: column; min-height: 100vh; }
         
-        /* 頂部固定區塊 */
         .sticky-header { position: sticky; top: 0; z-index: 50; width: 100%; background: #0f172a; }
         header { padding: 1.5rem 1.5rem 1rem; border-bottom: 4px solid #f97316; }
         
         .tab-bar { display: flex; background: white; border-bottom: 1px solid #e2e8f0; width: 100%; }
-        .tab-btn { flex: 1; padding: 1rem; font-size: 0.75rem; font-weight: 900; border: none; background: none; color: #94a3b8; letter-spacing: 0.1em; cursor: pointer; }
+        .tab-btn { flex: 1; padding: 1rem; font-size: 0.75rem; font-weight: 900; border: none; background: none; color: #94a3b8; letter-spacing: 0.05em; cursor: pointer; }
         .tab-active { border-bottom: 4px solid #f97316; color: #f97316; }
-
-        /* ✅ Sticky 的 Regenerate 面板 */
-        #sticky-match-settings { background: #f8fafc; padding: 0.75rem 1.5rem; border-bottom: 1px solid #cbd5e1; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 
         main { padding: 1rem 1.5rem; flex: 1; }
         .card { background: white; border-radius: 1.5rem; padding: 1.5rem; margin-top: 0.5rem; border: 1px solid #e2e8f0; position: relative; overflow: hidden; }
         
-        /* 賽程樣式 */
         .card-live { border: 2px solid #f97316; box-shadow: 0 10px 25px rgba(249,115,22,0.15); padding: 1.25rem; }
         .card-done { background: #0f172a; border-color: #1e293b; color: white; }
         .card-preview { background: #1e293b; color: #94a3b8; border-color: #334155; opacity: 0.6; }
@@ -33,17 +28,11 @@
         .label-done { font-size: 10px; font-weight: 900; color: #f97316; background: rgba(249, 115, 22, 0.2); padding: 2px 8px; border-radius: 10px; }
         .score-done { color: #f97316; font-size: 1.8rem; font-weight: 900; }
         
-        .option-group { margin-top: 1rem; padding: 1rem; background: #f1f5f9; border-radius: 1.5rem; }
-        .option-title { font-size: 0.65rem; font-weight: 900; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase; }
-        .radio-box { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
-        .radio-label { flex: 1; text-align: center; padding: 0.6rem; background: white; border-radius: 1rem; font-size: 0.75rem; font-weight: 700; cursor: pointer; border: 2px solid transparent; }
-        input[type="radio"]:checked + .radio-label { border-color: #f97316; color: #f97316; }
-        input[type="radio"] { display: none; }
-        
         .score-input { width: 4.5rem; height: 4.5rem; text-align: center; background: #f1f5f9; border-radius: 1rem; border: 2px solid transparent; font-weight: 900; font-size: 1.5rem; }
         .score-input:focus { border-color: #f97316; outline: none; }
-        .btn-orange { background: #f97316; color: white; border: none; padding: 1rem; border-radius: 1rem; font-weight: 900; width: 100%; cursor: pointer; text-transform: uppercase; font-size: 0.95rem; letter-spacing: 0.1em; }
-        .btn-reset { background: transparent; color: #f87171; border: 2px solid #fecaca; padding: 0.8rem; border-radius: 1.25rem; font-weight: 900; font-size: 0.7rem; width: 100%; cursor: pointer; margin-top: 1rem; text-transform: uppercase; }
+        .btn-orange { background: #f97316; color: white; border: none; padding: 1.25rem; border-radius: 1rem; font-weight: 900; width: 100%; cursor: pointer; text-transform: uppercase; font-size: 0.95rem; letter-spacing: 0.1em; }
+        .btn-orange:disabled { background: #cbd5e1; cursor: not-allowed; }
+        .btn-reset { background: transparent; color: #f87171; border: 2px solid #fecaca; padding: 0.8rem; border-radius: 1.25rem; font-weight: 900; font-size: 0.7rem; width: 100%; cursor: pointer; margin-top: 1.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
         .hidden { display: none !important; }
         .stat-badge { background: #f1f5f9; padding: 0.4rem; border-radius: 0.75rem; text-align: center; min-width: 2.5rem; border-bottom: 4px solid #cbd5e1; font-weight: 900; }
     </style>
@@ -55,80 +44,25 @@
                 <div style="color: white; font-weight: 900; font-style: italic; text-transform: uppercase; text-align: center; font-size: 1.5rem; margin-bottom:1rem;">Pickleball <span style="color: #f97316;">Matcher</span></div>
                 <div id="current-match-ui"></div>
             </header>
-            <div id="setup-tabs" class="tab-bar">
-                <button onclick="switchSetupTab('add')" id="setup-tab-add" class="tab-btn tab-active">PLAYERS</button>
-                <button onclick="switchSetupTab('qa')" id="setup-tab-qa" class="tab-btn">Q&A / HELP</button>
-            </div>
             <div id="navigation" class="tab-bar hidden">
                 <button onclick="switchTab('players')" id="nav-players" class="tab-btn tab-active">PLAYERS</button>
                 <button onclick="switchTab('schedule')" id="nav-schedule" class="tab-btn">SCHEDULE</button>
-            </div>
-
-            <div id="sticky-match-settings" class="hidden">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                    <span style="font-size: 0.65rem; font-weight: 900; color: #64748b;">DYNAMIC SETTINGS (影響目前與未來賽程)</span>
-                </div>
-                <div style="display:flex; gap:0.5rem; margin-bottom: 0.5rem;">
-                    <select id="game_matchMode" style="flex:1; padding:0.5rem; border-radius:0.5rem; border:1px solid #cbd5e1; font-weight:700; outline:none; background:white; font-size:0.75rem;">
-                        <option value="social">Social Double</option>
-                        <option value="rr">Round Robin</option>
-                    </select>
-                    <select id="game_maxRounds" style="flex:1; padding:0.5rem; border-radius:0.5rem; border:1px solid #cbd5e1; font-weight:700; outline:none; background:white; font-size:0.75rem;">
-                        <option value="2">Max 2 Rounds</option>
-                        <option value="3">Max 3 Rounds</option>
-                    </select>
-                </div>
-                <button onclick="regenerateSchedule()" style="background:#0f172a; color:white; border:none; padding:0.6rem; border-radius:0.5rem; font-weight:900; width: 100%; font-size: 0.7rem; cursor:pointer; letter-spacing: 0.05em;">REGENERATE SCHEDULE</button>
+                <button onclick="switchTab('leaderboard')" id="nav-leaderboard" class="tab-btn">RANKING</button>
             </div>
         </div>
 
         <main>
             <div id="view-setup">
-                <div id="setup-add-content">
-                    <div class="card">
-                        <div style="display: flex; gap: 0.5rem; margin-bottom:1rem;">
-                            <input type="text" id="setup-name" placeholder="PLAYER NAME" style="flex: 1; padding: 1rem; border-radius: 1rem; border: none; background: #f1f5f9; font-weight: 700; outline:none;">
-                            <button onclick="addPlayer('setup-name')" style="background:#0f172a; color:white; border:none; padding: 0 1.5rem; border-radius: 1rem; font-weight: 900; cursor:pointer;">＋</button>
-                        </div>
-                        <div class="option-group">
-                            <div class="option-title">Match Mode 選項</div>
-                            <div class="radio-box">
-                                <input type="radio" id="mode-social" name="matchMode" value="social" checked onchange="saveOptions()">
-                                <label class="radio-label" for="mode-social">Social Double</label>
-                                <input type="radio" id="mode-rr" name="matchMode" value="rr" onchange="saveOptions()">
-                                <label class="radio-label" for="mode-rr">Round Robin</label>
-                            </div>
-                            <div class="option-title">Consecutive Limit 連場限制</div>
-                            <div id="hint-6" style="color:#f97316; font-size:0.7rem; font-weight:900; text-align:center; margin-bottom:5px;" class="hidden">💡 6人局強烈建議選擇 Max 3</div>
-                            <div class="radio-box">
-                                <input type="radio" id="max-2" name="maxRounds" value="2" checked onchange="saveOptions()">
-                                <label class="radio-label" for="max-2">Max 2</label>
-                                <input type="radio" id="max-3" name="maxRounds" value="3" onchange="saveOptions()">
-                                <label class="radio-label" for="max-3">Max 3</label>
-                            </div>
-                        </div>
-                        <div id="setup-list" style="margin-top: 1rem; max-height:220px; overflow-y:auto; border: 1px solid #f1f5f9; border-radius: 1rem;"></div>
+                <div class="card">
+                    <div style="display: flex; gap: 0.5rem; margin-bottom:1rem;">
+                        <input type="text" id="setup-name" placeholder="PLAYER NAME" style="flex: 1; padding: 1rem; border-radius: 1rem; border: none; background: #f1f5f9; font-weight: 900; outline:none; text-transform:uppercase;">
+                        <button onclick="addPlayer('setup-name')" style="background:#0f172a; color:white; border:none; padding: 0 1.5rem; border-radius: 1rem; font-weight: 900; cursor:pointer;">＋</button>
                     </div>
-                    <button id="start-btn" onclick="startApp()" class="btn-orange" style="margin-top: 1rem;" disabled>Start Matching</button>
+                    <div style="font-size: 0.75rem; font-weight: 900; color: #f97316; margin-top: 1rem; text-align: center; letter-spacing: 0.05em;"></div>
+                    <div id="setup-list" style="margin-top: 1rem; max-height:400px; overflow-y:auto; border: 1px solid #f1f5f9; border-radius: 1rem;"></div>
                 </div>
-
-                <div id="setup-qa-content" class="hidden">
-                    <div class="card" style="padding-bottom: 2rem;">
-                        <div style="margin-bottom: 1rem; border-left: 4px solid #f97316; padding-left: 10px; margin-top: 1.5rem;">
-                            <div style="font-weight: 900; font-size: 1rem; color: #0f172a;">Social Double</div>
-                            <div style="font-size: 0.85rem; color: #334155; margin-bottom: 5px;">系統會追蹤搭檔紀錄，優先讓從未搭檔過的人組成一隊，新鮮感最高。</div>
-                        </div>
-                        <div style="margin-bottom: 1rem; border-left: 4px solid #f97316; padding-left: 10px; margin-top: 1.5rem;">
-                            <div style="font-weight: 900; font-size: 1rem; color: #0f172a;">Round Robin</div>
-                            <div style="font-size: 0.85rem; color: #334155; margin-bottom: 5px;">系統根據完美循環公式生成對戰表，確保對手與搭檔的「數學公平性」。</div>
-                        </div>
-                        <div style="margin-bottom: 1rem; border-left: 4px solid #f97316; padding-left: 10px; margin-top: 1.5rem;">
-                            <div style="font-weight: 900; font-size: 1rem; color: #0f172a;">Max Consecutive</div>
-                            <div style="font-size: 0.85rem; color: #334155; margin-bottom: 5px;">強制保護體力的設定。在 5-6 人局中，為了維持配對流暢度，建議放寬至 Max 3。</div>
-                        </div>
-                    </div>
-                </div>
-                <button onclick="resetData()" class="btn-reset">Reset All Data / 清除資料</button>
+                <button id="start-btn" onclick="startApp()" class="btn-orange" style="margin-top: 1.5rem;" disabled>MINIMUM 6 PLAYERS</button>
+                <button onclick="resetData()" class="btn-reset">RESET ALL DATA / 清除資料</button>
             </div>
 
             <div id="view-game" class="hidden">
@@ -138,57 +72,70 @@
                         <input type="text" id="add-more" placeholder="ADD NEW PLAYER" style="flex:1; padding:1rem; border:none; border-bottom:2px solid #e2e8f0; font-weight:700; outline:none; text-transform:uppercase;">
                         <button onclick="addPlayer('add-more')" style="background:#0f172a; color:white; border:none; padding:0 1.2rem; border-radius:1rem; font-weight:900; cursor:pointer;">ADD</button>
                     </div>
-                    <button onclick="resetData()" class="btn-reset">Reset All Data / 清除資料</button>
+                    <button onclick="resetData()" class="btn-reset">RESET ALL DATA / 清除資料</button>
                 </div>
                 
                 <div id="tab-schedule-content" class="hidden">
                     <div id="schedule-list"></div>
-                    <button onclick="previewLimit+=4; render();" style="width:100%;padding:1rem;background:white;border-radius:1.5rem;color:#94a3b8;font-weight:900;margin:1rem 0 3rem;cursor:pointer;">SHOW MORE (+4)</button>
+                </div>
+
+                <div id="tab-leaderboard-content" class="hidden">
+                    <div style="text-align: center; margin-bottom: 1rem; color: #64748b; font-size: 0.75rem; font-weight: 900; text-transform: uppercase;">
+                        Dynamic Rating System (Base 3.500)
+                    </div>
+                    <div id="leaderboard-list"></div>
                 </div>
             </div>
         </main>
     </div>
 
     <script>
-        // --- DATA & STORAGE ---
         let players = JSON.parse(localStorage.getItem('pb_players')) || [];
+        
+        // 確保舊資料也有 rating 屬性 (向下相容)
+        players = players.map(p => ({ ...p, rating: p.rating || 3.500 }));
+
         let matchHistory = JSON.parse(localStorage.getItem('pb_history')) || [];
         let isStarted = localStorage.getItem('pb_isStarted') === 'true';
         let partnerMatrix = JSON.parse(localStorage.getItem('pb_matrix')) || {}; 
         let nextPlayerNum = parseInt(localStorage.getItem('pb_nextNum')) || 1;
-        let matchMode = localStorage.getItem('pb_matchMode') || 'social';
-        let maxRounds = parseInt(localStorage.getItem('pb_maxRounds')) || 2;
-        let activeTab = 'players', setupTab = 'add', previewLimit = 8;
+        let baseCycleLength = parseInt(localStorage.getItem('pb_baseCycle')) || 12;
+        let initialSetupCount = parseInt(localStorage.getItem('pb_initialCount')) || 6;
+        let activeTab = 'players';
 
-        // ✅ 完美輪替的 Round Robin 公式 (保證絕不連續遇到同搭檔)
-        const RR_SCHEMES = { 
-            4: [[0,1,2,3], [0,2,1,3], [0,3,1,2]],
-            5: [[0,1,2,3], [0,4,1,2], [3,4,0,2], [1,3,2,4], [0,3,1,4]], 
-            6: [[0,1,2,3], [0,4,1,5], [2,4,3,5], [0,2,1,4], [1,3,2,5], [0,5,3,4]] 
+        const CYCLES = { 
+            6: [ 
+                [0,1,2,3], [0,1,4,5], [2,3,4,5], [0,1,2,3], [0,1,4,5], [2,3,4,5], 
+                [0,1,2,3], [0,1,4,5], [2,3,4,5], [0,1,2,3], [0,1,4,5], [2,3,4,5]
+            ],
+            7: [ 
+                [0,1,3,4], [1,2,4,5], [2,3,5,6], [3,4,6,0], [4,5,0,1], [5,6,1,2], [6,0,2,3],
+                [0,1,3,4], [1,2,4,5], [2,3,5,6], [3,4,6,0], [4,5,0,1], [5,6,1,2], [6,0,2,3]
+            ],
+            8: [ 
+                [0,1,2,3], [4,5,6,7], [0,1,4,5], [2,3,6,7], [0,2,4,6], [1,3,5,7], [0,3,4,7],
+                [1,2,5,6], [0,1,6,7], [2,3,4,5], [0,2,5,7], [1,3,4,6], [0,3,5,6], [1,2,4,7]
+            ]
         };
 
-        // ✅ 計算比賽核心演算法 (加入了 currentMatrix 參數以供預覽時精準預測)
         function calculateMatch(pool, roundIdx, currentMatrix = partnerMatrix) {
-            const active = pool.filter(p => p.isActive); if (active.length < 4) return null;
-            
-            // RR 模式
-            if (matchMode === 'rr' && RR_SCHEMES[active.length]) {
-                const scheme = RR_SCHEMES[active.length];
-                const pair = scheme[roundIdx % scheme.length];
-                return { teamAIds: [active[pair[0]].id, active[pair[1]].id], teamBIds: [active[pair[2]].id, active[pair[3]].id], allIds: pair.map(i => active[i].id) };
+            const active = pool.filter(p => p.isActive); 
+            if (active.length < 4) return null;
+
+            let selected;
+            if (active.length === initialSetupCount && CYCLES[initialSetupCount]) {
+                let sortedActive = [...active].sort((a,b) => a.playerNum - b.playerNum);
+                let cyclePairing = CYCLES[initialSetupCount][roundIdx % baseCycleLength];
+                selected = cyclePairing.map(index => sortedActive[index]);
+            } else {
+                let sorted = [...active].sort((a,b) => (a.playCount - b.playCount) || (a.consecutive - b.consecutive) || (Math.random()-0.5));
+                const canPlay = sorted.filter(p => p.consecutive < 2);
+                selected = (canPlay.length >= 4) ? canPlay.slice(0,4) : sorted.slice(0,4);
             }
-            
-            // Social 模式
-            let sorted = [...active].sort((a,b) => (a.playCount - b.playCount) || (a.consecutive - b.consecutive) || (Math.random()-0.5));
-            const canPlay = sorted.filter(p => p.consecutive < maxRounds);
-            let selected = (canPlay.length >= 4) ? canPlay.slice(0,4) : sorted.slice(0,4);
-            
+
             let best = { a: [selected[0].id, selected[1].id], b: [selected[2].id, selected[3].id], minW: 9999 };
             let combs = [[0,1,2,3], [0,2,1,3], [0,3,1,2]];
-            
-            // 加入隨機洗牌，避免權重相同時永遠選第一組
             combs.sort(() => Math.random() - 0.5); 
-            
             combs.forEach(c => {
                 let p1 = selected[c[0]].id, p2 = selected[c[1]].id, p3 = selected[c[2]].id, p4 = selected[c[3]].id;
                 let w = (currentMatrix[p1]?.[p2] || 0) + (currentMatrix[p3]?.[p4] || 0);
@@ -200,28 +147,8 @@
         function saveData() { 
             localStorage.setItem('pb_players', JSON.stringify(players)); localStorage.setItem('pb_history', JSON.stringify(matchHistory));
             localStorage.setItem('pb_isStarted', isStarted); localStorage.setItem('pb_matrix', JSON.stringify(partnerMatrix));
-            localStorage.setItem('pb_nextNum', nextPlayerNum); localStorage.setItem('pb_matchMode', matchMode); localStorage.setItem('pb_maxRounds', maxRounds);
-        }
-
-        function saveOptions() { 
-            matchMode = document.querySelector('input[name="matchMode"]:checked').value;
-            maxRounds = parseInt(document.querySelector('input[name="maxRounds"]:checked').value);
-            saveData(); render();
-        }
-
-        // ✅ 動態重算機制 (只影響 Live & Preview，不影響已結束的 Done)
-        function regenerateSchedule() {
-            matchMode = document.getElementById('game_matchMode').value;
-            maxRounds = parseInt(document.getElementById('game_maxRounds').value);
-            saveOptions();
-            
-            if (isStarted && matchHistory.length > 0 && !matchHistory[0].completed) {
-                let curr = matchHistory[0];
-                let simRoundIdx = matchHistory.length - 1; 
-                let newMatch = calculateMatch(players, simRoundIdx, partnerMatrix);
-                if (newMatch) { matchHistory[0] = { ...curr, ...newMatch }; }
-            }
-            saveData(); render();
+            localStorage.setItem('pb_nextNum', nextPlayerNum); localStorage.setItem('pb_baseCycle', baseCycleLength);
+            localStorage.setItem('pb_initialCount', initialSetupCount);
         }
 
         function resetData() { if(confirm("確定要重設所有資料嗎？(此動作無法復原)")) { localStorage.clear(); location.reload(); } }
@@ -230,24 +157,33 @@
             const input = document.getElementById(id); let name = input.value.trim(); if(!name) return;
             if(players.some(p => p.name.toLowerCase() === name.toLowerCase())) { alert("此姓名已存在！"); return; }
             name = name.charAt(0).toUpperCase() + name.slice(1);
-            players.push({ id: Date.now(), playerNum: nextPlayerNum++, name, playCount: 0, wins: 0, losses: 0, consecutive: 0, isActive: true });
-            if (!isStarted) { players.forEach((p, i) => { p.playerNum = i + 1; }); nextPlayerNum = players.length + 1; } 
-            else { syncMatch(); }
+            
+            players.push({ id: Date.now(), playerNum: nextPlayerNum++, name, playCount: 0, wins: 0, losses: 0, consecutive: 0, isActive: true, rating: 3.500 });
+            
+            if (!isStarted) { 
+                players.forEach((p, i) => { p.playerNum = i + 1; }); 
+                nextPlayerNum = players.length + 1; 
+            } 
             input.value = ''; saveData(); render();
         }
 
         function removePlayerSetup(id) {
             players = players.filter(p => p.id !== id);
-            if (!isStarted) { players.forEach((p, i) => { p.playerNum = i + 1; }); nextPlayerNum = players.length + 1; }
+            if (!isStarted) { 
+                players.forEach((p, i) => { p.playerNum = i + 1; }); 
+                nextPlayerNum = players.length + 1; 
+            }
             saveData(); render();
         }
 
         function handleSubs(oldId) {
-            const name = prompt("New Player Name:"); if (!name) return;
+            const name = prompt("New Substitute Player Name (替補球員姓名):"); if (!name) return;
             const newName = name.trim();
             if(players.some(p => p.name.toLowerCase() === newName.toLowerCase() && p.isActive)) { alert("此姓名已在場上！"); return; }
             players = players.map(p => p.id === oldId ? { ...p, isActive: false, consecutive: 0 } : p);
-            players.push({ id: Date.now(), playerNum: nextPlayerNum++, name: newName.charAt(0).toUpperCase() + newName.slice(1), playCount: 0, wins: 0, losses: 0, consecutive: 0, isActive: true });
+            
+            players.push({ id: Date.now(), playerNum: nextPlayerNum++, name: newName.charAt(0).toUpperCase() + newName.slice(1), playCount: 0, wins: 0, losses: 0, consecutive: 0, isActive: true, rating: 3.500 });
+            
             if (isStarted && !matchHistory[0].completed) { 
                 const newM = calculateMatch(players, matchHistory.length - 1, partnerMatrix);
                 if(newM) matchHistory[0] = { ...matchHistory[0], ...newM }; 
@@ -255,33 +191,54 @@
             saveData(); render();
         }
 
-        function syncMatch() {
-            if (!isStarted || matchHistory.length === 0) return;
-            let current = matchHistory[0];
-            if (!current.completed) {
-                const active = players.filter(p => p.isActive);
-                const valid = (current.allIds || []).length === 4 && current.allIds.every(id => active.some(p => p.id === id));
-                if (!valid) {
-                    const newM = calculateMatch(players, matchHistory.length - 1, partnerMatrix);
-                    if (newM) matchHistory[0] = { ...current, ...newM };
-                }
-            }
-        }
-
         function endRound() {
             const sA = Math.max(0, parseInt(document.getElementById('scA').value)), sB = Math.max(0, parseInt(document.getElementById('scB').value));
             if(isNaN(sA) || isNaN(sB)) { alert("請輸入有效比分"); return; }
             let curr = matchHistory[0]; curr.scoreA = sA; curr.scoreB = sB; curr.completed = true;
             
+            // --- 類 DUPR 積分計算 (高波動娛樂版) ---
+            const pA1 = players.find(p => p.id === curr.teamAIds[0]);
+            const pA2 = players.find(p => p.id === curr.teamAIds[1]);
+            const pB1 = players.find(p => p.id === curr.teamBIds[0]);
+            const pB2 = players.find(p => p.id === curr.teamBIds[1]);
+            
+            // 雙方平均積分
+            const rA = (pA1.rating + pA2.rating) / 2;
+            const rB = (pB1.rating + pB2.rating) / 2;
+            
+            // 勝負結果 (1為A贏, 0為B贏)
+            const sA_result = sA > sB ? 1 : (sA < sB ? 0 : 0.5);
+            
+            // 預期勝率計算
+            const eA = 1 / (1 + Math.pow(10, (rB - rA) / 1.0)); 
+            
+            // 分差加權 (Point Differential Multiplier)
+            const pointDiff = Math.abs(sA - sB);
+            const pdMult = 1 + (pointDiff / 11); 
+            
+            // 基礎變動率 (K-Factor) - 調高至 0.4 以增加單日賽事的娛樂波動性
+            const K = 0.4; 
+            const ratingChangeA = K * (sA_result - eA) * pdMult;
+            const ratingChangeB = -ratingChangeA; 
+            // ------------------------------------
+
             [[curr.teamAIds[0], curr.teamAIds[1]], [curr.teamBIds[0], curr.teamBIds[1]]].forEach(p => {
                 if(!partnerMatrix[p[0]]) partnerMatrix[p[0]] = {}; partnerMatrix[p[0]][p[1]] = (partnerMatrix[p[0]][p[1]] || 0) + 1;
                 if(!partnerMatrix[p[1]]) partnerMatrix[p[1]] = {}; partnerMatrix[p[1]][p[0]] = (partnerMatrix[p[1]][p[0]] || 0) + 1;
             });
+
             players = players.map(p => {
                 if(!curr.allIds.includes(p.id)) return { ...p, consecutive: 0 };
                 const won = (curr.teamAIds.includes(p.id) && sA > sB) || (curr.teamBIds.includes(p.id) && sB > sA);
-                return { ...p, playCount: p.playCount + 1, consecutive: p.consecutive + 1, wins: p.wins + (won?1:0), losses: p.losses + (won?0:1) };
+                
+                // 套用積分變動
+                let newRating = p.rating;
+                if (curr.teamAIds.includes(p.id)) newRating += ratingChangeA;
+                if (curr.teamBIds.includes(p.id)) newRating += ratingChangeB;
+
+                return { ...p, playCount: p.playCount + 1, consecutive: p.consecutive + 1, wins: p.wins + (won?1:0), losses: p.losses + (won?0:1), rating: newRating };
             });
+
             matchHistory.unshift({ round: curr.round + 1, completed: false, allIds: [], teamAIds: [], teamBIds: [] });
             const nextM = calculateMatch(players, matchHistory.length - 1, partnerMatrix); if(nextM) matchHistory[0] = { ...matchHistory[0], ...nextM };
             saveData(); render();
@@ -289,48 +246,38 @@
 
         function handleEdit(round) {
             const idx = matchHistory.findIndex(m => m.round === round);
-            const nA = prompt("Team A Score:", matchHistory[idx].scoreA), nB = prompt("Team B Score:", matchHistory[idx].scoreB);
+            const nA = prompt("Team A Score (注意: 修改歷史分數不會回溯重算排行榜積分):", matchHistory[idx].scoreA);
+            const nB = prompt("Team B Score:", matchHistory[idx].scoreB);
             if (nA !== null && nB !== null) { matchHistory[idx].scoreA = Math.max(0, parseInt(nA)); matchHistory[idx].scoreB = Math.max(0, parseInt(nB)); saveData(); render(); }
         }
 
         function startApp() { 
+            initialSetupCount = players.filter(p=>p.isActive).length;
+            baseCycleLength = initialSetupCount <= 6 ? 12 : 14;
             const m = calculateMatch(players, 0, partnerMatrix); 
             matchHistory.push({ round: 1, ...m, scoreA: '', scoreB: '', completed: false }); 
             isStarted = true; saveData(); render(); 
         }
 
-        function switchSetupTab(t) { setupTab = t; render(); }
         function switchTab(t) { activeTab = t; render(); }
 
         function render() {
             const getP = (id) => players.find(p => p.id === id) || { name: 'Gone', playerNum: '?' };
             
             if(isStarted) {
-                document.getElementById('view-setup').classList.add('hidden'); document.getElementById('setup-tabs').classList.add('hidden');
-                document.getElementById('navigation').classList.remove('hidden'); document.getElementById('view-game').classList.remove('hidden');
-                
-                // 控制 Sticky 面板顯示
-                if(activeTab === 'schedule') {
-                    document.getElementById('sticky-match-settings').classList.remove('hidden');
-                    document.getElementById('game_matchMode').value = matchMode;
-                    document.getElementById('game_maxRounds').value = maxRounds;
-                } else {
-                    document.getElementById('sticky-match-settings').classList.add('hidden');
-                }
-            } else {
-                document.getElementById('setup-tab-add').className = `tab-btn ${setupTab==='add'?'tab-active':''}`;
-                document.getElementById('setup-tab-qa').className = `tab-btn ${setupTab==='qa'?'tab-active':''}`;
-                document.getElementById('setup-add-content').className = setupTab === 'add' ? '' : 'hidden';
-                document.getElementById('setup-qa-content').className = setupTab === 'qa' ? '' : 'hidden';
+                document.getElementById('view-setup').classList.add('hidden'); 
+                document.getElementById('navigation').classList.remove('hidden'); 
+                document.getElementById('view-game').classList.remove('hidden');
             }
 
-            document.getElementById('hint-6').className = players.filter(p=>p.isActive).length === 6 ? 'hint-text' : 'hidden';
-            document.getElementById('start-btn').disabled = players.length < 4;
-            document.getElementById('setup-list').innerHTML = players.map(p => `<div style="display:flex;justify-content:space-between;padding:0.75rem;border-bottom:1px solid #f1f5f9;align-items:center;"><span style="font-weight:700;">${p.playerNum}. ${p.name}</span><button onclick="removePlayerSetup(${p.id})" style="color:#f87171;border:none;background:none;font-size:10px;font-weight:900;cursor:pointer;">REMOVE</button></div>`).join('');
+            const activeCount = players.filter(p=>p.isActive).length;
+            const btnStart = document.getElementById('start-btn');
+            btnStart.disabled = activeCount < 6;
+            btnStart.innerText = activeCount < 6 ? 'MINIMUM 6 PLAYERS' : 'START MATCHING';
+            
+            document.getElementById('setup-list').innerHTML = players.map(p => `<div style="display:flex;justify-content:space-between;padding:0.75rem;border-bottom:1px solid #f1f5f9;align-items:center;"><span style="font-weight:900;">${p.playerNum}. ${p.name}</span><button onclick="removePlayerSetup(${p.id})" style="color:#f87171;border:none;background:none;font-size:10px;font-weight:900;cursor:pointer;">REMOVE</button></div>`).join('');
 
-            // ==============================================
-            // ✅ LIVE GAME UI: 置中標籤 -> 名字 -> 分數與VS -> SUBMIT 按鈕
-            // ==============================================
+            // LIVE GAME UI
             const curr = matchHistory.find(m => !m.completed);
             const slot = document.getElementById('current-match-ui');
             if (isStarted && curr && curr.allIds.length === 4) {
@@ -353,35 +300,58 @@
                 </div>`;
             } else { slot.innerHTML = ''; }
 
+            // PLAYERS LIST
             document.getElementById('player-stats-list').innerHTML = players.map(p => `<div style="display:flex;justify-content:space-between;padding:1rem;border-bottom:1px solid #f1f5f9;${p.isActive?'':'opacity:0.3'}">
-                <div style="display:flex;flex:1;align-items:center;"><span style="font-weight:900;color:#94a3b8;min-width:1.5rem;">${p.playerNum}.</span><div style="flex:1;margin-left:0.5rem;"><div style="font-weight:900;">${p.name}</div><div style="font-size:10px;color:#059669;font-weight:900;">W:${p.wins} L:${p.losses}</div></div><div class="stat-badge"><div style="font-size:8px;color:#94a3b8;">G</div>${p.playCount}</div></div>
+                <div style="display:flex;flex:1;align-items:center;"><span style="font-weight:900;color:#94a3b8;min-width:1.5rem;">${p.playerNum}.</span><div style="flex:1;margin-left:0.5rem;"><div style="font-weight:900;">${p.name} <span style="font-size:10px; color:#f97316;">(${p.rating.toFixed(3)})</span></div><div style="font-size:10px;color:#059669;font-weight:900;">W:${p.wins} L:${p.losses}</div></div><div class="stat-badge"><div style="font-size:8px;color:#94a3b8;">G</div>${p.playCount}</div></div>
                 <div style="display:flex;align-items:center;margin-left:1rem;">${p.isActive ? `<button onclick="handleSubs(${p.id})" style="border:none;background:none;font-weight:900;font-size:10px;color:#3b82f6;margin-right:10px;cursor:pointer;">SUBS</button><button onclick="players=players.map(x=>x.id===${p.id}?{...x,isActive:false}:x);saveData();render();" style="border:none;background:none;font-weight:900;font-size:10px;color:#94a3b8;cursor:pointer;">DROP</button>` : `<button onclick="players=players.map(x=>x.id===${p.id}?{...x,isActive:true}:x);saveData();render();" style="border:none;background:none;font-weight:900;font-size:10px;color:#059669;cursor:pointer;">ACTIVATE</button>`}</div>
             </div>`).join('');
 
+            // LEADERBOARD RENDER (純數字乾淨版)
+            let sortedPlayers = [...players].sort((a,b) => b.rating - a.rating);
+            document.getElementById('leaderboard-list').innerHTML = sortedPlayers.map((p, index) => `
+                <div class="card" style="display:flex; justify-content:space-between; align-items:center; padding: 1.2rem; margin-top: 0.5rem; ${p.isActive?'':'opacity:0.6'}">
+                    <div style="display:flex; align-items:center;">
+                        <span style="font-weight:900; color:#64748b; font-size:1.4rem; min-width:2.5rem;">#${index+1}</span>
+                        <div style="margin-left:0.5rem;">
+                            <div style="font-weight:900; font-size:1.1rem; color:#0f172a;">${p.name}</div>
+                            <div style="font-size:10px; color:#94a3b8; font-weight:900; margin-top: 3px;">W: ${p.wins} / L: ${p.losses}</div>
+                        </div>
+                    </div>
+                    <div style="font-size:1.5rem; font-weight:900; color:#f97316;">
+                        ${p.rating.toFixed(3)}
+                    </div>
+                </div>
+            `).join('');
+
+            // TAB 切換邏輯
             document.getElementById('nav-players').className = `tab-btn ${activeTab==='players'?'tab-active':''}`;
             document.getElementById('nav-schedule').className = `tab-btn ${activeTab==='schedule'?'tab-active':''}`;
+            document.getElementById('nav-leaderboard').className = `tab-btn ${activeTab==='leaderboard'?'tab-active':''}`;
+            
             document.getElementById('tab-players-content').className = activeTab === 'players' ? '' : 'hidden';
             document.getElementById('tab-schedule-content').className = activeTab === 'schedule' ? '' : 'hidden';
+            document.getElementById('tab-leaderboard-content').className = activeTab === 'leaderboard' ? '' : 'hidden';
 
+            // SCHEDULE RENDER
             let schedHTML = '';
-            
-            // ✅ 已結束的比賽：第一場在最上方 (由小到大)
             let historyDones = [...matchHistory].filter(m => m.completed).sort((a,b) => a.round - b.round);
+            
             historyDones.forEach(m => {
                 schedHTML += `<div class="card card-done"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-size:10px;color:white;font-weight:900;opacity:0.6;">GAME ${m.round}</span><div><span class="label-done">DONE</span><button onclick="handleEdit(${m.round})" style="color:white;font-size:10px;font-weight:900;border:none;background:none;text-decoration:underline;margin-left:8px;cursor:pointer;">EDIT</button></div></div>
                     <div style="display:flex;justify-content:space-between;text-align:center;font-weight:900;"><div style="width:40%;">${getP(m.teamAIds[0]).name}<br>${getP(m.teamAIds[1]).name}<div class="score-done">${m.scoreA}</div></div><div class="vs-orange">VS</div><div style="width:40%;">${getP(m.teamBIds[0]).name}<br>${getP(m.teamBIds[1]).name}<div class="score-done">${m.scoreB}</div></div></div></div>`;
             });
             
-            // ✅ LIVE Game in List
             if (curr && curr.allIds.length === 4) {
                 schedHTML += `<div class="card card-live" style="border:none; border-left:4px solid #f97316; padding:1.25rem;"><div style="font-size:11px;color:#f97316;font-weight:900;margin-bottom:10px;text-align:center;letter-spacing:0.05em;">GAME ${curr.round} · LIVE NOW</div>
                     <div style="display:flex;justify-content:space-between;text-align:center;font-weight:900;"><div style="width:40%;">${getP(curr.teamAIds[0]).name}<br>${getP(curr.teamAIds[1]).name}</div><div class="vs-orange">VS</div><div style="width:40%;">${getP(curr.teamBIds[0]).name}<br>${getP(curr.teamBIds[1]).name}</div></div></div>`;
             }
             
-            // ✅ 未來預覽 (修復預覽迴圈傳入 tMatrix)
             let tPlayers = players.map(p => ({...p}));
             let tMatrix = JSON.parse(JSON.stringify(partnerMatrix));
-            let simRoundIdx = historyDones.length + (curr ? 1 : 0);
+            let currentRoundNum = historyDones.length + (curr ? 1 : 0);
+            
+            let targetTotalGames = Math.ceil((currentRoundNum === 0 ? 1 : currentRoundNum) / baseCycleLength) * baseCycleLength; 
+            let simRoundIdx = currentRoundNum;
             
             if(curr) { 
                 curr.allIds.forEach(id => { let p = tPlayers.find(x => x.id === id); if(p){ p.playCount++; p.consecutive++; } }); 
@@ -392,7 +362,7 @@
                 });
             }
 
-            for(let i=0; i < previewLimit; i++) {
+            while(simRoundIdx < targetTotalGames) {
                 let m = calculateMatch(tPlayers, simRoundIdx, tMatrix); if (!m) break;
                 schedHTML += `<div class="card card-preview"><div style="font-size:10px;color:#94a3b8;font-weight:900;margin-bottom:10px;text-align:center;">GAME ${simRoundIdx + 1} · PREVIEW</div>
                     <div style="display:flex;justify-content:space-between;text-align:center;font-weight:900;"><div style="width:40%;">${getP(m.teamAIds[0]).name}<br>${getP(m.teamAIds[1]).name}</div><div class="vs-orange" style="opacity:0.5;">VS</div><div style="width:40%;">${getP(m.teamBIds[0]).name}<br>${getP(m.teamBIds[1]).name}</div></div></div>`;
