@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pickleball Matcher v9.8 - Dynamic Leaderboard</title>
+    <title>Pickleball Matcher v10.7 - </title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
@@ -32,12 +32,27 @@
         .score-input:focus { border-color: #f97316; outline: none; }
         .btn-orange { background: #f97316; color: white; border: none; padding: 1.25rem; border-radius: 1rem; font-weight: 900; width: 100%; cursor: pointer; text-transform: uppercase; font-size: 0.95rem; letter-spacing: 0.1em; }
         .btn-orange:disabled { background: #cbd5e1; cursor: not-allowed; }
+        .btn-export { background: #10b981; color: white; border: none; padding: 1rem; border-radius: 1rem; font-weight: 900; width: 100%; cursor: pointer; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em; margin-bottom: 1rem; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2); }
         .btn-reset { background: transparent; color: #f87171; border: 2px solid #fecaca; padding: 0.8rem; border-radius: 1.25rem; font-weight: 900; font-size: 0.7rem; width: 100%; cursor: pointer; margin-top: 1.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
         .hidden { display: none !important; }
         .stat-badge { background: #f1f5f9; padding: 0.4rem; border-radius: 0.75rem; text-align: center; min-width: 2.5rem; border-bottom: 4px solid #cbd5e1; font-weight: 900; }
+        
+        .input-block { background: #e2e8f0; padding: 1rem; border-radius: 1rem; margin-bottom: 1rem; }
+        .styled-input { width: 100%; padding: 1rem; border-radius: 0.75rem; border: none; background: white; font-weight: 900; outline:none; text-transform:uppercase; margin-bottom: 0.5rem; }
+        
+        /* 客製化智慧下拉選單樣式 */
+        .autocomplete-container { position: relative; width: 100%; margin-bottom: 0.5rem; }
+        .autocomplete-list { position: absolute; top: calc(100% - 0.2rem); left: 0; right: 0; background: white; border: 2px solid #e2e8f0; border-top: none; border-radius: 0 0 0.75rem 0.75rem; max-height: 200px; overflow-y: auto; z-index: 1000; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); display: none; }
+        .autocomplete-item { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 1rem; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-weight: 700; color: #0f172a; font-size: 0.85rem; }
+        .autocomplete-item:last-child { border-bottom: none; }
+        .autocomplete-item:hover { background: #f1f5f9; }
+        .delete-mem-btn { color: #f87171; font-size: 1.5rem; cursor: pointer; padding: 0 0.5rem; line-height: 1; display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; }
+        .delete-mem-btn:hover { background: #fecaca; }
     </style>
 </head>
 <body>
+    <datalist id="events-list"></datalist>
+
     <div class="max-w-md">
         <div class="sticky-header">
             <header>
@@ -54,28 +69,56 @@
         <main>
             <div id="view-setup">
                 <div class="card">
-                    <div style="display: flex; gap: 0.5rem; margin-bottom:1rem;">
-                        <input type="text" id="setup-name" placeholder="PLAYER NAME" style="flex: 1; padding: 1rem; border-radius: 1rem; border: none; background: #f1f5f9; font-weight: 900; outline:none; text-transform:uppercase;">
-                        <button onclick="addPlayer('setup-name')" style="background:#0f172a; color:white; border:none; padding: 0 1.5rem; border-radius: 1rem; font-weight: 900; cursor:pointer;">＋</button>
+                    <div style="margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px dashed #cbd5e1;">
+                        <div style="font-size: 0.75rem; font-weight: 900; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase;">Event Info (For DUPR)</div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" id="setup-event-name" list="events-list" placeholder="EVENT NAME" style="flex: 1; padding: 1rem; border-radius: 1rem; border: none; background: #f1f5f9; font-weight: 900; outline:none; text-transform:uppercase;">
+                            <input type="date" id="setup-event-date" style="width: 140px; padding: 1rem; border-radius: 1rem; border: none; background: #f1f5f9; font-weight: 900; outline:none; text-transform:uppercase;">
+                        </div>
                     </div>
-                    <div style="font-size: 0.75rem; font-weight: 900; color: #f97316; margin-top: 1rem; text-align: center; letter-spacing: 0.05em;"></div>
+
+                    <div class="input-block">
+                        <div style="font-size: 0.75rem; font-weight: 900; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase;">ADD NEW PLAYER</div>
+                        
+                        <div class="autocomplete-container">
+                            <input type="text" id="setup-name" onfocus="showPlayerSuggestions('setup-name', 'setup-dupr', 'setup-dropdown')" oninput="showPlayerSuggestions('setup-name', 'setup-dupr', 'setup-dropdown')" placeholder="PLAYER NAME" class="styled-input" autocomplete="off" style="margin-bottom:0; position:relative; z-index:1001;">
+                            <div id="setup-dropdown" class="autocomplete-list"></div>
+                        </div>
+
+                        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                            <input type="text" id="setup-dupr" placeholder="DUPR ID (OPTIONAL)" style="flex: 1; padding: 1rem; border-radius: 0.75rem; border: none; background: white; font-weight: 900; outline:none; text-transform:uppercase;">
+                            <button onclick="addPlayer('setup-name', 'setup-dupr')" style="background:#0f172a; color:white; border:none; padding: 0 1.5rem; border-radius: 0.75rem; font-weight: 900; cursor:pointer;">ADD</button>
+                        </div>
+                    </div>
+
+                    <div style="font-size: 0.75rem; font-weight: 900; color: #f97316; margin-top: 1rem; text-align: center; letter-spacing: 0.05em;">⚠️ 最少需要 6 人才能開始</div>
                     <div id="setup-list" style="margin-top: 1rem; max-height:400px; overflow-y:auto; border: 1px solid #f1f5f9; border-radius: 1rem;"></div>
                 </div>
                 <button id="start-btn" onclick="startApp()" class="btn-orange" style="margin-top: 1.5rem;" disabled>MINIMUM 6 PLAYERS</button>
-                <button onclick="resetData()" class="btn-reset">RESET ALL DATA / 清除資料</button>
+                <button onclick="resetData()" class="btn-reset">CLEAR MATCH DATA / 開啟新球聚</button>
             </div>
 
             <div id="view-game" class="hidden">
                 <div id="tab-players-content">
                     <div id="player-stats-list" class="card" style="padding: 0; overflow: hidden;"></div>
-                    <div style="display:flex; gap:0.5rem; margin-top:1rem;">
-                        <input type="text" id="add-more" placeholder="ADD NEW PLAYER" style="flex:1; padding:1rem; border:none; border-bottom:2px solid #e2e8f0; font-weight:700; outline:none; text-transform:uppercase;">
-                        <button onclick="addPlayer('add-more')" style="background:#0f172a; color:white; border:none; padding:0 1.2rem; border-radius:1rem; font-weight:900; cursor:pointer;">ADD</button>
+                    
+                    <div class="input-block" style="margin-top:1rem;">
+                        <div class="autocomplete-container">
+                            <input type="text" id="add-more-name" onfocus="showPlayerSuggestions('add-more-name', 'add-more-dupr', 'add-more-dropdown')" oninput="showPlayerSuggestions('add-more-name', 'add-more-dupr', 'add-more-dropdown')" placeholder="PLAYER NAME" class="styled-input" autocomplete="off" style="margin-bottom:0; position:relative; z-index:1001;">
+                            <div id="add-more-dropdown" class="autocomplete-list"></div>
+                        </div>
+
+                        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                            <input type="text" id="add-more-dupr" placeholder="DUPR ID (OPTIONAL)" style="flex: 1; padding: 1rem; border-radius: 0.75rem; border: none; background: white; font-weight: 900; outline:none; text-transform:uppercase;">
+                            <button onclick="addPlayer('add-more-name', 'add-more-dupr')" style="background:#0f172a; color:white; border:none; padding: 0 1.5rem; border-radius: 0.75rem; font-weight: 900; cursor:pointer;">ADD</button>
+                        </div>
                     </div>
-                    <button onclick="resetData()" class="btn-reset">RESET ALL DATA / 清除資料</button>
+
+                    <button onclick="resetData()" class="btn-reset">CLEAR MATCH DATA / 開啟新球聚</button>
                 </div>
                 
                 <div id="tab-schedule-content" class="hidden">
+                    <button onclick="exportDUPRCSV()" class="btn-export">📥 EXPORT DUPR CSV</button>
                     <div id="schedule-list"></div>
                 </div>
 
@@ -91,9 +134,7 @@
 
     <script>
         let players = JSON.parse(localStorage.getItem('pb_players')) || [];
-        
-        // 確保舊資料也有 rating 屬性 (向下相容)
-        players = players.map(p => ({ ...p, rating: p.rating || 3.500 }));
+        players = players.map(p => ({ ...p, rating: p.rating || 3.500, duprId: p.duprId || "" }));
 
         let matchHistory = JSON.parse(localStorage.getItem('pb_history')) || [];
         let isStarted = localStorage.getItem('pb_isStarted') === 'true';
@@ -102,6 +143,92 @@
         let baseCycleLength = parseInt(localStorage.getItem('pb_baseCycle')) || 12;
         let initialSetupCount = parseInt(localStorage.getItem('pb_initialCount')) || 6;
         let activeTab = 'players';
+
+        function getLocalYYYYMMDD() {
+            const d = new Date();
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        document.getElementById('setup-event-name').value = localStorage.getItem('pb_eventName') || '';
+        document.getElementById('setup-event-date').value = localStorage.getItem('pb_eventDate') || getLocalYYYYMMDD();
+
+        // 更新 Event 的下拉清單
+        function updateEventsList() {
+            const eMem = JSON.parse(localStorage.getItem('pb_memory_events')) || [];
+            const eList = document.getElementById('events-list');
+            if(eList) eList.innerHTML = eMem.map(e => `<option value="${e}">`).join('');
+        }
+        updateEventsList();
+
+        // 智慧下拉選單核心邏輯
+        function showPlayerSuggestions(nameInputId, duprInputId, dropdownId) {
+            const input = document.getElementById(nameInputId);
+            const val = input.value.trim().toLowerCase();
+            const dropdown = document.getElementById(dropdownId);
+            const pMem = JSON.parse(localStorage.getItem('pb_memory_players')) || {};
+            
+            // 如果剛好有完全符合的名稱，自動填充 DUPR ID
+            if (val && pMem[val] !== undefined && document.getElementById(duprInputId).value.trim() === '') {
+                document.getElementById(duprInputId).value = pMem[val];
+            }
+
+            dropdown.innerHTML = '';
+            // 過濾名單
+            const matches = Object.keys(pMem).filter(k => k.includes(val));
+            
+            if (matches.length === 0) { 
+                dropdown.style.display = 'none'; 
+                return; 
+            }
+
+            // 建立選單 DOM
+            matches.forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'autocomplete-item';
+                
+                // 名字與 DUPR 顯示區塊
+                const nameSpan = document.createElement('span');
+                const displayName = m.charAt(0).toUpperCase() + m.slice(1);
+                nameSpan.innerHTML = `${displayName} <span style="color:#94a3b8; font-size:10px; margin-left:5px;">${pMem[m] ? '('+pMem[m]+')' : ''}</span>`;
+                nameSpan.style.flex = "1";
+                
+                // 點擊選項自動帶入資料
+                nameSpan.onclick = () => {
+                    input.value = displayName;
+                    document.getElementById(duprInputId).value = pMem[m];
+                    dropdown.style.display = 'none';
+                };
+
+                // X 刪除按鈕
+                const delSpan = document.createElement('span');
+                delSpan.innerHTML = '&times;'; 
+                delSpan.className = 'delete-mem-btn';
+                delSpan.onclick = (e) => {
+                    e.stopPropagation(); // 阻止觸發選擇動作
+                    if(confirm(`確定要從記憶庫中永久刪除「${displayName}」嗎？`)) {
+                        delete pMem[m];
+                        localStorage.setItem('pb_memory_players', JSON.stringify(pMem));
+                        // 重新整理下拉選單
+                        showPlayerSuggestions(nameInputId, duprInputId, dropdownId);
+                    }
+                };
+
+                div.appendChild(nameSpan);
+                div.appendChild(delSpan);
+                dropdown.appendChild(div);
+            });
+            dropdown.style.display = 'block';
+        }
+
+        // 點擊空白處關閉下拉選單
+        document.addEventListener('click', function(e) {
+            if(!e.target.closest('.autocomplete-container')) {
+                document.querySelectorAll('.autocomplete-list').forEach(el => el.style.display = 'none');
+            }
+        });
 
         const CYCLES = { 
             6: [ 
@@ -151,20 +278,95 @@
             localStorage.setItem('pb_initialCount', initialSetupCount);
         }
 
-        function resetData() { if(confirm("確定要重設所有資料嗎？(此動作無法復原)")) { localStorage.clear(); location.reload(); } }
+        function resetData() { 
+            if(confirm("確定要清除今天的排程與比分 (Clear Match Data)，開啟新球聚嗎？\n\n(此動作不會清除您已儲存的球員與 DUPR ID 記憶)")) { 
+                localStorage.removeItem('pb_players');
+                localStorage.removeItem('pb_history');
+                localStorage.removeItem('pb_isStarted');
+                localStorage.removeItem('pb_matrix');
+                localStorage.removeItem('pb_nextNum');
+                localStorage.removeItem('pb_baseCycle');
+                localStorage.removeItem('pb_initialCount');
+                location.reload(); 
+            } 
+        }
 
-        function addPlayer(id) {
-            const input = document.getElementById(id); let name = input.value.trim(); if(!name) return;
+        function exportDUPRCSV() {
+            let historyDones = [...matchHistory].filter(m => m.completed).sort((a,b) => a.round - b.round);
+            if(historyDones.length === 0) {
+                alert("目前沒有已完成的比賽可以匯出！");
+                return;
+            }
+
+            let evtName = localStorage.getItem('pb_eventName') || 'Casual_Match';
+            let safeEvtName = evtName.replace(/[\/\\?%*:|"<>\.]/g, '').replace(/\s+/g, '_');
+            
+            let rawDate = localStorage.getItem('pb_eventDate');
+            let evtDate = (!rawDate || !/^\d{4}-\d{2}-\d{2}$/.test(rawDate)) ? getLocalYYYYMMDD() : rawDate;
+
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
+            csvContent += "<leave empty>,<leave empty>,<leave empty>,matchType,event,date,playerA1,playerA1DuprId,playerA1ExternalId,playerA2,playerA2DuprId,playerA2ExternalId,playerB1,playerB1DuprId,playerB1ExternalId,playerB2,playerB2DuprId,playerB2ExternalId,<leave empty>,teamAGame1,teamBGame1,teamAGame2,teamBGame2,teamAGame3,teamBGame3,teamAGame4,teamBGame4,teamAGame5,teamBGame5\n";
+            
+            historyDones.forEach(m => {
+                const pA1 = players.find(p => p.id === m.teamAIds[0]) || {};
+                const pA2 = players.find(p => p.id === m.teamAIds[1]) || {};
+                const pB1 = players.find(p => p.id === m.teamBIds[0]) || {};
+                const pB2 = players.find(p => p.id === m.teamBIds[1]) || {};
+                
+                const row = [
+                    "", "", "", 
+                    "D",        
+                    evtName,    
+                    evtDate,    
+                    pA1.name || "Unknown", pA1.duprId || "", "",         
+                    pA2.name || "Unknown", pA2.duprId || "", "",         
+                    pB1.name || "Unknown", pB1.duprId || "", "",         
+                    pB2.name || "Unknown", pB2.duprId || "", "",         
+                    "",         
+                    m.scoreA, m.scoreB,   
+                    "", "", "", "", "", "", "", ""          
+                ];
+                
+                csvContent += row.map(item => `"${item}"`).join(",") + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `DUPR_${safeEvtName}_${evtDate}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function addPlayer(nameId, duprIdId) {
+            const nameInput = document.getElementById(nameId);
+            const duprInput = document.getElementById(duprIdId);
+            let name = nameInput.value.trim();
+            let duprId = duprInput ? duprInput.value.trim().toUpperCase() : '';
+            
+            if(!name) return;
             if(players.some(p => p.name.toLowerCase() === name.toLowerCase())) { alert("此姓名已存在！"); return; }
             name = name.charAt(0).toUpperCase() + name.slice(1);
             
-            players.push({ id: Date.now(), playerNum: nextPlayerNum++, name, playCount: 0, wins: 0, losses: 0, consecutive: 0, isActive: true, rating: 3.500 });
+            players.push({ id: Date.now(), playerNum: nextPlayerNum++, name, duprId, playCount: 0, wins: 0, losses: 0, consecutive: 0, isActive: true, rating: 3.500 });
             
+            // 存入記憶庫
+            let pMem = JSON.parse(localStorage.getItem('pb_memory_players')) || {};
+            if(duprId) { pMem[name.toLowerCase()] = duprId; }
+            else if(!pMem[name.toLowerCase()]) { pMem[name.toLowerCase()] = ""; } 
+            localStorage.setItem('pb_memory_players', JSON.stringify(pMem));
+
             if (!isStarted) { 
                 players.forEach((p, i) => { p.playerNum = i + 1; }); 
                 nextPlayerNum = players.length + 1; 
             } 
-            input.value = ''; saveData(); render();
+            nameInput.value = '';
+            if(duprInput) duprInput.value = '';
+            
+            // 隱藏所有選單
+            document.querySelectorAll('.autocomplete-list').forEach(el => el.style.display = 'none');
+            saveData(); render();
         }
 
         function removePlayerSetup(id) {
@@ -180,9 +382,21 @@
             const name = prompt("New Substitute Player Name (替補球員姓名):"); if (!name) return;
             const newName = name.trim();
             if(players.some(p => p.name.toLowerCase() === newName.toLowerCase() && p.isActive)) { alert("此姓名已在場上！"); return; }
-            players = players.map(p => p.id === oldId ? { ...p, isActive: false, consecutive: 0 } : p);
             
-            players.push({ id: Date.now(), playerNum: nextPlayerNum++, name: newName.charAt(0).toUpperCase() + newName.slice(1), playCount: 0, wins: 0, losses: 0, consecutive: 0, isActive: true, rating: 3.500 });
+            const pMem = JSON.parse(localStorage.getItem('pb_memory_players')) || {};
+            const savedDupr = pMem[newName.toLowerCase()] || "";
+            let duprPromptMsg = "DUPR ID (Optional):";
+            if (savedDupr) duprPromptMsg = `系統偵測到歷史 DUPR ID 為 [${savedDupr}]，如要修改請直接輸入，否則按確定沿用：`;
+            
+            let duprId = prompt(duprPromptMsg, savedDupr);
+            if(duprId === null) return; 
+            duprId = duprId.trim().toUpperCase();
+
+            pMem[newName.toLowerCase()] = duprId;
+            localStorage.setItem('pb_memory_players', JSON.stringify(pMem));
+
+            players = players.map(p => p.id === oldId ? { ...p, isActive: false, consecutive: 0 } : p);
+            players.push({ id: Date.now(), playerNum: nextPlayerNum++, name: newName.charAt(0).toUpperCase() + newName.slice(1), duprId, playCount: 0, wins: 0, losses: 0, consecutive: 0, isActive: true, rating: 3.500 });
             
             if (isStarted && !matchHistory[0].completed) { 
                 const newM = calculateMatch(players, matchHistory.length - 1, partnerMatrix);
@@ -196,31 +410,22 @@
             if(isNaN(sA) || isNaN(sB)) { alert("請輸入有效比分"); return; }
             let curr = matchHistory[0]; curr.scoreA = sA; curr.scoreB = sB; curr.completed = true;
             
-            // --- 類 DUPR 積分計算 (高波動娛樂版) ---
             const pA1 = players.find(p => p.id === curr.teamAIds[0]);
             const pA2 = players.find(p => p.id === curr.teamAIds[1]);
             const pB1 = players.find(p => p.id === curr.teamBIds[0]);
             const pB2 = players.find(p => p.id === curr.teamBIds[1]);
             
-            // 雙方平均積分
             const rA = (pA1.rating + pA2.rating) / 2;
             const rB = (pB1.rating + pB2.rating) / 2;
-            
-            // 勝負結果 (1為A贏, 0為B贏)
             const sA_result = sA > sB ? 1 : (sA < sB ? 0 : 0.5);
-            
-            // 預期勝率計算
             const eA = 1 / (1 + Math.pow(10, (rB - rA) / 1.0)); 
             
-            // 分差加權 (Point Differential Multiplier)
             const pointDiff = Math.abs(sA - sB);
             const pdMult = 1 + (pointDiff / 11); 
             
-            // 基礎變動率 (K-Factor) - 調高至 0.4 以增加單日賽事的娛樂波動性
             const K = 0.4; 
             const ratingChangeA = K * (sA_result - eA) * pdMult;
             const ratingChangeB = -ratingChangeA; 
-            // ------------------------------------
 
             [[curr.teamAIds[0], curr.teamAIds[1]], [curr.teamBIds[0], curr.teamBIds[1]]].forEach(p => {
                 if(!partnerMatrix[p[0]]) partnerMatrix[p[0]] = {}; partnerMatrix[p[0]][p[1]] = (partnerMatrix[p[0]][p[1]] || 0) + 1;
@@ -231,7 +436,6 @@
                 if(!curr.allIds.includes(p.id)) return { ...p, consecutive: 0 };
                 const won = (curr.teamAIds.includes(p.id) && sA > sB) || (curr.teamBIds.includes(p.id) && sB > sA);
                 
-                // 套用積分變動
                 let newRating = p.rating;
                 if (curr.teamAIds.includes(p.id)) newRating += ratingChangeA;
                 if (curr.teamBIds.includes(p.id)) newRating += ratingChangeB;
@@ -252,6 +456,15 @@
         }
 
         function startApp() { 
+            let evtName = document.getElementById('setup-event-name').value.trim();
+            localStorage.setItem('pb_eventName', evtName);
+            localStorage.setItem('pb_eventDate', document.getElementById('setup-event-date').value);
+
+            if(evtName) {
+                let eMem = JSON.parse(localStorage.getItem('pb_memory_events')) || [];
+                if(!eMem.includes(evtName)) { eMem.push(evtName); localStorage.setItem('pb_memory_events', JSON.stringify(eMem)); updateEventsList(); }
+            }
+
             initialSetupCount = players.filter(p=>p.isActive).length;
             baseCycleLength = initialSetupCount <= 6 ? 12 : 14;
             const m = calculateMatch(players, 0, partnerMatrix); 
@@ -275,9 +488,8 @@
             btnStart.disabled = activeCount < 6;
             btnStart.innerText = activeCount < 6 ? 'MINIMUM 6 PLAYERS' : 'START MATCHING';
             
-            document.getElementById('setup-list').innerHTML = players.map(p => `<div style="display:flex;justify-content:space-between;padding:0.75rem;border-bottom:1px solid #f1f5f9;align-items:center;"><span style="font-weight:900;">${p.playerNum}. ${p.name}</span><button onclick="removePlayerSetup(${p.id})" style="color:#f87171;border:none;background:none;font-size:10px;font-weight:900;cursor:pointer;">REMOVE</button></div>`).join('');
+            document.getElementById('setup-list').innerHTML = players.map(p => `<div style="display:flex;justify-content:space-between;padding:0.75rem;border-bottom:1px solid #f1f5f9;align-items:center;"><span style="font-weight:900;">${p.playerNum}. ${p.name} <span style="font-size:10px; color:#94a3b8; margin-left:5px;">${p.duprId ? '('+p.duprId+')' : ''}</span></span><button onclick="removePlayerSetup(${p.id})" style="color:#f87171;border:none;background:none;font-size:10px;font-weight:900;cursor:pointer;">REMOVE</button></div>`).join('');
 
-            // LIVE GAME UI
             const curr = matchHistory.find(m => !m.completed);
             const slot = document.getElementById('current-match-ui');
             if (isStarted && curr && curr.allIds.length === 4) {
@@ -300,13 +512,11 @@
                 </div>`;
             } else { slot.innerHTML = ''; }
 
-            // PLAYERS LIST
             document.getElementById('player-stats-list').innerHTML = players.map(p => `<div style="display:flex;justify-content:space-between;padding:1rem;border-bottom:1px solid #f1f5f9;${p.isActive?'':'opacity:0.3'}">
-                <div style="display:flex;flex:1;align-items:center;"><span style="font-weight:900;color:#94a3b8;min-width:1.5rem;">${p.playerNum}.</span><div style="flex:1;margin-left:0.5rem;"><div style="font-weight:900;">${p.name} <span style="font-size:10px; color:#f97316;">(${p.rating.toFixed(3)})</span></div><div style="font-size:10px;color:#059669;font-weight:900;">W:${p.wins} L:${p.losses}</div></div><div class="stat-badge"><div style="font-size:8px;color:#94a3b8;">G</div>${p.playCount}</div></div>
+                <div style="display:flex;flex:1;align-items:center;"><span style="font-weight:900;color:#94a3b8;min-width:1.5rem;">${p.playerNum}.</span><div style="flex:1;margin-left:0.5rem;"><div style="font-weight:900;">${p.name} <span style="font-size:10px; color:#94a3b8;">${p.duprId ? p.duprId : ''}</span> <span style="font-size:10px; color:#f97316; margin-left:3px;">(${p.rating.toFixed(3)})</span></div><div style="font-size:10px;color:#059669;font-weight:900;">W:${p.wins} L:${p.losses}</div></div><div class="stat-badge"><div style="font-size:8px;color:#94a3b8;">G</div>${p.playCount}</div></div>
                 <div style="display:flex;align-items:center;margin-left:1rem;">${p.isActive ? `<button onclick="handleSubs(${p.id})" style="border:none;background:none;font-weight:900;font-size:10px;color:#3b82f6;margin-right:10px;cursor:pointer;">SUBS</button><button onclick="players=players.map(x=>x.id===${p.id}?{...x,isActive:false}:x);saveData();render();" style="border:none;background:none;font-weight:900;font-size:10px;color:#94a3b8;cursor:pointer;">DROP</button>` : `<button onclick="players=players.map(x=>x.id===${p.id}?{...x,isActive:true}:x);saveData();render();" style="border:none;background:none;font-weight:900;font-size:10px;color:#059669;cursor:pointer;">ACTIVATE</button>`}</div>
             </div>`).join('');
 
-            // LEADERBOARD RENDER (純數字乾淨版)
             let sortedPlayers = [...players].sort((a,b) => b.rating - a.rating);
             document.getElementById('leaderboard-list').innerHTML = sortedPlayers.map((p, index) => `
                 <div class="card" style="display:flex; justify-content:space-between; align-items:center; padding: 1.2rem; margin-top: 0.5rem; ${p.isActive?'':'opacity:0.6'}">
@@ -323,7 +533,6 @@
                 </div>
             `).join('');
 
-            // TAB 切換邏輯
             document.getElementById('nav-players').className = `tab-btn ${activeTab==='players'?'tab-active':''}`;
             document.getElementById('nav-schedule').className = `tab-btn ${activeTab==='schedule'?'tab-active':''}`;
             document.getElementById('nav-leaderboard').className = `tab-btn ${activeTab==='leaderboard'?'tab-active':''}`;
@@ -332,7 +541,6 @@
             document.getElementById('tab-schedule-content').className = activeTab === 'schedule' ? '' : 'hidden';
             document.getElementById('tab-leaderboard-content').className = activeTab === 'leaderboard' ? '' : 'hidden';
 
-            // SCHEDULE RENDER
             let schedHTML = '';
             let historyDones = [...matchHistory].filter(m => m.completed).sort((a,b) => a.round - b.round);
             
