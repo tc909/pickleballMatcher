@@ -1,647 +1,1171 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pickleball Matcher v10.9 - Dynamic Matrix Engine</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background-color: #f8fafc; min-height: 100vh; color: #0f172a; -webkit-tap-highlight-color: transparent; }
-        .max-w-md { max-width: 28rem; margin: 0 auto; display: flex; flex-direction: column; min-height: 100vh; }
-        
-        .sticky-header { position: sticky; top: 0; z-index: 50; width: 100%; background: #0f172a; }
-        header { padding: 1.5rem 1.5rem 1rem; border-bottom: 4px solid #f97316; }
-        
-        .tab-bar { display: flex; background: white; border-bottom: 1px solid #e2e8f0; width: 100%; }
-        .tab-btn { flex: 1; padding: 1rem; font-size: 0.75rem; font-weight: 900; border: none; background: none; color: #94a3b8; letter-spacing: 0.05em; cursor: pointer; }
-        .tab-active { border-bottom: 4px solid #f97316; color: #f97316; }
-
-        main { padding: 1rem 1.5rem; flex: 1; }
-        .card { background: white; border-radius: 1.5rem; padding: 1.5rem; margin-top: 0.5rem; border: 1px solid #e2e8f0; position: relative; }
-        
-        .card-live { border: 2px solid #f97316; box-shadow: 0 10px 25px rgba(249,115,22,0.15); padding: 1.25rem; overflow: hidden; }
-        .card-done { background: #0f172a; border-color: #1e293b; color: white; overflow: hidden; }
-        .card-preview { background: #1e293b; color: #94a3b8; border-color: #334155; opacity: 0.6; overflow: hidden; }
-
-        .vs-orange { color: #f97316 !important; font-weight: 900; font-style: italic; font-size: 1.2rem; }
-        .label-done { font-size: 10px; font-weight: 900; color: #f97316; background: rgba(249, 115, 22, 0.2); padding: 2px 8px; border-radius: 10px; }
-        .score-done { color: #f97316; font-size: 1.8rem; font-weight: 900; }
-        
-        .score-input { width: 4.5rem; height: 4.5rem; text-align: center; background: #f1f5f9; border-radius: 1rem; border: 2px solid transparent; font-weight: 900; font-size: 1.5rem; }
-        .score-input:focus { border-color: #f97316; outline: none; }
-        .btn-orange { background: #f97316; color: white; border: none; padding: 1.25rem; border-radius: 1rem; font-weight: 900; width: 100%; cursor: pointer; text-transform: uppercase; font-size: 0.95rem; letter-spacing: 0.1em; }
-        .btn-orange:disabled { background: #cbd5e1; cursor: not-allowed; }
-        .btn-export { background: #10b981; color: white; border: none; padding: 1rem; border-radius: 1rem; font-weight: 900; width: 100%; cursor: pointer; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em; margin-bottom: 1rem; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2); }
-        .btn-reset { background: transparent; color: #f87171; border: 2px solid #fecaca; padding: 0.8rem; border-radius: 1.25rem; font-weight: 900; font-size: 0.7rem; width: 100%; cursor: pointer; margin-top: 1.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
-        .hidden { display: none !important; }
-        .stat-badge { background: #f1f5f9; padding: 0.4rem; border-radius: 0.75rem; text-align: center; min-width: 2.5rem; border-bottom: 4px solid #cbd5e1; font-weight: 900; }
-        
-        .input-block { background: #e2e8f0; padding: 1rem; border-radius: 1rem; margin-bottom: 1rem; }
-        .styled-input { width: 100%; padding: 1rem; border-radius: 0.75rem; border: none; background: white; font-weight: 900; outline:none; text-transform:uppercase; margin-bottom: 0.5rem; }
-        
-        .autocomplete-container { position: relative; width: 100%; margin-bottom: 0.5rem; }
-        .autocomplete-list { position: absolute; top: calc(100% - 0.2rem); left: 0; right: 0; background: white; border: 2px solid #e2e8f0; border-top: none; border-radius: 0 0 0.75rem 0.75rem; max-height: 220px; overflow-y: auto; z-index: 1000; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); display: none; }
-        .autocomplete-item { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 1rem; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-weight: 700; color: #0f172a; font-size: 0.85rem; }
-        .autocomplete-item:last-child { border-bottom: none; }
-        .autocomplete-item:hover { background: #f1f5f9; }
-        .delete-mem-btn { color: #f87171; font-size: 1.5rem; cursor: pointer; padding: 0 0.5rem; line-height: 1; display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; }
-        .delete-mem-btn:hover { background: #fecaca; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MatchFlow - v11.5</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background-color: #f8fafc; min-height: 100vh; color: #0f172a; -webkit-tap-highlight-color: transparent; }
+    .max-w-md { max-width: 28rem; margin: 0 auto; display: flex; flex-direction: column; min-height: 100vh; }
+    .sticky-header { position: sticky; top: 0; z-index: 50; width: 100%; background: #0f172a; }
+    header { padding: 1.5rem 1.5rem 1rem; border-bottom: 4px solid #f97316; }
+    .tab-bar { display: flex; background: white; border-bottom: 1px solid #e2e8f0; width: 100%; }
+    .tab-btn { flex: 1; padding: 1rem; font-size: 0.75rem; font-weight: 900; border: none; background: none; color: #94a3b8; letter-spacing: 0.05em; cursor: pointer; }
+    .tab-active { border-bottom: 4px solid #f97316; color: #f97316; }
+    main { padding: 1rem 1.5rem; flex: 1; }
+    .card { background: white; border-radius: 1.5rem; padding: 1.5rem; margin-top: 0.5rem; border: 1px solid #e2e8f0; position: relative; }
+    .card-live { border: 2px solid #f97316; box-shadow: 0 10px 25px rgba(249,115,22,0.15); padding: 1.25rem; overflow: hidden; }
+    .card-done { background: #0f172a; border-color: #1e293b; color: white; overflow: hidden; }
+    .card-preview { background: #1e293b; color: #94a3b8; border-color: #334155; opacity: 0.6; overflow: hidden; }
+    .vs-orange { color: #f97316 !important; font-weight: 900; font-style: italic; font-size: 1.2rem; }
+    .label-done { font-size: 10px; font-weight: 900; color: #f97316; background: rgba(249, 115, 22, 0.2); padding: 2px 8px; border-radius: 10px; }
+    .score-done { color: #f97316; font-size: 1.8rem; font-weight: 900; }
+    .score-input { width: 4.5rem; height: 4.5rem; text-align: center; background: #f1f5f9; border-radius: 1rem; border: 2px solid transparent; font-weight: 900; font-size: 1.5rem; }
+    .score-input:focus { border-color: #f97316; outline: none; }
+    .btn-orange { background: #f97316; color: white; border: none; padding: 1.25rem; border-radius: 1rem; font-weight: 900; width: 100%; cursor: pointer; text-transform: uppercase; font-size: 0.95rem; letter-spacing: 0.1em; }
+    .btn-orange:disabled { background: #cbd5e1; cursor: not-allowed; }
+    .btn-export { background: #10b981; color: white; border: none; padding: 1rem; border-radius: 1rem; font-weight: 900; width: 100%; cursor: pointer; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em; margin-bottom: 1rem; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2); }
+    .btn-reset { background: transparent; color: #f87171; border: 2px solid #fecaca; padding: 0.8rem; border-radius: 1.25rem; font-weight: 900; font-size: 0.7rem; width: 100%; cursor: pointer; margin-top: 1.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .hidden { display: none !important; }
+    .stat-badge { background: #f1f5f9; padding: 0.4rem; border-radius: 0.75rem; text-align: center; min-width: 2.5rem; border-bottom: 4px solid #cbd5e1; font-weight: 900; }
+    .input-block { background: #e2e8f0; padding: 1rem; border-radius: 1rem; margin-bottom: 1rem; }
+    .styled-input { width: 100%; padding: 1rem; border-radius: 0.75rem; border: none; background: white; font-weight: 900; outline: none; text-transform: uppercase; margin-bottom: 0.5rem; }
+    .autocomplete-container { position: relative; width: 100%; margin-bottom: 0.5rem; }
+    .autocomplete-list { position: absolute; top: calc(100% - 0.2rem); left: 0; right: 0; background: white; border: 2px solid #e2e8f0; border-top: none; border-radius: 0 0 0.75rem 0.75rem; max-height: 220px; overflow-y: auto; z-index: 1000; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); display: none; }
+    .autocomplete-item { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 1rem; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-weight: 700; color: #0f172a; font-size: 0.85rem; }
+    .autocomplete-item:last-child { border-bottom: none; }
+    .autocomplete-item:hover { background: #f1f5f9; }
+    .delete-mem-btn { color: #f87171; font-size: 1.5rem; cursor: pointer; padding: 0 0.5rem; line-height: 1; display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; }
+    .delete-mem-btn:hover { background: #fecaca; }
+  </style>
 </head>
 <body>
-    <datalist id="events-list"></datalist>
+  <datalist id="events-list"></datalist>
 
-    <div class="max-w-md">
-        <div class="sticky-header">
-            <header>
-                <div style="color: white; font-weight: 900; font-style: italic; text-transform: uppercase; text-align: center; font-size: 1.5rem; margin-bottom:1rem;">Pickleball <span style="color: #f97316;">Matcher</span></div>
-                <div id="current-match-ui"></div>
-            </header>
-            <div id="navigation" class="tab-bar hidden">
-                <button onclick="switchTab('players')" id="nav-players" class="tab-btn tab-active">PLAYERS</button>
-                <button onclick="switchTab('schedule')" id="nav-schedule" class="tab-btn">SCHEDULE</button>
-                <button onclick="switchTab('leaderboard')" id="nav-leaderboard" class="tab-btn">RANKING</button>
-            </div>
-        </div>
-
-        <main>
-            <div id="view-setup">
-                <div class="card">
-                    <div style="margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px dashed #cbd5e1;">
-                        <div style="font-size: 0.75rem; font-weight: 900; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase;">Event Info (For DUPR)</div>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <input type="text" id="setup-event-name" list="events-list" placeholder="EVENT NAME" style="flex: 1; padding: 1rem; border-radius: 1rem; border: none; background: #f1f5f9; font-weight: 900; outline:none; text-transform:uppercase;">
-                            <input type="date" id="setup-event-date" style="width: 140px; padding: 1rem; border-radius: 1rem; border: none; background: #f1f5f9; font-weight: 900; outline:none; text-transform:uppercase;">
-                        </div>
-                    </div>
-
-                    <div class="input-block">
-                        <div style="font-size: 0.75rem; font-weight: 900; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase;">ADD NEW PLAYER</div>
-                        
-                        <div class="autocomplete-container">
-                            <input type="text" id="setup-name" onfocus="showPlayerSuggestions('setup-name', 'setup-dupr', 'setup-dropdown')" oninput="showPlayerSuggestions('setup-name', 'setup-dupr', 'setup-dropdown')" placeholder="PLAYER NAME" class="styled-input" autocomplete="off" style="margin-bottom:0; position:relative; z-index:1001;">
-                            <div id="setup-dropdown" class="autocomplete-list"></div>
-                        </div>
-
-                        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                            <input type="text" id="setup-dupr" placeholder="DUPR ID (OPTIONAL)" style="flex: 1; padding: 1rem; border-radius: 0.75rem; border: none; background: white; font-weight: 900; outline:none; text-transform:uppercase;">
-                            <button onclick="addPlayer('setup-name', 'setup-dupr')" style="background:#0f172a; color:white; border:none; padding: 0 1.5rem; border-radius: 0.75rem; font-weight: 900; cursor:pointer;">ADD</button>
-                        </div>
-                    </div>
-
-                    <div style="font-size: 0.75rem; font-weight: 900; color: #f97316; margin-top: 1rem; text-align: center; letter-spacing: 0.05em;">⚠️ 最少需要 6 人才能開始</div>
-                    <div id="setup-list" style="margin-top: 1rem; max-height:400px; min-height: 200px; overflow-y:auto; border: 1px solid #f1f5f9; border-radius: 1rem; padding: 0.5rem;"></div>
-                </div>
-                <button id="start-btn" onclick="startApp()" class="btn-orange" style="margin-top: 1.5rem;" disabled>MINIMUM 6 PLAYERS</button>
-                <button onclick="resetData()" class="btn-reset">CLEAR MATCH DATA / 開啟新球聚</button>
-            </div>
-
-            <div id="view-game" class="hidden">
-                <div id="tab-players-content">
-                    <div id="player-stats-list" class="card" style="padding: 0; overflow: hidden;"></div>
-                    
-                    <div class="input-block" style="margin-top:1rem;">
-                        <div class="autocomplete-container">
-                            <input type="text" id="add-more-name" onfocus="showPlayerSuggestions('add-more-name', 'add-more-dupr', 'add-more-dropdown')" oninput="showPlayerSuggestions('add-more-name', 'add-more-dupr', 'add-more-dropdown')" placeholder="PLAYER NAME" class="styled-input" autocomplete="off" style="margin-bottom:0; position:relative; z-index:1001;">
-                            <div id="add-more-dropdown" class="autocomplete-list"></div>
-                        </div>
-
-                        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                            <input type="text" id="add-more-dupr" placeholder="DUPR ID (OPTIONAL)" style="flex: 1; padding: 1rem; border-radius: 0.75rem; border: none; background: white; font-weight: 900; outline:none; text-transform:uppercase;">
-                            <button onclick="addPlayer('add-more-name', 'add-more-dupr')" style="background:#0f172a; color:white; border:none; padding: 0 1.5rem; border-radius: 0.75rem; font-weight: 900; cursor:pointer;">ADD</button>
-                        </div>
-                    </div>
-
-                    <button onclick="resetData()" class="btn-reset">CLEAR MATCH DATA / 開啟新球聚</button>
-                </div>
-                
-                <div id="tab-schedule-content" class="hidden">
-                    <button onclick="exportDUPRCSV()" class="btn-export">📥 EXPORT DUPR CSV</button>
-                    <div id="schedule-list"></div>
-                </div>
-
-                <div id="tab-leaderboard-content" class="hidden">
-                    <div style="text-align: center; margin-bottom: 1rem; color: #64748b; font-size: 0.75rem; font-weight: 900; text-transform: uppercase;">
-                        Dynamic Rating System (Base 3.500)
-                    </div>
-                    <div id="leaderboard-list"></div>
-                </div>
-            </div>
-        </main>
+  <div class="max-w-md">
+    <div class="sticky-header">
+      <header>
+        <div style="color: white; font-weight: 900; font-style: italic; text-transform: uppercase; text-align: center; font-size: 1.5rem; margin-bottom:1rem;">Match<span style="color: #f97316;">Flow</span></div>
+        <div id="current-match-ui"></div>
+      </header>
+      <div id="navigation" class="tab-bar hidden">
+        <button onclick="switchTab('players')" id="nav-players" class="tab-btn tab-active">PLAYERS</button>
+        <button onclick="switchTab('schedule')" id="nav-schedule" class="tab-btn">SCHEDULE</button>
+        <button onclick="switchTab('leaderboard')" id="nav-leaderboard" class="tab-btn">LEADERBOARD</button>
+      </div>
     </div>
 
-    <script>
-        let players = JSON.parse(localStorage.getItem('pb_players')) || [];
-        players = players.map(p => ({ ...p, rating: p.rating || 3.500, duprId: p.duprId || "" }));
+    <main>
+      <div id="view-setup">
+        <div class="card">
+          <div style="margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px dashed #cbd5e1;">
+            <div style="font-size: 0.75rem; font-weight: 900; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase;">Event Info (For DUPR)</div>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="text" id="setup-event-name" list="events-list" placeholder="EVENT NAME" style="flex: 1; padding: 1rem; border-radius: 1rem; border: none; background: #f1f5f9; font-weight: 900; outline:none; text-transform:uppercase;">
+              <input type="date" id="setup-event-date" style="width: 140px; padding: 1rem; border-radius: 1rem; border: none; background: #f1f5f9; font-weight: 900; outline:none; text-transform:uppercase;">
+            </div>
+          </div>
 
-        let matchHistory = JSON.parse(localStorage.getItem('pb_history')) || [];
-        let isStarted = localStorage.getItem('pb_isStarted') === 'true';
-        let partnerMatrix = JSON.parse(localStorage.getItem('pb_matrix')) || {}; 
-        let nextPlayerNum = parseInt(localStorage.getItem('pb_nextNum')) || 1;
-        
-        // 矩陣核心變數
-        let baseCycleLength = parseInt(localStorage.getItem('pb_baseCycle')) || 12;
-        let initialSetupCount = parseInt(localStorage.getItem('pb_initialCount')) || 6;
-        let activeTab = 'players';
+          <div class="input-block">
+            <div style="font-size: 0.75rem; font-weight: 900; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase;">ADD NEW PLAYER</div>
 
-        function getLocalYYYYMMDD() {
-            const d = new Date();
-            const year = d.getFullYear();
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
+            <div class="autocomplete-container">
+              <input type="text" id="setup-name" onfocus="showPlayerSuggestions('setup-name', 'setup-dupr', 'setup-dropdown')" oninput="showPlayerSuggestions('setup-name', 'setup-dupr', 'setup-dropdown')" placeholder="PLAYER NAME" class="styled-input" autocomplete="off" style="margin-bottom:0; position:relative; z-index:1001;">
+              <div id="setup-dropdown" class="autocomplete-list"></div>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+              <input type="text" id="setup-dupr" placeholder="DUPR ID (OPTIONAL)" style="flex: 1; padding: 1rem; border-radius: 0.75rem; border: none; background: white; font-weight: 900; outline:none; text-transform:uppercase;">
+              <button onclick="addPlayer('setup-name', 'setup-dupr')" style="background:#0f172a; color:white; border:none; padding: 0 1.5rem; border-radius: 0.75rem; font-weight: 900; cursor:pointer;">ADD</button>
+            </div>
+          </div>
+
+          <div style="font-size: 0.75rem; font-weight: 900; color: #f97316; margin-top: 1rem; text-align: center; letter-spacing: 0.05em;">⚠️ MINIMUM 4 PLAYERS REQUIRED TO START</div>
+          <div id="setup-list" style="margin-top: 1rem; max-height:400px; min-height: 200px; overflow-y:auto; border: 1px solid #f1f5f9; border-radius: 1rem; padding: 0.5rem;"></div>
+        </div>
+        <button id="start-btn" onclick="startApp()" class="btn-orange" style="margin-top: 1.5rem;" disabled>MINIMUM 4 PLAYERS</button>
+        <button onclick="resetData()" class="btn-reset">CLEAR MATCH DATA / START NEW SESSION</button>
+      </div>
+
+      <div id="view-game" class="hidden">
+        <div id="tab-players-content">
+          <div id="players-meta-controls"></div>
+          <div id="player-stats-list" class="card" style="padding: 0; overflow: hidden;"></div>
+
+          <div class="input-block" style="margin-top:1rem;">
+            <div class="autocomplete-container">
+              <input type="text" id="add-more-name" onfocus="showPlayerSuggestions('add-more-name', 'add-more-dupr', 'add-more-dropdown')" oninput="showPlayerSuggestions('add-more-name', 'add-more-dupr', 'add-more-dropdown')" placeholder="PLAYER NAME" class="styled-input" autocomplete="off" style="margin-bottom:0; position:relative; z-index:1001;">
+              <div id="add-more-dropdown" class="autocomplete-list"></div>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+              <input type="text" id="add-more-dupr" placeholder="DUPR ID (OPTIONAL)" style="flex: 1; padding: 1rem; border-radius: 0.75rem; border: none; background: white; font-weight: 900; outline:none; text-transform:uppercase;">
+              <button onclick="addPlayer('add-more-name', 'add-more-dupr')" style="background:#0f172a; color:white; border:none; padding: 0 1.5rem; border-radius: 0.75rem; font-weight: 900; cursor:pointer;">ADD</button>
+            </div>
+          </div>
+
+          <button onclick="resetData()" class="btn-reset">CLEAR MATCH DATA / START NEW SESSION</button>
+        </div>
+
+        <div id="tab-schedule-content" class="hidden">
+          <div id="schedule-meta-controls"></div>
+          <div id="schedule-list"></div>
+        </div>
+
+        <div id="tab-leaderboard-content" class="hidden">
+          <div style="text-align: center; margin-bottom: 1rem; color: #64748b; font-size: 0.75rem; font-weight: 900; text-transform: uppercase;">
+            Dynamic Rating System (Base 3.500)
+          </div>
+          <div id="leaderboard-list"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // =============================
+    // 1) Constants / Config
+    // =============================
+    const STORAGE_KEYS = {
+      players: 'pb_players',
+      history: 'pb_history',
+      isStarted: 'pb_isStarted',
+      matrix: 'pb_matrix',
+      nextNum: 'pb_nextNum',
+      baseCycle: 'pb_baseCycle',
+      initialCount: 'pb_initialCount',
+      eventName: 'pb_eventName',
+      eventDate: 'pb_eventDate',
+      memoryPlayers: 'pb_memory_players',
+      memoryEvents: 'pb_memory_events',
+      scoreType: 'pb_scoreType'
+    };
+
+    const DEFAULT_RATING = 3.5;
+    const CYCLES = {
+      4: [
+        [0,1,2,3], [0,2,1,3], [0,3,1,2],
+        [0,1,2,3], [0,2,1,3], [0,3,1,2],
+        [0,1,2,3], [0,2,1,3], [0,3,1,2],
+        [0,1,2,3], [0,2,1,3], [0,3,1,2]
+      ],
+      5: [
+        [0,1,2,3], [0,4,1,2], [3,4,0,1], [2,4,0,3], [1,4,2,3],
+        [0,2,1,3], [0,3,1,4], [0,4,2,3], [1,3,2,4], [1,2,3,4]
+      ],
+      6: [
+        [0,1,2,3], [0,1,4,5], [2,3,4,5], [0,1,2,3], [0,1,4,5], [2,3,4,5],
+        [0,1,2,3], [0,1,4,5], [2,3,4,5], [0,1,2,3], [0,1,4,5], [2,3,4,5]
+      ],
+      7: [
+        [0,1,3,4], [1,2,4,5], [2,3,5,6], [3,4,6,0], [4,5,0,1], [5,6,1,2], [6,0,2,3],
+        [0,1,3,4], [1,2,4,5], [2,3,5,6], [3,4,6,0], [4,5,0,1], [5,6,1,2], [6,0,2,3]
+      ],
+      8: [
+        [0,1,2,3], [4,5,6,7], [0,1,4,5], [2,3,6,7], [0,2,4,6], [1,3,5,7], [0,3,4,7],
+        [1,2,5,6], [0,1,6,7], [2,3,4,5], [0,2,5,7], [1,3,4,6], [0,3,5,6], [1,2,4,7]
+      ]
+    };
+
+    // =============================
+    // 2) DOM references
+    // =============================
+    const els = {
+      eventsList: document.getElementById('events-list'),
+      navigation: document.getElementById('navigation'),
+      currentMatchUI: document.getElementById('current-match-ui'),
+      viewSetup: document.getElementById('view-setup'),
+      viewGame: document.getElementById('view-game'),
+      setupEventName: document.getElementById('setup-event-name'),
+      setupEventDate: document.getElementById('setup-event-date'),
+      setupList: document.getElementById('setup-list'),
+      startBtn: document.getElementById('start-btn'),
+      playerStatsList: document.getElementById('player-stats-list'),
+      playersMetaControls: document.getElementById('players-meta-controls'),
+      scheduleMetaControls: document.getElementById('schedule-meta-controls'),
+      scheduleList: document.getElementById('schedule-list'),
+      leaderboardList: document.getElementById('leaderboard-list'),
+      navPlayers: document.getElementById('nav-players'),
+      navSchedule: document.getElementById('nav-schedule'),
+      navLeaderboard: document.getElementById('nav-leaderboard'),
+      tabPlayersContent: document.getElementById('tab-players-content'),
+      tabScheduleContent: document.getElementById('tab-schedule-content'),
+      tabLeaderboardContent: document.getElementById('tab-leaderboard-content')
+    };
+
+    // =============================
+    // 3) State
+    // =============================
+    let state = loadAppState();
+
+    // =============================
+    // 4) Persistence
+    // =============================
+    function loadJSON(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch (error) {
+        return fallback;
+      }
+    }
+
+    function loadAppState() {
+      const players = loadJSON(STORAGE_KEYS.players, []).map(player => ({
+        ...player,
+        rating: typeof player.rating === 'number' ? player.rating : DEFAULT_RATING,
+        duprId: player.duprId || ''
+      }));
+
+      return {
+        players,
+        matchHistory: loadJSON(STORAGE_KEYS.history, []),
+        isStarted: localStorage.getItem(STORAGE_KEYS.isStarted) === 'true',
+        partnerMatrix: loadJSON(STORAGE_KEYS.matrix, {}),
+        nextPlayerNum: parseInt(localStorage.getItem(STORAGE_KEYS.nextNum), 10) || 1,
+        baseCycleLength: parseInt(localStorage.getItem(STORAGE_KEYS.baseCycle), 10) || 12,
+        initialSetupCount: parseInt(localStorage.getItem(STORAGE_KEYS.initialCount), 10) || 6,
+        activeTab: 'players'
+      };
+    }
+
+    function saveAppState() {
+      localStorage.setItem(STORAGE_KEYS.players, JSON.stringify(state.players));
+      localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(state.matchHistory));
+      localStorage.setItem(STORAGE_KEYS.isStarted, String(state.isStarted));
+      localStorage.setItem(STORAGE_KEYS.matrix, JSON.stringify(state.partnerMatrix));
+      localStorage.setItem(STORAGE_KEYS.nextNum, String(state.nextPlayerNum));
+      localStorage.setItem(STORAGE_KEYS.baseCycle, String(state.baseCycleLength));
+      localStorage.setItem(STORAGE_KEYS.initialCount, String(state.initialSetupCount));
+    }
+
+    function loadPlayerMemory() {
+      return loadJSON(STORAGE_KEYS.memoryPlayers, {});
+    }
+
+    function savePlayerMemory(memory) {
+      localStorage.setItem(STORAGE_KEYS.memoryPlayers, JSON.stringify(memory));
+    }
+
+    function loadEventMemory() {
+      return loadJSON(STORAGE_KEYS.memoryEvents, []);
+    }
+
+    function saveEventMemory(memory) {
+      localStorage.setItem(STORAGE_KEYS.memoryEvents, JSON.stringify(memory));
+    }
+
+    function resetSessionStorage() {
+      [
+        STORAGE_KEYS.players,
+        STORAGE_KEYS.history,
+        STORAGE_KEYS.isStarted,
+        STORAGE_KEYS.matrix,
+        STORAGE_KEYS.nextNum,
+        STORAGE_KEYS.baseCycle,
+        STORAGE_KEYS.initialCount
+      ].forEach(key => localStorage.removeItem(key));
+    }
+
+    // =============================
+    // 5) Helpers / Derived state
+    // =============================
+    function getLocalYYYYMMDD() {
+      const d = new Date();
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function titleCaseName(name) {
+      if (!name) return '';
+      return name.charAt(0).toUpperCase() + name.slice(1);
+    }
+
+    function getActivePlayers(dataState = state) {
+      return dataState.players.filter(player => player.isActive);
+    }
+
+    function getCurrentMatch(dataState = state) {
+      return dataState.matchHistory.find(match => !match.completed) || null;
+    }
+
+    function getCompletedMatches(dataState = state) {
+      return dataState.matchHistory
+        .filter(match => match.completed)
+        .sort((a, b) => a.round - b.round);
+    }
+
+    function getPlayerById(id, dataState = state) {
+      return dataState.players.find(player => player.id === id) || null;
+    }
+
+    function getDisplayPlayer(id, dataState = state) {
+      return getPlayerById(id, dataState) || { name: 'Gone', playerNum: '?' };
+    }
+
+    function syncCycleConfig(dataState = state) {
+      const activeCount = getActivePlayers(dataState).length;
+      dataState.initialSetupCount = activeCount;
+      dataState.baseCycleLength = CYCLES[activeCount] ? CYCLES[activeCount].length : (activeCount <= 6 ? 12 : 14);
+    }
+
+    function ensureSetupPlayerNumbers(dataState = state) {
+      if (dataState.isStarted) return;
+      dataState.players.forEach((player, index) => {
+        player.playerNum = index + 1;
+      });
+      dataState.nextPlayerNum = dataState.players.length + 1;
+    }
+
+    function clonePlayers(players) {
+      return players.map(player => ({ ...player }));
+    }
+
+    function cloneMatrix(matrix) {
+      return JSON.parse(JSON.stringify(matrix));
+    }
+
+    function getEventName() {
+      return localStorage.getItem(STORAGE_KEYS.eventName) || '';
+    }
+
+    function getEventDate() {
+      const rawDate = localStorage.getItem(STORAGE_KEYS.eventDate);
+      return (!rawDate || !/^\d{4}-\d{2}-\d{2}$/.test(rawDate)) ? getLocalYYYYMMDD() : rawDate;
+    }
+
+    function getScoreType() {
+      return localStorage.getItem(STORAGE_KEYS.scoreType) === 'SIDEOUT' ? 'SIDEOUT' : 'RALLY';
+    }
+
+    // =============================
+    // 6) Domain / Engine
+    // =============================
+    function calculateMatch(pool, roundIdx, currentMatrix, cycleCount, cycleLength) {
+      const active = pool.filter(player => player.isActive);
+      if (active.length < 4) return null;
+
+      let selected;
+      if (active.length === cycleCount && CYCLES[cycleCount]) {
+        const sortedActive = [...active].sort((a, b) => a.playerNum - b.playerNum);
+        const cyclePairing = CYCLES[cycleCount][roundIdx % cycleLength];
+        selected = cyclePairing.map(index => sortedActive[index]);
+      } else {
+        const sorted = [...active].sort((a, b) => {
+          return (a.playCount - b.playCount) || (a.consecutive - b.consecutive) || (Math.random() - 0.5);
+        });
+        const canPlay = sorted.filter(player => player.consecutive < 2);
+        selected = canPlay.length >= 4 ? canPlay.slice(0, 4) : sorted.slice(0, 4);
+      }
+
+      let best = {
+        a: [selected[0].id, selected[1].id],
+        b: [selected[2].id, selected[3].id],
+        minWeight: Number.POSITIVE_INFINITY
+      };
+
+      const combinations = [[0,1,2,3], [0,2,1,3], [0,3,1,2]].sort(() => Math.random() - 0.5);
+      combinations.forEach(combination => {
+        const p1 = selected[combination[0]].id;
+        const p2 = selected[combination[1]].id;
+        const p3 = selected[combination[2]].id;
+        const p4 = selected[combination[3]].id;
+        const weight = (currentMatrix[p1]?.[p2] || 0) + (currentMatrix[p3]?.[p4] || 0);
+
+        if (weight < best.minWeight) {
+          best = { a: [p1, p2], b: [p3, p4], minWeight: weight };
+        }
+      });
+
+      return {
+        teamAIds: best.a,
+        teamBIds: best.b,
+        allIds: [...best.a, ...best.b]
+      };
+    }
+
+    function calculateNextMatchForState(dataState = state, roundIdx = null, matrix = null, players = null) {
+      const sourcePlayers = players || dataState.players;
+      const sourceMatrix = matrix || dataState.partnerMatrix;
+      const effectiveRoundIdx = roundIdx ?? getCompletedMatches(dataState).length;
+      return calculateMatch(
+        sourcePlayers,
+        effectiveRoundIdx,
+        sourceMatrix,
+        dataState.initialSetupCount,
+        dataState.baseCycleLength
+      );
+    }
+
+    function incrementPartnerMatrix(matrix, id1, id2) {
+      if (!matrix[id1]) matrix[id1] = {};
+      if (!matrix[id2]) matrix[id2] = {};
+      matrix[id1][id2] = (matrix[id1][id2] || 0) + 1;
+      matrix[id2][id1] = (matrix[id2][id1] || 0) + 1;
+    }
+
+    function applyPartnerHistory(dataState, match) {
+      incrementPartnerMatrix(dataState.partnerMatrix, match.teamAIds[0], match.teamAIds[1]);
+      incrementPartnerMatrix(dataState.partnerMatrix, match.teamBIds[0], match.teamBIds[1]);
+    }
+
+    function applyLeaderboardRating(dataState, match) {
+      const pA1 = getPlayerById(match.teamAIds[0], dataState);
+      const pA2 = getPlayerById(match.teamAIds[1], dataState);
+      const pB1 = getPlayerById(match.teamBIds[0], dataState);
+      const pB2 = getPlayerById(match.teamBIds[1], dataState);
+
+      if (!pA1 || !pA2 || !pB1 || !pB2) return { ratingChangeA: 0, ratingChangeB: 0 };
+
+      const rA = (pA1.rating + pA2.rating) / 2;
+      const rB = (pB1.rating + pB2.rating) / 2;
+      const scoreResultA = match.scoreA > match.scoreB ? 1 : (match.scoreA < match.scoreB ? 0 : 0.5);
+      const expectedA = 1 / (1 + Math.pow(10, (rB - rA) / 1.0));
+      const pointDiffMultiplier = 1 + (Math.abs(match.scoreA - match.scoreB) / 11);
+      const K = 0.4;
+      const ratingChangeA = K * (scoreResultA - expectedA) * pointDiffMultiplier;
+      const ratingChangeB = -ratingChangeA;
+
+      dataState.players = dataState.players.map(player => {
+        if (match.teamAIds.includes(player.id)) {
+          return { ...player, rating: player.rating + ratingChangeA };
+        }
+        if (match.teamBIds.includes(player.id)) {
+          return { ...player, rating: player.rating + ratingChangeB };
+        }
+        return player;
+      });
+
+      return { ratingChangeA, ratingChangeB };
+    }
+
+    function applyPlayerRoundStats(dataState, match) {
+      dataState.players = dataState.players.map(player => {
+        if (!match.allIds.includes(player.id)) {
+          return { ...player, consecutive: 0 };
         }
 
-        document.getElementById('setup-event-name').value = localStorage.getItem('pb_eventName') || '';
-        document.getElementById('setup-event-date').value = localStorage.getItem('pb_eventDate') || getLocalYYYYMMDD();
+        const won = (match.teamAIds.includes(player.id) && match.scoreA > match.scoreB) ||
+                    (match.teamBIds.includes(player.id) && match.scoreB > match.scoreA);
 
-        function updateEventsList() {
-            const eMem = JSON.parse(localStorage.getItem('pb_memory_events')) || [];
-            const eList = document.getElementById('events-list');
-            if(eList) eList.innerHTML = eMem.map(e => `<option value="${e}">`).join('');
-        }
-        updateEventsList();
+        return {
+          ...player,
+          playCount: player.playCount + 1,
+          consecutive: player.consecutive + 1,
+          wins: player.wins + (won ? 1 : 0),
+          losses: player.losses + (won ? 0 : 1)
+        };
+      });
+    }
 
-        function showPlayerSuggestions(nameInputId, duprInputId, dropdownId) {
-            const input = document.getElementById(nameInputId);
-            const val = input.value.trim().toLowerCase();
-            const dropdown = document.getElementById(dropdownId);
-            const pMem = JSON.parse(localStorage.getItem('pb_memory_players')) || {};
-            
-            if (val && pMem[val] !== undefined && document.getElementById(duprInputId).value.trim() === '') {
-                document.getElementById(duprInputId).value = pMem[val];
-            }
+    function createNextLiveMatch(dataState) {
+      const current = getCurrentMatch(dataState);
+      const nextRound = current ? current.round + 1 : (getCompletedMatches(dataState).length + 1);
+      const nextMatch = calculateNextMatchForState(dataState, getCompletedMatches(dataState).length);
 
-            dropdown.innerHTML = '';
-            
-            const matches = Object.keys(pMem).filter(k => 
-                k.startsWith(val) && !players.some(p => p.name.toLowerCase() === k && p.isActive)
-            );
-            
-            if (matches.length === 0) { 
-                dropdown.style.display = 'none'; 
-                return; 
-            }
+      dataState.matchHistory.unshift({
+        round: nextRound,
+        completed: false,
+        scoreA: '',
+        scoreB: '',
+        allIds: nextMatch?.allIds || [],
+        teamAIds: nextMatch?.teamAIds || [],
+        teamBIds: nextMatch?.teamBIds || []
+      });
+    }
 
-            matches.forEach(m => {
-                const div = document.createElement('div');
-                div.className = 'autocomplete-item';
-                
-                const nameSpan = document.createElement('span');
-                const displayName = m.charAt(0).toUpperCase() + m.slice(1);
-                nameSpan.innerHTML = `${displayName} <span style="color:#94a3b8; font-size:10px; margin-left:5px;">${pMem[m] ? '('+pMem[m]+')' : ''}</span>`;
-                nameSpan.style.flex = "1";
-                
-                nameSpan.onclick = () => {
-                    input.value = displayName;
-                    document.getElementById(duprInputId).value = pMem[m];
-                    dropdown.style.display = 'none';
-                    addPlayer(nameInputId, duprInputId);
-                };
+    function refreshLiveMatchIfImpacted(affectedPlayerId) {
+      const current = getCurrentMatch();
+      if (!state.isStarted || !current || current.completed) return;
+      if (!current.allIds.includes(affectedPlayerId)) return;
 
-                const delSpan = document.createElement('span');
-                delSpan.innerHTML = '&times;'; 
-                delSpan.className = 'delete-mem-btn';
-                delSpan.onclick = (e) => {
-                    e.stopPropagation(); 
-                    if(confirm(`確定要從手機記憶庫中永久刪除「${displayName}」嗎？`)) {
-                        delete pMem[m];
-                        localStorage.setItem('pb_memory_players', JSON.stringify(pMem));
-                        showPlayerSuggestions(nameInputId, duprInputId, dropdownId);
-                    }
-                };
+      const recalculated = calculateNextMatchForState(state, getCompletedMatches(state).length);
+      if (recalculated) {
+        Object.assign(current, recalculated);
+      } else {
+        current.allIds = [];
+        current.teamAIds = [];
+        current.teamBIds = [];
+      }
+    }
 
-                div.appendChild(nameSpan);
-                div.appendChild(delSpan);
-                dropdown.appendChild(div);
-            });
-            dropdown.style.display = 'block';
-        }
+    function simulateSchedulePreview(dataState = state) {
+      const previewHtml = [];
+      const completed = getCompletedMatches(dataState);
+      const current = getCurrentMatch(dataState);
 
-        document.addEventListener('click', function(e) {
-            if(!e.target.closest('.autocomplete-container')) {
-                document.querySelectorAll('.autocomplete-list').forEach(el => el.style.display = 'none');
-            }
+      const tempPlayers = clonePlayers(dataState.players);
+      const tempMatrix = cloneMatrix(dataState.partnerMatrix);
+
+      const currentRoundNum = completed.length + (current ? 1 : 0);
+      const targetTotalGames = Math.ceil((currentRoundNum === 0 ? 1 : currentRoundNum) / dataState.baseCycleLength) * dataState.baseCycleLength;
+      let simulationRoundIndex = currentRoundNum;
+
+      if (current && current.allIds.length === 4) {
+        current.allIds.forEach(id => {
+          const player = tempPlayers.find(item => item.id === id);
+          if (player) {
+            player.playCount += 1;
+            player.consecutive += 1;
+          }
+        });
+        tempPlayers.forEach(player => {
+          if (!current.allIds.includes(player.id)) player.consecutive = 0;
+        });
+        incrementPartnerMatrix(tempMatrix, current.teamAIds[0], current.teamAIds[1]);
+        incrementPartnerMatrix(tempMatrix, current.teamBIds[0], current.teamBIds[1]);
+      }
+
+      while (simulationRoundIndex < targetTotalGames) {
+        const match = calculateMatch(tempPlayers, simulationRoundIndex, tempMatrix, dataState.initialSetupCount, dataState.baseCycleLength);
+        if (!match) break;
+
+        previewHtml.push(`
+          <div class="card card-preview">
+            <div style="font-size:10px;color:#94a3b8;font-weight:900;margin-bottom:10px;text-align:center;">GAME ${simulationRoundIndex + 1} · PREVIEW</div>
+            <div style="display:flex;justify-content:space-between;text-align:center;font-weight:900;">
+              <div style="width:40%;">${getDisplayPlayer(match.teamAIds[0], dataState).name}<br>${getDisplayPlayer(match.teamAIds[1], dataState).name}</div>
+              <div class="vs-orange" style="opacity:0.5;">VS</div>
+              <div style="width:40%;">${getDisplayPlayer(match.teamBIds[0], dataState).name}<br>${getDisplayPlayer(match.teamBIds[1], dataState).name}</div>
+            </div>
+          </div>
+        `);
+
+        match.allIds.forEach(id => {
+          const player = tempPlayers.find(item => item.id === id);
+          if (player) {
+            player.playCount += 1;
+            player.consecutive += 1;
+          }
+        });
+        tempPlayers.forEach(player => {
+          if (!match.allIds.includes(player.id)) player.consecutive = 0;
         });
 
-        const CYCLES = { 
-            6: [ 
-                [0,1,2,3], [0,1,4,5], [2,3,4,5], [0,1,2,3], [0,1,4,5], [2,3,4,5], 
-                [0,1,2,3], [0,1,4,5], [2,3,4,5], [0,1,2,3], [0,1,4,5], [2,3,4,5]
-            ],
-            7: [ 
-                [0,1,3,4], [1,2,4,5], [2,3,5,6], [3,4,6,0], [4,5,0,1], [5,6,1,2], [6,0,2,3],
-                [0,1,3,4], [1,2,4,5], [2,3,5,6], [3,4,6,0], [4,5,0,1], [5,6,1,2], [6,0,2,3]
-            ],
-            8: [ 
-                [0,1,2,3], [4,5,6,7], [0,1,4,5], [2,3,6,7], [0,2,4,6], [1,3,5,7], [0,3,4,7],
-                [1,2,5,6], [0,1,6,7], [2,3,4,5], [0,2,5,7], [1,3,4,6], [0,3,5,6], [1,2,4,7]
-            ]
+        incrementPartnerMatrix(tempMatrix, match.teamAIds[0], match.teamAIds[1]);
+        incrementPartnerMatrix(tempMatrix, match.teamBIds[0], match.teamBIds[1]);
+
+        simulationRoundIndex += 1;
+      }
+
+      return previewHtml.join('');
+    }
+
+    // =============================
+    // 7) Actions
+    // =============================
+    function resetData() {
+      if (confirm('Are you sure you want to clear today’s schedule and scores?\n\nThis will not delete your saved player and DUPR memory.')) {
+        resetSessionStorage();
+        location.reload();
+      }
+    }
+
+    function addPlayer(nameInputId, duprInputId) {
+      const nameInput = document.getElementById(nameInputId);
+      const duprInput = document.getElementById(duprInputId);
+      let rawName = nameInput.value.trim();
+      const duprId = (duprInput?.value || '').trim().toUpperCase();
+
+      if (!rawName) return;
+
+      const lowerName = rawName.toLowerCase();
+      if (state.players.some(player => player.name.toLowerCase() === lowerName && player.isActive)) {
+        alert('This player is already active.');
+        return;
+      }
+
+      const existingInactive = state.players.find(player => player.name.toLowerCase() === lowerName && !player.isActive);
+      if (existingInactive) {
+        handleActivate(existingInactive.id);
+        nameInput.value = '';
+        if (duprInput) duprInput.value = '';
+        hideAutocompleteLists();
+        return;
+      }
+
+      const name = titleCaseName(rawName);
+      state.players.push({
+        id: Date.now(),
+        playerNum: state.nextPlayerNum++,
+        name,
+        duprId,
+        playCount: 0,
+        wins: 0,
+        losses: 0,
+        consecutive: 0,
+        isActive: true,
+        rating: DEFAULT_RATING
+      });
+
+      const memory = loadPlayerMemory();
+      if (duprId) memory[name.toLowerCase()] = duprId;
+      else if (memory[name.toLowerCase()] === undefined) memory[name.toLowerCase()] = '';
+      savePlayerMemory(memory);
+
+      if (!state.isStarted) {
+        ensureSetupPlayerNumbers(state);
+      } else {
+        syncCycleConfig(state);
+      }
+
+      nameInput.value = '';
+      if (duprInput) duprInput.value = '';
+      hideAutocompleteLists();
+      saveAppState();
+      renderApp();
+    }
+
+    function removePlayerSetup(id) {
+      state.players = state.players.filter(player => player.id !== id);
+      ensureSetupPlayerNumbers(state);
+      saveAppState();
+      renderApp();
+    }
+
+    function handleActivate(id) {
+      state.players = state.players.map(player => player.id === id ? { ...player, isActive: true } : player);
+      syncCycleConfig(state);
+      saveAppState();
+      renderApp();
+    }
+
+    function handleDrop(id) {
+      if (!confirm('Remove this player from upcoming matches?\n\nIf the player is currently in the live game, the match will be recalculated automatically.')) return;
+
+      state.players = state.players.map(player => player.id === id ? { ...player, isActive: false, consecutive: 0 } : player);
+      syncCycleConfig(state);
+      refreshLiveMatchIfImpacted(id);
+
+      const current = getCurrentMatch();
+      if (state.isStarted && current && current.allIds.length < 4) {
+        alert('Warning: fewer than 4 active players remain. A match cannot be generated until more players are added.');
+      }
+
+      saveAppState();
+      renderApp();
+    }
+
+    function handleSubs(oldId) {
+      const rawName = prompt('New substitute player name:');
+      if (!rawName) return;
+
+      const newName = rawName.trim();
+      if (!newName) return;
+      if (state.players.some(player => player.name.toLowerCase() === newName.toLowerCase() && player.isActive)) {
+        alert('This player is already active.');
+        return;
+      }
+
+      const memory = loadPlayerMemory();
+      const savedDupr = memory[newName.toLowerCase()] || '';
+      const message = savedDupr
+        ? `Saved DUPR ID found: [${savedDupr}]. Enter a new one to change it, or press OK to keep it:`
+        : 'DUPR ID (optional):';
+
+      let duprId = prompt(message, savedDupr);
+      if (duprId === null) return;
+      duprId = duprId.trim().toUpperCase();
+      memory[newName.toLowerCase()] = duprId;
+      savePlayerMemory(memory);
+
+      state.players = state.players.map(player => player.id === oldId ? { ...player, isActive: false, consecutive: 0 } : player);
+      state.players.push({
+        id: Date.now(),
+        playerNum: state.nextPlayerNum++,
+        name: titleCaseName(newName),
+        duprId,
+        playCount: 0,
+        wins: 0,
+        losses: 0,
+        consecutive: 0,
+        isActive: true,
+        rating: DEFAULT_RATING
+      });
+
+      refreshLiveMatchIfImpacted(oldId);
+      saveAppState();
+      renderApp();
+    }
+
+    function submitScoreAction() {
+      const scoreA = Math.max(0, parseInt(document.getElementById('scA')?.value, 10));
+      const scoreB = Math.max(0, parseInt(document.getElementById('scB')?.value, 10));
+      if (Number.isNaN(scoreA) || Number.isNaN(scoreB)) {
+        alert('Please enter valid scores.');
+        return;
+      }
+
+      const current = getCurrentMatch();
+      if (!current || current.allIds.length !== 4) {
+        alert('There is no live match available to submit.');
+        return;
+      }
+
+      current.scoreA = scoreA;
+      current.scoreB = scoreB;
+      current.completed = true;
+
+      applyLeaderboardRating(state, current);
+      applyPartnerHistory(state, current);
+      applyPlayerRoundStats(state, current);
+      createNextLiveMatch(state);
+
+      saveAppState();
+      renderApp();
+    }
+
+    function handleEdit(round) {
+      const target = state.matchHistory.find(match => match.round === round);
+      if (!target) return;
+
+      const nextA = prompt('Team A score (editing past scores will not recalculate leaderboard ratings):', target.scoreA);
+      const nextB = prompt('Team B score:', target.scoreB);
+      if (nextA === null || nextB === null) return;
+
+      const parsedA = Math.max(0, parseInt(nextA, 10));
+      const parsedB = Math.max(0, parseInt(nextB, 10));
+      if (Number.isNaN(parsedA) || Number.isNaN(parsedB)) {
+        alert('Please enter valid scores.');
+        return;
+      }
+
+      target.scoreA = parsedA;
+      target.scoreB = parsedB;
+      saveAppState();
+      renderApp();
+    }
+
+    function startApp() {
+      const eventName = els.setupEventName.value.trim();
+      const eventDate = els.setupEventDate.value || getLocalYYYYMMDD();
+      localStorage.setItem(STORAGE_KEYS.eventName, eventName);
+      localStorage.setItem(STORAGE_KEYS.eventDate, eventDate);
+
+      if (eventName) {
+        const eventMemory = loadEventMemory();
+        if (!eventMemory.includes(eventName)) {
+          eventMemory.push(eventName);
+          saveEventMemory(eventMemory);
+          updateEventsList();
+        }
+      }
+
+      syncCycleConfig(state);
+      const firstMatch = calculateNextMatchForState(state, 0);
+      state.matchHistory.push({
+        round: 1,
+        scoreA: '',
+        scoreB: '',
+        completed: false,
+        allIds: firstMatch?.allIds || [],
+        teamAIds: firstMatch?.teamAIds || [],
+        teamBIds: firstMatch?.teamBIds || []
+      });
+      state.isStarted = true;
+
+      saveAppState();
+      renderApp();
+    }
+
+    function switchTab(tab) {
+      state.activeTab = tab;
+      renderApp();
+    }
+
+    function editEventName() {
+      const currentName = getEventName();
+      const nextName = prompt('Edit event name:', currentName);
+      if (nextName === null) return;
+      const trimmed = nextName.trim();
+      localStorage.setItem(STORAGE_KEYS.eventName, trimmed);
+      if (els.setupEventName) els.setupEventName.value = trimmed;
+
+      if (trimmed) {
+        const eventMemory = loadEventMemory();
+        if (!eventMemory.includes(trimmed)) {
+          eventMemory.push(trimmed);
+          saveEventMemory(eventMemory);
+          updateEventsList();
+        }
+      }
+
+      renderApp();
+    }
+
+    function editPlayer(playerId) {
+      const player = getPlayerById(playerId);
+      if (!player) return;
+
+      const nextNameRaw = prompt('Edit player name:', player.name);
+      if (nextNameRaw === null) return;
+      const nextName = titleCaseName(nextNameRaw.trim());
+      if (!nextName) {
+        alert('Player name cannot be empty.');
+        return;
+      }
+
+      const duplicateActive = state.players.find(item => item.id !== playerId && item.name.toLowerCase() === nextName.toLowerCase() && item.isActive);
+      if (duplicateActive) {
+        alert('This player is already active.');
+        return;
+      }
+
+      const nextDuprRaw = prompt('Edit DUPR ID:', player.duprId || '');
+      if (nextDuprRaw === null) return;
+      const nextDupr = nextDuprRaw.trim().toUpperCase();
+
+      state.players = state.players.map(item => item.id === playerId ? { ...item, name: nextName, duprId: nextDupr } : item);
+
+      const memory = loadPlayerMemory();
+      memory[nextName.toLowerCase()] = nextDupr;
+      savePlayerMemory(memory);
+
+      saveAppState();
+      renderApp();
+    }
+
+    function updateScoreType(value) {
+      const normalized = value === 'SIDEOUT' ? 'SIDEOUT' : 'RALLY';
+      localStorage.setItem(STORAGE_KEYS.scoreType, normalized);
+      renderApp();
+    }
+
+    function exportDUPRCSV() {
+      const completedMatches = getCompletedMatches(state);
+      if (completedMatches.length === 0) {
+        alert('There are no completed matches to export.');
+        return;
+      }
+
+      const eventName = getEventName() || 'Casual_Match';
+      const safeEventName = eventName.replace(/[\/\\?%*:|"<>.]/g, '').replace(/\s+/g, '_');
+      const eventDate = getEventDate();
+      const scoreType = getScoreType();
+
+      let csvContent = 'data:text/csv;charset=utf-8,\uFEFF';
+      csvContent += 'matchType,scoreType,event,date,playerA1,playerA1DuprId,playerA2,playerA2DuprId,playerB1,playerB1DuprId,playerB2,playerB2DuprId,teamAGame1,teamBGame1,teamAGame2,teamBGame2,teamAGame3,teamBGame3,teamAGame4,teamBGame4,teamAGame5,teamBGame5\n';
+
+      completedMatches.forEach(match => {
+        const pA1 = getPlayerById(match.teamAIds[0], state) || {};
+        const pA2 = getPlayerById(match.teamAIds[1], state) || {};
+        const pB1 = getPlayerById(match.teamBIds[0], state) || {};
+        const pB2 = getPlayerById(match.teamBIds[1], state) || {};
+
+        const row = [
+          'D',
+          scoreType,
+          eventName,
+          eventDate,
+          pA1.name || 'Unknown', pA1.duprId || '',
+          pA2.name || 'Unknown', pA2.duprId || '',
+          pB1.name || 'Unknown', pB1.duprId || '',
+          pB2.name || 'Unknown', pB2.duprId || '',
+          match.scoreA, match.scoreB,
+          '', '', '', '', '', '', '', ''
+        ];
+
+        csvContent += row.map(item => `"${item}"`).join(',') + '\n';
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `DUPR_${safeEventName}_${eventDate}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // =============================
+    // 8) Autocomplete / Event memory UI
+    // =============================
+    function updateEventsList() {
+      const events = loadEventMemory();
+      els.eventsList.innerHTML = events.map(event => `<option value="${event}">`).join('');
+    }
+
+    function hideAutocompleteLists() {
+      document.querySelectorAll('.autocomplete-list').forEach(list => {
+        list.style.display = 'none';
+      });
+    }
+
+    function showPlayerSuggestions(nameInputId, duprInputId, dropdownId) {
+      const input = document.getElementById(nameInputId);
+      const dropdown = document.getElementById(dropdownId);
+      const duprInput = document.getElementById(duprInputId);
+      const memory = loadPlayerMemory();
+      const value = input.value.trim().toLowerCase();
+
+      if (value && memory[value] !== undefined && duprInput.value.trim() === '') {
+        duprInput.value = memory[value];
+      }
+
+      dropdown.innerHTML = '';
+
+      const matches = Object.keys(memory).filter(nameKey => {
+        const isActiveAlready = state.players.some(player => player.name.toLowerCase() === nameKey && player.isActive);
+        return nameKey.startsWith(value) && !isActiveAlready;
+      });
+
+      if (matches.length === 0) {
+        dropdown.style.display = 'none';
+        return;
+      }
+
+      matches.forEach(matchName => {
+        const item = document.createElement('div');
+        item.className = 'autocomplete-item';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.style.flex = '1';
+        const displayName = titleCaseName(matchName);
+        nameSpan.innerHTML = `${displayName} <span style="color:#94a3b8; font-size:10px; margin-left:5px;">${memory[matchName] ? `(${memory[matchName]})` : ''}</span>`;
+        nameSpan.onclick = () => {
+          input.value = displayName;
+          duprInput.value = memory[matchName];
+          dropdown.style.display = 'none';
+          addPlayer(nameInputId, duprInputId);
         };
 
-        function calculateMatch(pool, roundIdx, currentMatrix = partnerMatrix) {
-            const active = pool.filter(p => p.isActive); 
-            if (active.length < 4) return null;
+        const deleteSpan = document.createElement('span');
+        deleteSpan.innerHTML = '&times;';
+        deleteSpan.className = 'delete-mem-btn';
+        deleteSpan.onclick = event => {
+          event.stopPropagation();
+          if (confirm(`Are you sure you want to permanently delete "${displayName}" from memory?`)) {
+            delete memory[matchName];
+            savePlayerMemory(memory);
+            showPlayerSuggestions(nameInputId, duprInputId, dropdownId);
+          }
+        };
 
-            let selected;
-            if (active.length === initialSetupCount && CYCLES[initialSetupCount]) {
-                let sortedActive = [...active].sort((a,b) => a.playerNum - b.playerNum);
-                let cyclePairing = CYCLES[initialSetupCount][roundIdx % baseCycleLength];
-                selected = cyclePairing.map(index => sortedActive[index]);
-            } else {
-                let sorted = [...active].sort((a,b) => (a.playCount - b.playCount) || (a.consecutive - b.consecutive) || (Math.random()-0.5));
-                const canPlay = sorted.filter(p => p.consecutive < 2);
-                selected = (canPlay.length >= 4) ? canPlay.slice(0,4) : sorted.slice(0,4);
-            }
+        item.appendChild(nameSpan);
+        item.appendChild(deleteSpan);
+        dropdown.appendChild(item);
+      });
 
-            let best = { a: [selected[0].id, selected[1].id], b: [selected[2].id, selected[3].id], minW: 9999 };
-            let combs = [[0,1,2,3], [0,2,1,3], [0,3,1,2]];
-            combs.sort(() => Math.random() - 0.5); 
-            combs.forEach(c => {
-                let p1 = selected[c[0]].id, p2 = selected[c[1]].id, p3 = selected[c[2]].id, p4 = selected[c[3]].id;
-                let w = (currentMatrix[p1]?.[p2] || 0) + (currentMatrix[p3]?.[p4] || 0);
-                if(w < best.minW) best = { a: [p1,p2], b: [p3,p4], minW: w };
-            });
-            return { teamAIds: best.a, teamBIds: best.b, allIds: [...best.a, ...best.b] };
-        }
+      dropdown.style.display = 'block';
+    }
 
-        function saveData() { 
-            localStorage.setItem('pb_players', JSON.stringify(players)); localStorage.setItem('pb_history', JSON.stringify(matchHistory));
-            localStorage.setItem('pb_isStarted', isStarted); localStorage.setItem('pb_matrix', JSON.stringify(partnerMatrix));
-            localStorage.setItem('pb_nextNum', nextPlayerNum); localStorage.setItem('pb_baseCycle', baseCycleLength);
-            localStorage.setItem('pb_initialCount', initialSetupCount);
-        }
+    // =============================
+    // 9) Render
+    // =============================
+    function renderAppShell() {
+      if (state.isStarted) {
+        els.viewSetup.classList.add('hidden');
+        els.navigation.classList.remove('hidden');
+        els.viewGame.classList.remove('hidden');
+      } else {
+        els.viewSetup.classList.remove('hidden');
+        els.navigation.classList.add('hidden');
+        els.viewGame.classList.add('hidden');
+      }
 
-        function resetData() { 
-            if(confirm("確定要清除今天的排程與比分 (Clear Match Data)，開啟新球聚嗎？\n\n(此動作不會清除您已儲存的球員與 DUPR ID 記憶)")) { 
-                localStorage.removeItem('pb_players');
-                localStorage.removeItem('pb_history');
-                localStorage.removeItem('pb_isStarted');
-                localStorage.removeItem('pb_matrix');
-                localStorage.removeItem('pb_nextNum');
-                localStorage.removeItem('pb_baseCycle');
-                localStorage.removeItem('pb_initialCount');
-                location.reload(); 
-            } 
-        }
+      const activeCount = getActivePlayers(state).length;
+      els.startBtn.disabled = activeCount < 4;
+      els.startBtn.innerText = activeCount < 4 ? 'MINIMUM 4 PLAYERS' : 'START MATCHING';
+    }
 
-        // ==========================================
-        // 🔥 動態名單管理核心：SUBS / DROP / ACTIVATE
-        // ==========================================
-        
-        function handleSubs(oldId) {
-            const name = prompt("New Substitute Player Name (替補球員姓名):"); if (!name) return;
-            const newName = name.trim();
-            if(players.some(p => p.name.toLowerCase() === newName.toLowerCase() && p.isActive)) { alert("此姓名已在場上！"); return; }
-            
-            const pMem = JSON.parse(localStorage.getItem('pb_memory_players')) || {};
-            const savedDupr = pMem[newName.toLowerCase()] || "";
-            let duprPromptMsg = "DUPR ID (Optional):";
-            if (savedDupr) duprPromptMsg = `系統偵測到歷史 DUPR ID 為 [${savedDupr}]，如要修改請直接輸入，否則按確定沿用：`;
-            
-            let duprId = prompt(duprPromptMsg, savedDupr);
-            if(duprId === null) return; 
-            duprId = duprId.trim().toUpperCase();
+    function renderSetupList() {
+      els.setupList.innerHTML = state.players.map(player => `
+        <div style="display:flex;justify-content:space-between;padding:0.75rem;border-bottom:1px solid #f1f5f9;align-items:center;">
+          <span style="font-weight:900;">${player.playerNum}. ${player.name} <span style="font-size:10px; color:#94a3b8; margin-left:5px;">${player.duprId ? `(${player.duprId})` : ''}</span></span>
+          <button onclick="removePlayerSetup(${player.id})" style="color:#f87171;border:none;background:none;font-size:10px;font-weight:900;cursor:pointer;">REMOVE</button>
+        </div>
+      `).join('');
+    }
 
-            pMem[newName.toLowerCase()] = duprId;
-            localStorage.setItem('pb_memory_players', JSON.stringify(pMem));
+    function renderCurrentMatch() {
+      const current = getCurrentMatch(state);
+      if (!state.isStarted || !current || !current.allIds || current.allIds.length !== 4) {
+        els.currentMatchUI.innerHTML = '';
+        return;
+      }
 
-            players = players.map(p => p.id === oldId ? { ...p, isActive: false, consecutive: 0 } : p);
-            players.push({ id: Date.now(), playerNum: nextPlayerNum++, name: newName.charAt(0).toUpperCase() + newName.slice(1), duprId, playCount: 0, wins: 0, losses: 0, consecutive: 0, isActive: true, rating: 3.500 });
-            
-            // 替補不會改變場上總人數，所以矩陣基準(initialSetupCount)不變。
-            // 但如果被替補的球員正在 Live Game 中，強制重算當前比賽！
-            if (isStarted && !matchHistory[0].completed) { 
-                if (matchHistory[0].allIds.includes(oldId)) {
-                    const newM = calculateMatch(players, matchHistory.length - 1, partnerMatrix);
-                    if(newM) matchHistory[0] = { ...matchHistory[0], ...newM }; 
-                }
-            }
-            saveData(); render();
-        }
+      els.currentMatchUI.innerHTML = `
+        <div class="card card-live">
+          <div style="text-align: center; margin-bottom: 1.25rem;">
+            <span style="font-size: 1.1rem; font-weight: 900; background: #f97316; color: white; padding: 6px 16px; border-radius: 8px; letter-spacing: 0.05em; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">GAME ${current.round} · LIVE</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; text-align:center; font-weight:900; margin-bottom: 0.75rem;">
+            <div style="width:45%; font-size: 1.05rem; line-height: 1.4;">${getDisplayPlayer(current.teamAIds[0], state).name}<br>${getDisplayPlayer(current.teamAIds[1], state).name}</div>
+            <div style="width:10%;"></div>
+            <div style="width:45%; font-size: 1.05rem; line-height: 1.4;">${getDisplayPlayer(current.teamBIds[0], state).name}<br>${getDisplayPlayer(current.teamBIds[1], state).name}</div>
+          </div>
+          <div style="display:flex; justify-content:center; align-items:center; gap: 1rem; margin-bottom: 1.25rem;">
+            <input type="number" id="scA" class="score-input" min="0" placeholder="0">
+            <div class="vs-orange">VS</div>
+            <input type="number" id="scB" class="score-input" min="0" placeholder="0">
+          </div>
+          <button onclick="submitScoreAction()" class="btn-orange">SUBMIT SCORE</button>
+        </div>
+      `;
+    }
 
-        function handleDrop(id) {
-            if(confirm("確定要將此球員移出接下來的比賽嗎？\n(若球員正在場上，將自動重抽當前比賽)")) {
-                players = players.map(p => p.id === id ? { ...p, isActive: false, consecutive: 0 } : p);
-                
-                // 動態切換矩陣：重新計算場上人數，更新引擎矩陣 (例如 8人 -> 7人)
-                const activeCount = players.filter(p => p.isActive).length;
-                initialSetupCount = activeCount;
-                baseCycleLength = activeCount <= 6 ? 12 : 14;
-                
-                // 如果被 Drop 的球員正在 Live Game 中，強制重算當前比賽！
-                if (isStarted && !matchHistory[0].completed) { 
-                    if (matchHistory[0].allIds.includes(id)) {
-                        const newM = calculateMatch(players, matchHistory.length - 1, partnerMatrix);
-                        if(newM) {
-                            matchHistory[0] = { ...matchHistory[0], ...newM }; 
-                        } else {
-                            alert("警告：場上人數已不足 4 人，無法產生比賽！請加入新球員。");
-                        }
-                    }
-                }
-                saveData(); render();
-            }
-        }
+    function renderMetaControls(targetKey) {
+      const eventName = getEventName() || 'NO EVENT NAME';
+      const scoreType = getScoreType();
 
-        function handleActivate(id) {
-            players = players.map(p => p.id === id ? { ...p, isActive: true } : p);
-            
-            // 動態切換矩陣：加回球員後更新引擎矩陣 (例如 7人 -> 8人)
-            const activeCount = players.filter(p => p.isActive).length;
-            initialSetupCount = activeCount;
-            baseCycleLength = activeCount <= 6 ? 12 : 14;
-            
-            saveData(); render();
-        }
+      return `
+        <div class="card" style="padding: 1rem; margin-top: 0; margin-bottom: 1rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:0.75rem;">
+            <div style="flex:1;">
+              <div style="font-size: 0.75rem; font-weight: 900; color: #64748b; margin-bottom: 0.35rem; text-transform: uppercase;">Event Name</div>
+              <div style="font-weight: 900; color:#0f172a; font-size: 1rem; word-break: break-word;">${eventName}</div>
+            </div>
+            <button onclick="editEventName()" style="background:#0f172a; color:white; border:none; padding:0.75rem 1rem; border-radius:0.75rem; font-weight:900; cursor:pointer; text-transform:uppercase; font-size:0.7rem;">EDIT</button>
+          </div>
+        </div>
+        <div class="card" style="padding: 1rem; margin-top: 0; margin-bottom: 1rem;">
+          <div style="font-size: 0.75rem; font-weight: 900; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase;">Score Type</div>
+          <select id="${targetKey}-score-type-select" onchange="updateScoreType(this.value)" style="width: 100%; padding: 1rem; border-radius: 1rem; border: none; background: #f1f5f9; font-weight: 900; outline: none; text-transform: uppercase; color: #0f172a;">
+            <option value="RALLY" ${scoreType === 'RALLY' ? 'selected' : ''}>Rally</option>
+            <option value="SIDEOUT" ${scoreType === 'SIDEOUT' ? 'selected' : ''}>SideOut</option>
+          </select>
+        </div>
+        <button onclick="exportDUPRCSV()" class="btn-export">📥 EXPORT DUPR CSV</button>
+      `;
+    }
 
-        // ==========================================
+    function renderPlayersTab() {
+      els.playersMetaControls.innerHTML = renderMetaControls('players');
+      els.playerStatsList.innerHTML = state.players.map(player => `
+        <div style="display:flex;justify-content:space-between;padding:1rem;border-bottom:1px solid #f1f5f9;${player.isActive ? '' : 'opacity:0.35'}">
+          <div style="display:flex;flex:1;align-items:center;min-width:0;">
+            <span style="font-weight:900;color:#94a3b8;min-width:1.5rem;">${player.playerNum}.</span>
+            <div style="flex:1;margin-left:0.5rem;min-width:0;">
+              <div style="font-weight:900; color:#0f172a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${player.name}</div>
+              <div style="font-size:10px; color:#94a3b8; font-weight:900; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${player.duprId || 'NO DUPR ID'}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-left:1rem;flex-wrap:wrap;">
+            <button onclick="editPlayer(${player.id})" style="border:none;background:none;font-weight:900;font-size:10px;color:#0f172a;cursor:pointer;">EDIT</button>
+            ${player.isActive
+              ? `<button onclick="handleSubs(${player.id})" style="border:none;background:none;font-weight:900;font-size:10px;color:#3b82f6;cursor:pointer;">SUBS</button><button onclick="handleDrop(${player.id})" style="border:none;background:none;font-weight:900;font-size:10px;color:#f87171;cursor:pointer;">DROP</button>`
+              : `<button onclick="handleActivate(${player.id})" style="border:none;background:none;font-weight:900;font-size:10px;color:#059669;cursor:pointer;">ACTIVATE</button>`}
+          </div>
+        </div>
+      `).join('');
+    }
 
-        function exportDUPRCSV() {
-            let historyDones = [...matchHistory].filter(m => m.completed).sort((a,b) => a.round - b.round);
-            if(historyDones.length === 0) {
-                alert("目前沒有已完成的比賽可以匯出！");
-                return;
-            }
+    function renderLeaderboardTab() {
+      const sortedPlayers = [...state.players].sort((a, b) => b.rating - a.rating);
+      els.leaderboardList.innerHTML = sortedPlayers.map((player, index) => `
+        <div class="card" style="display:flex; justify-content:space-between; align-items:center; padding: 1.2rem; margin-top: 0.5rem; ${player.isActive ? '' : 'opacity:0.6'}">
+          <div style="display:flex; align-items:center;">
+            <span style="font-weight:900; color:#64748b; font-size:1.4rem; min-width:2.5rem;">#${index + 1}</span>
+            <div style="margin-left:0.5rem;">
+              <div style="font-weight:900; font-size:1.1rem; color:#0f172a;">${player.name}</div>
+              <div style="font-size:10px; color:#94a3b8; font-weight:900; margin-top: 3px;">W: ${player.wins} / L: ${player.losses}</div>
+            </div>
+          </div>
+          <div style="font-size:1.5rem; font-weight:900; color:#f97316;">${player.rating.toFixed(3)}</div>
+        </div>
+      `).join('');
+    }
 
-            let evtName = localStorage.getItem('pb_eventName') || 'Casual_Match';
-            let safeEvtName = evtName.replace(/[\/\\?%*:|"<>\.]/g, '').replace(/\s+/g, '_');
-            
-            let rawDate = localStorage.getItem('pb_eventDate');
-            let evtDate = (!rawDate || !/^\d{4}-\d{2}-\d{2}$/.test(rawDate)) ? getLocalYYYYMMDD() : rawDate;
+    function renderScheduleTab() {
+      els.scheduleMetaControls.innerHTML = renderMetaControls('schedule');
+      const completed = getCompletedMatches(state);
+      const current = getCurrentMatch(state);
+      let html = '';
 
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
-            csvContent += "<leave empty>,<leave empty>,<leave empty>,matchType,event,date,playerA1,playerA1DuprId,playerA1ExternalId,playerA2,playerA2DuprId,playerA2ExternalId,playerB1,playerB1DuprId,playerB1ExternalId,playerB2,playerB2DuprId,playerB2ExternalId,<leave empty>,teamAGame1,teamBGame1,teamAGame2,teamBGame2,teamAGame3,teamBGame3,teamAGame4,teamBGame4,teamAGame5,teamBGame5\n";
-            
-            historyDones.forEach(m => {
-                const pA1 = players.find(p => p.id === m.teamAIds[0]) || {};
-                const pA2 = players.find(p => p.id === m.teamAIds[1]) || {};
-                const pB1 = players.find(p => p.id === m.teamBIds[0]) || {};
-                const pB2 = players.find(p => p.id === m.teamBIds[1]) || {};
-                
-                const row = [
-                    "", "", "", 
-                    "D",        
-                    evtName,    
-                    evtDate,    
-                    pA1.name || "Unknown", pA1.duprId || "", "",         
-                    pA2.name || "Unknown", pA2.duprId || "", "",         
-                    pB1.name || "Unknown", pB1.duprId || "", "",         
-                    pB2.name || "Unknown", pB2.duprId || "", "",         
-                    "",         
-                    m.scoreA, m.scoreB,   
-                    "", "", "", "", "", "", "", ""          
-                ];
-                
-                csvContent += row.map(item => `"${item}"`).join(",") + "\n";
-            });
+      completed.forEach(match => {
+        html += `
+          <div class="card card-done">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <span style="font-size:10px;color:white;font-weight:900;opacity:0.6;">GAME ${match.round}</span>
+              <div>
+                <span class="label-done">DONE</span>
+                <button onclick="handleEdit(${match.round})" style="color:white;font-size:10px;font-weight:900;border:none;background:none;text-decoration:underline;margin-left:8px;cursor:pointer;">EDIT</button>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;text-align:center;font-weight:900;">
+              <div style="width:40%;">${getDisplayPlayer(match.teamAIds[0], state).name}<br>${getDisplayPlayer(match.teamAIds[1], state).name}<div class="score-done">${match.scoreA}</div></div>
+              <div class="vs-orange">VS</div>
+              <div style="width:40%;">${getDisplayPlayer(match.teamBIds[0], state).name}<br>${getDisplayPlayer(match.teamBIds[1], state).name}<div class="score-done">${match.scoreB}</div></div>
+            </div>
+          </div>
+        `;
+      });
 
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `DUPR_${safeEvtName}_${evtDate}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
+      if (current && current.allIds.length === 4) {
+        html += `
+          <div class="card card-live" style="border:none; border-left:4px solid #f97316; padding:1.25rem;">
+            <div style="font-size:11px;color:#f97316;font-weight:900;margin-bottom:10px;text-align:center;letter-spacing:0.05em;">GAME ${current.round} · LIVE NOW</div>
+            <div style="display:flex;justify-content:space-between;text-align:center;font-weight:900;">
+              <div style="width:40%;">${getDisplayPlayer(current.teamAIds[0], state).name}<br>${getDisplayPlayer(current.teamAIds[1], state).name}</div>
+              <div class="vs-orange">VS</div>
+              <div style="width:40%;">${getDisplayPlayer(current.teamBIds[0], state).name}<br>${getDisplayPlayer(current.teamBIds[1], state).name}</div>
+            </div>
+          </div>
+        `;
+      }
 
-        function addPlayer(nameId, duprIdId) {
-            const nameInput = document.getElementById(nameId);
-            const duprInput = document.getElementById(duprIdId);
-            let name = nameInput.value.trim();
-            let duprId = duprInput ? duprInput.value.trim().toUpperCase() : '';
-            
-            if(!name) return;
-            // 若為已標記 Drop 的球員，不應重複新增，而是要提示使用 Activate (或是直接自動 activate)
-            if(players.some(p => p.name.toLowerCase() === name.toLowerCase() && p.isActive)) { alert("此姓名已在場上！"); return; }
-            
-            // 自動修復：如果加的是之前 Drop 的人，直接走 Activate 流程
-            let existingPlayer = players.find(p => p.name.toLowerCase() === name.toLowerCase() && !p.isActive);
-            if(existingPlayer) {
-                handleActivate(existingPlayer.id);
-                nameInput.value = '';
-                if(duprInput) duprInput.value = '';
-                document.querySelectorAll('.autocomplete-list').forEach(el => el.style.display = 'none');
-                return;
-            }
+      html += simulateSchedulePreview(state);
+      els.scheduleList.innerHTML = html;
+    }
 
-            name = name.charAt(0).toUpperCase() + name.slice(1);
-            
-            players.push({ id: Date.now(), playerNum: nextPlayerNum++, name, duprId, playCount: 0, wins: 0, losses: 0, consecutive: 0, isActive: true, rating: 3.500 });
-            
-            let pMem = JSON.parse(localStorage.getItem('pb_memory_players')) || {};
-            if(duprId) { pMem[name.toLowerCase()] = duprId; }
-            else if(!pMem[name.toLowerCase()]) { pMem[name.toLowerCase()] = ""; } 
-            localStorage.setItem('pb_memory_players', JSON.stringify(pMem));
+    function renderTabs() {
+      els.navPlayers.className = `tab-btn ${state.activeTab === 'players' ? 'tab-active' : ''}`;
+      els.navSchedule.className = `tab-btn ${state.activeTab === 'schedule' ? 'tab-active' : ''}`;
+      els.navLeaderboard.className = `tab-btn ${state.activeTab === 'leaderboard' ? 'tab-active' : ''}`;
 
-            if (!isStarted) { 
-                players.forEach((p, i) => { p.playerNum = i + 1; }); 
-                nextPlayerNum = players.length + 1; 
-            } else {
-                // 如果比賽中新增球員，人數變更，更新引擎矩陣 (如 6人變 7人)
-                const activeCount = players.filter(p => p.isActive).length;
-                initialSetupCount = activeCount;
-                baseCycleLength = activeCount <= 6 ? 12 : 14;
-            }
-            
-            nameInput.value = '';
-            if(duprInput) duprInput.value = '';
-            
-            document.querySelectorAll('.autocomplete-list').forEach(el => el.style.display = 'none');
-            saveData(); render();
-        }
+      els.tabPlayersContent.className = state.activeTab === 'players' ? '' : 'hidden';
+      els.tabScheduleContent.className = state.activeTab === 'schedule' ? '' : 'hidden';
+      els.tabLeaderboardContent.className = state.activeTab === 'leaderboard' ? '' : 'hidden';
+    }
 
-        function removePlayerSetup(id) {
-            players = players.filter(p => p.id !== id);
-            if (!isStarted) { 
-                players.forEach((p, i) => { p.playerNum = i + 1; }); 
-                nextPlayerNum = players.length + 1; 
-            }
-            saveData(); render();
-        }
+    function renderApp() {
+      renderAppShell();
+      renderSetupList();
+      renderCurrentMatch();
+      renderPlayersTab();
+      renderLeaderboardTab();
+      renderTabs();
+      renderScheduleTab();
+    }
 
-        function endRound() {
-            const sA = Math.max(0, parseInt(document.getElementById('scA').value)), sB = Math.max(0, parseInt(document.getElementById('scB').value));
-            if(isNaN(sA) || isNaN(sB)) { alert("請輸入有效比分"); return; }
-            let curr = matchHistory[0]; curr.scoreA = sA; curr.scoreB = sB; curr.completed = true;
-            
-            const pA1 = players.find(p => p.id === curr.teamAIds[0]);
-            const pA2 = players.find(p => p.id === curr.teamAIds[1]);
-            const pB1 = players.find(p => p.id === curr.teamBIds[0]);
-            const pB2 = players.find(p => p.id === curr.teamBIds[1]);
-            
-            const rA = (pA1.rating + pA2.rating) / 2;
-            const rB = (pB1.rating + pB2.rating) / 2;
-            const sA_result = sA > sB ? 1 : (sA < sB ? 0 : 0.5);
-            const eA = 1 / (1 + Math.pow(10, (rB - rA) / 1.0)); 
-            
-            const pointDiff = Math.abs(sA - sB);
-            const pdMult = 1 + (pointDiff / 11); 
-            
-            const K = 0.4; 
-            const ratingChangeA = K * (sA_result - eA) * pdMult;
-            const ratingChangeB = -ratingChangeA; 
+    // =============================
+    // 10) Boot
+    // =============================
+    function initializeEventInputs() {
+      els.setupEventName.value = getEventName();
+      els.setupEventDate.value = getEventDate();
+    }
 
-            [[curr.teamAIds[0], curr.teamAIds[1]], [curr.teamBIds[0], curr.teamBIds[1]]].forEach(p => {
-                if(!partnerMatrix[p[0]]) partnerMatrix[p[0]] = {}; partnerMatrix[p[0]][p[1]] = (partnerMatrix[p[0]][p[1]] || 0) + 1;
-                if(!partnerMatrix[p[1]]) partnerMatrix[p[1]] = {}; partnerMatrix[p[1]][p[0]] = (partnerMatrix[p[1]][p[0]] || 0) + 1;
-            });
+    document.addEventListener('click', event => {
+      if (!event.target.closest('.autocomplete-container')) {
+        hideAutocompleteLists();
+      }
+    });
 
-            players = players.map(p => {
-                if(!curr.allIds.includes(p.id)) return { ...p, consecutive: 0 };
-                const won = (curr.teamAIds.includes(p.id) && sA > sB) || (curr.teamBIds.includes(p.id) && sB > sA);
-                
-                let newRating = p.rating;
-                if (curr.teamAIds.includes(p.id)) newRating += ratingChangeA;
-                if (curr.teamBIds.includes(p.id)) newRating += ratingChangeB;
+    initializeEventInputs();
+    updateEventsList();
+    renderApp();
 
-                return { ...p, playCount: p.playCount + 1, consecutive: p.consecutive + 1, wins: p.wins + (won?1:0), losses: p.losses + (won?0:1), rating: newRating };
-            });
-
-            matchHistory.unshift({ round: curr.round + 1, completed: false, allIds: [], teamAIds: [], teamBIds: [] });
-            const nextM = calculateMatch(players, matchHistory.length - 1, partnerMatrix); if(nextM) matchHistory[0] = { ...matchHistory[0], ...nextM };
-            saveData(); render();
-        }
-
-        function handleEdit(round) {
-            const idx = matchHistory.findIndex(m => m.round === round);
-            const nA = prompt("Team A Score (注意: 修改歷史分數不會回溯重算排行榜積分):", matchHistory[idx].scoreA);
-            const nB = prompt("Team B Score:", matchHistory[idx].scoreB);
-            if (nA !== null && nB !== null) { matchHistory[idx].scoreA = Math.max(0, parseInt(nA)); matchHistory[idx].scoreB = Math.max(0, parseInt(nB)); saveData(); render(); }
-        }
-
-        function startApp() { 
-            let evtName = document.getElementById('setup-event-name').value.trim();
-            localStorage.setItem('pb_eventName', evtName);
-            localStorage.setItem('pb_eventDate', document.getElementById('setup-event-date').value);
-
-            if(evtName) {
-                let eMem = JSON.parse(localStorage.getItem('pb_memory_events')) || [];
-                if(!eMem.includes(evtName)) { eMem.push(evtName); localStorage.setItem('pb_memory_events', JSON.stringify(eMem)); updateEventsList(); }
-            }
-
-            initialSetupCount = players.filter(p=>p.isActive).length;
-            baseCycleLength = initialSetupCount <= 6 ? 12 : 14;
-            const m = calculateMatch(players, 0, partnerMatrix); 
-            matchHistory.push({ round: 1, ...m, scoreA: '', scoreB: '', completed: false }); 
-            isStarted = true; saveData(); render(); 
-        }
-
-        function switchTab(t) { activeTab = t; render(); }
-
-        function render() {
-            const getP = (id) => players.find(p => p.id === id) || { name: 'Gone', playerNum: '?' };
-            
-            if(isStarted) {
-                document.getElementById('view-setup').classList.add('hidden'); 
-                document.getElementById('navigation').classList.remove('hidden'); 
-                document.getElementById('view-game').classList.remove('hidden');
-            }
-
-            const activeCount = players.filter(p=>p.isActive).length;
-            const btnStart = document.getElementById('start-btn');
-            btnStart.disabled = activeCount < 6;
-            btnStart.innerText = activeCount < 6 ? 'MINIMUM 6 PLAYERS' : 'START MATCHING';
-            
-            document.getElementById('setup-list').innerHTML = players.map(p => `<div style="display:flex;justify-content:space-between;padding:0.75rem;border-bottom:1px solid #f1f5f9;align-items:center;"><span style="font-weight:900;">${p.playerNum}. ${p.name} <span style="font-size:10px; color:#94a3b8; margin-left:5px;">${p.duprId ? '('+p.duprId+')' : ''}</span></span><button onclick="removePlayerSetup(${p.id})" style="color:#f87171;border:none;background:none;font-size:10px;font-weight:900;cursor:pointer;">REMOVE</button></div>`).join('');
-
-            const curr = matchHistory.find(m => !m.completed);
-            const slot = document.getElementById('current-match-ui');
-            if (isStarted && curr && curr.allIds && curr.allIds.length === 4) {
-                slot.innerHTML = `
-                <div class="card card-live">
-                    <div style="text-align: center; margin-bottom: 1.25rem;">
-                        <span style="font-size: 1.1rem; font-weight: 900; background: #f97316; color: white; padding: 6px 16px; border-radius: 8px; letter-spacing: 0.05em; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">GAME ${curr.round} · LIVE</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; text-align:center; font-weight:900; margin-bottom: 0.75rem;">
-                        <div style="width:45%; font-size: 1.05rem; line-height: 1.4;">${getP(curr.teamAIds[0]).name}<br>${getP(curr.teamAIds[1]).name}</div>
-                        <div style="width:10%;"></div>
-                        <div style="width:45%; font-size: 1.05rem; line-height: 1.4;">${getP(curr.teamBIds[0]).name}<br>${getP(curr.teamBIds[1]).name}</div>
-                    </div>
-                    <div style="display:flex; justify-content:center; align-items:center; gap: 1rem; margin-bottom: 1.25rem;">
-                        <input type="number" id="scA" class="score-input" min="0" placeholder="0">
-                        <div class="vs-orange">VS</div>
-                        <input type="number" id="scB" class="score-input" min="0" placeholder="0">
-                    </div>
-                    <button onclick="endRound()" class="btn-orange">SUBMIT SCORE</button>
-                </div>`;
-            } else { slot.innerHTML = ''; }
-
-            // 更新按鈕：使用最新的 handleDrop 與 handleActivate 函數
-            document.getElementById('player-stats-list').innerHTML = players.map(p => `<div style="display:flex;justify-content:space-between;padding:1rem;border-bottom:1px solid #f1f5f9;${p.isActive?'':'opacity:0.3'}">
-                <div style="display:flex;flex:1;align-items:center;"><span style="font-weight:900;color:#94a3b8;min-width:1.5rem;">${p.playerNum}.</span><div style="flex:1;margin-left:0.5rem;"><div style="font-weight:900;">${p.name} <span style="font-size:10px; color:#94a3b8;">${p.duprId ? p.duprId : ''}</span> <span style="font-size:10px; color:#f97316; margin-left:3px;">(${p.rating.toFixed(3)})</span></div><div style="font-size:10px;color:#059669;font-weight:900;">W:${p.wins} L:${p.losses}</div></div><div class="stat-badge"><div style="font-size:8px;color:#94a3b8;">G</div>${p.playCount}</div></div>
-                <div style="display:flex;align-items:center;margin-left:1rem;">${p.isActive ? `<button onclick="handleSubs(${p.id})" style="border:none;background:none;font-weight:900;font-size:10px;color:#3b82f6;margin-right:10px;cursor:pointer;">SUBS</button><button onclick="handleDrop(${p.id})" style="border:none;background:none;font-weight:900;font-size:10px;color:#f87171;cursor:pointer;">DROP</button>` : `<button onclick="handleActivate(${p.id})" style="border:none;background:none;font-weight:900;font-size:10px;color:#059669;cursor:pointer;">ACTIVATE</button>`}</div>
-            </div>`).join('');
-
-            let sortedPlayers = [...players].sort((a,b) => b.rating - a.rating);
-            document.getElementById('leaderboard-list').innerHTML = sortedPlayers.map((p, index) => `
-                <div class="card" style="display:flex; justify-content:space-between; align-items:center; padding: 1.2rem; margin-top: 0.5rem; ${p.isActive?'':'opacity:0.6'}">
-                    <div style="display:flex; align-items:center;">
-                        <span style="font-weight:900; color:#64748b; font-size:1.4rem; min-width:2.5rem;">#${index+1}</span>
-                        <div style="margin-left:0.5rem;">
-                            <div style="font-weight:900; font-size:1.1rem; color:#0f172a;">${p.name}</div>
-                            <div style="font-size:10px; color:#94a3b8; font-weight:900; margin-top: 3px;">W: ${p.wins} / L: ${p.losses}</div>
-                        </div>
-                    </div>
-                    <div style="font-size:1.5rem; font-weight:900; color:#f97316;">
-                        ${p.rating.toFixed(3)}
-                    </div>
-                </div>
-            `).join('');
-
-            document.getElementById('nav-players').className = `tab-btn ${activeTab==='players'?'tab-active':''}`;
-            document.getElementById('nav-schedule').className = `tab-btn ${activeTab==='schedule'?'tab-active':''}`;
-            document.getElementById('nav-leaderboard').className = `tab-btn ${activeTab==='leaderboard'?'tab-active':''}`;
-            
-            document.getElementById('tab-players-content').className = activeTab === 'players' ? '' : 'hidden';
-            document.getElementById('tab-schedule-content').className = activeTab === 'schedule' ? '' : 'hidden';
-            document.getElementById('tab-leaderboard-content').className = activeTab === 'leaderboard' ? '' : 'hidden';
-
-            let schedHTML = '';
-            let historyDones = [...matchHistory].filter(m => m.completed).sort((a,b) => a.round - b.round);
-            
-            historyDones.forEach(m => {
-                schedHTML += `<div class="card card-done"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-size:10px;color:white;font-weight:900;opacity:0.6;">GAME ${m.round}</span><div><span class="label-done">DONE</span><button onclick="handleEdit(${m.round})" style="color:white;font-size:10px;font-weight:900;border:none;background:none;text-decoration:underline;margin-left:8px;cursor:pointer;">EDIT</button></div></div>
-                    <div style="display:flex;justify-content:space-between;text-align:center;font-weight:900;"><div style="width:40%;">${getP(m.teamAIds[0]).name}<br>${getP(m.teamAIds[1]).name}<div class="score-done">${m.scoreA}</div></div><div class="vs-orange">VS</div><div style="width:40%;">${getP(m.teamBIds[0]).name}<br>${getP(m.teamBIds[1]).name}<div class="score-done">${m.scoreB}</div></div></div></div>`;
-            });
-            
-            if (curr && curr.allIds && curr.allIds.length === 4) {
-                schedHTML += `<div class="card card-live" style="border:none; border-left:4px solid #f97316; padding:1.25rem;"><div style="font-size:11px;color:#f97316;font-weight:900;margin-bottom:10px;text-align:center;letter-spacing:0.05em;">GAME ${curr.round} · LIVE NOW</div>
-                    <div style="display:flex;justify-content:space-between;text-align:center;font-weight:900;"><div style="width:40%;">${getP(curr.teamAIds[0]).name}<br>${getP(curr.teamAIds[1]).name}</div><div class="vs-orange">VS</div><div style="width:40%;">${getP(curr.teamBIds[0]).name}<br>${getP(curr.teamBIds[1]).name}</div></div></div>`;
-            }
-            
-            let tPlayers = players.map(p => ({...p}));
-            let tMatrix = JSON.parse(JSON.stringify(partnerMatrix));
-            let currentRoundNum = historyDones.length + (curr ? 1 : 0);
-            
-            let targetTotalGames = Math.ceil((currentRoundNum === 0 ? 1 : currentRoundNum) / baseCycleLength) * baseCycleLength; 
-            let simRoundIdx = currentRoundNum;
-            
-            if(curr && curr.allIds && curr.allIds.length === 4) { 
-                curr.allIds.forEach(id => { let p = tPlayers.find(x => x.id === id); if(p){ p.playCount++; p.consecutive++; } }); 
-                tPlayers.forEach(p => { if(!curr.allIds.includes(p.id)) p.consecutive = 0; }); 
-                [[curr.teamAIds[0], curr.teamAIds[1]], [curr.teamBIds[0], curr.teamBIds[1]]].forEach(pair => {
-                    if(!tMatrix[pair[0]]) tMatrix[pair[0]] = {}; tMatrix[pair[0]][pair[1]] = (tMatrix[pair[0]][pair[1]] || 0) + 1;
-                    if(!tMatrix[pair[1]]) tMatrix[pair[1]] = {}; tMatrix[pair[1]][pair[0]] = (tMatrix[pair[1]][pair[0]] || 0) + 1;
-                });
-            }
-
-            while(simRoundIdx < targetTotalGames) {
-                let m = calculateMatch(tPlayers, simRoundIdx, tMatrix); if (!m) break;
-                schedHTML += `<div class="card card-preview"><div style="font-size:10px;color:#94a3b8;font-weight:900;margin-bottom:10px;text-align:center;">GAME ${simRoundIdx + 1} · PREVIEW</div>
-                    <div style="display:flex;justify-content:space-between;text-align:center;font-weight:900;"><div style="width:40%;">${getP(m.teamAIds[0]).name}<br>${getP(m.teamAIds[1]).name}</div><div class="vs-orange" style="opacity:0.5;">VS</div><div style="width:40%;">${getP(m.teamBIds[0]).name}<br>${getP(m.teamBIds[1]).name}</div></div></div>`;
-                m.allIds.forEach(id => { let p = tPlayers.find(x => x.id === id); if(p){ p.playCount++; p.consecutive++; } });
-                tPlayers.forEach(p => { if(!m.allIds.includes(p.id)) p.consecutive = 0; });
-                [[m.teamAIds[0], m.teamAIds[1]], [m.teamBIds[0], m.teamBIds[1]]].forEach(pair => {
-                    if(!tMatrix[pair[0]]) tMatrix[pair[0]] = {}; tMatrix[pair[0]][pair[1]] = (tMatrix[pair[0]][pair[1]] || 0) + 1;
-                    if(!tMatrix[pair[1]]) tMatrix[pair[1]] = {}; tMatrix[pair[1]][pair[0]] = (tMatrix[pair[1]][pair[0]] || 0) + 1;
-                });
-                simRoundIdx++;
-            }
-            document.getElementById('schedule-list').innerHTML = schedHTML;
-        }
-        render();
-    </script>
+    // expose globals for inline handlers
+    window.showPlayerSuggestions = showPlayerSuggestions;
+    window.addPlayer = addPlayer;
+    window.removePlayerSetup = removePlayerSetup;
+    window.handleActivate = handleActivate;
+    window.handleDrop = handleDrop;
+    window.handleSubs = handleSubs;
+    window.submitScoreAction = submitScoreAction;
+    window.handleEdit = handleEdit;
+    window.startApp = startApp;
+    window.switchTab = switchTab;
+    window.editEventName = editEventName;
+    window.editPlayer = editPlayer;
+    window.exportDUPRCSV = exportDUPRCSV;
+    window.updateScoreType = updateScoreType;
+    window.resetData = resetData;
+  </script>
 </body>
 </html>
