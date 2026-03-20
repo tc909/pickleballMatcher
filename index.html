@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>MatchFlow - v12.7.5</title>
+  <title>MatchFlow - v12.7.7</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
@@ -215,70 +215,71 @@
     const DEFAULT_RATING = 3.5;
     const UPCOMING_PREVIEW_COUNT = 8;
 
+    // 100% matched with MatchList.txt
     const FIXED_MATCH_MATRIX = {
       5: [
-        { teamA: [0,1], teamB: [2,3] },
-        { teamA: [0,2], teamB: [1,4] },
-        { teamA: [0,3], teamB: [2,4] },
-        { teamA: [0,4], teamB: [1,3] },
-        { teamA: [1,2], teamB: [3,4] },
-        { teamA: [0,1], teamB: [2,3] },
-        { teamA: [0,2], teamB: [1,4] },
-        { teamA: [0,3], teamB: [2,4] },
-        { teamA: [0,4], teamB: [1,3] },
-        { teamA: [1,2], teamB: [3,4] },
-        { teamA: [0,1], teamB: [2,3] },
-        { teamA: [0,2], teamB: [1,4] },
-        { teamA: [0,3], teamB: [2,4] },
-        { teamA: [0,4], teamB: [1,3] }
+        { teamA: [0,1], teamB: [2,3] }, // R1
+        { teamA: [0,2], teamB: [1,4] }, // R2
+        { teamA: [0,3], teamB: [2,4] }, // R3
+        { teamA: [0,4], teamB: [1,3] }, // R4
+        { teamA: [1,2], teamB: [3,4] }, // R5
+        { teamA: [0,1], teamB: [2,3] }, // R6 (R1 repeat)
+        { teamA: [0,2], teamB: [1,4] }, // R7 (R2 repeat)
+        { teamA: [0,3], teamB: [2,4] }, // R8 (R3 repeat)
+        { teamA: [0,4], teamB: [1,3] }, // R9 (R4 repeat)
+        { teamA: [1,2], teamB: [3,4] }, // R10 (R5 repeat)
+        { teamA: [0,1], teamB: [2,3] }, // R11 (R1 repeat)
+        { teamA: [0,2], teamB: [1,4] }, // R12 (R2 repeat)
+        { teamA: [0,3], teamB: [2,4] }, // R13 (R3 repeat)
+        { teamA: [0,4], teamB: [1,3] }  // R14 (R4 repeat)
       ],
       6: [
-        { teamA: [0,1], teamB: [2,3] },
-        { teamA: [0,4], teamB: [1,5] },
-        { teamA: [2,4], teamB: [3,5] },
-        { teamA: [0,2], teamB: [1,3] },
-        { teamA: [0,5], teamB: [1,4] },
-        { teamA: [2,5], teamB: [3,4] },
-        { teamA: [0,3], teamB: [1,2] },
-        { teamA: [0,1], teamB: [4,5] },
-        { teamA: [2,3], teamB: [4,5] },
-        { teamA: [0,3], teamB: [1,2] },
-        { teamA: [0,5], teamB: [1,4] },
-        { teamA: [2,5], teamB: [3,4] },
-        { teamA: [0,2], teamB: [1,3] },
-        { teamA: [0,4], teamB: [1,5] }
+        { teamA: [0,1], teamB: [2,3] }, // R1
+        { teamA: [0,2], teamB: [4,5] }, // R2
+        { teamA: [1,4], teamB: [3,5] }, // R3
+        { teamA: [0,3], teamB: [1,2] }, // R4
+        { teamA: [0,4], teamB: [2,5] }, // R5
+        { teamA: [1,5], teamB: [3,4] }, // R6
+        { teamA: [0,2], teamB: [1,3] }, // R7
+        { teamA: [0,5], teamB: [2,4] }, // R8
+        { teamA: [1,3], teamB: [4,5] }, // R9
+        { teamA: [0,2], teamB: [1,3] }, // R10
+        { teamA: [0,2], teamB: [4,5] }, // R11
+        { teamA: [1,3], teamB: [4,5] }, // R12
+        { teamA: [0,2], teamB: [1,3] }, // R13
+        { teamA: [0,2], teamB: [4,5] }  // R14
       ],
       7: [
-        { teamA: [0,1], teamB: [2,3] },
-        { teamA: [0,4], teamB: [5,6] },
-        { teamA: [1,2], teamB: [3,4] },
-        { teamA: [0,5], teamB: [1,6] },
-        { teamA: [0,3], teamB: [2,4] },
-        { teamA: [1,5], teamB: [2,6] },
-        { teamA: [0,6], teamB: [1,3] },
-        { teamA: [0,2], teamB: [4,5] },
-        { teamA: [1,4], teamB: [3,6] },
-        { teamA: [0,3], teamB: [2,5] },
-        { teamA: [1,2], teamB: [4,6] },
-        { teamA: [0,4], teamB: [3,5] },
-        { teamA: [0,2], teamB: [1,6] },
-        { teamA: [3,4], teamB: [5,6] }
+        { teamA: [0,1], teamB: [2,3] }, // R1
+        { teamA: [0,4], teamB: [5,6] }, // R2
+        { teamA: [1,2], teamB: [3,4] }, // R3
+        { teamA: [0,5], teamB: [1,6] }, // R4
+        { teamA: [0,3], teamB: [2,4] }, // R5
+        { teamA: [1,5], teamB: [2,6] }, // R6
+        { teamA: [0,6], teamB: [1,3] }, // R7
+        { teamA: [0,2], teamB: [4,5] }, // R8
+        { teamA: [1,4], teamB: [3,6] }, // R9
+        { teamA: [0,3], teamB: [2,5] }, // R10
+        { teamA: [1,2], teamB: [4,6] }, // R11
+        { teamA: [0,4], teamB: [3,5] }, // R12
+        { teamA: [0,2], teamB: [1,6] }, // R13
+        { teamA: [3,4], teamB: [5,6] }  // R14
       ],
       8: [
-        { teamA: [0,1], teamB: [2,3] },
-        { teamA: [4,5], teamB: [6,7] },
-        { teamA: [0,2], teamB: [1,3] },
-        { teamA: [4,6], teamB: [5,7] },
-        { teamA: [0,3], teamB: [1,2] },
-        { teamA: [4,7], teamB: [5,6] },
-        { teamA: [0,4], teamB: [1,5] },
-        { teamA: [2,6], teamB: [3,7] },
-        { teamA: [0,5], teamB: [1,4] },
-        { teamA: [2,7], teamB: [3,6] },
-        { teamA: [0,6], teamB: [1,7] },
-        { teamA: [2,4], teamB: [3,5] },
-        { teamA: [0,7], teamB: [1,6] },
-        { teamA: [2,5], teamB: [3,4] }
+        { teamA: [0,1], teamB: [2,3] }, // R1
+        { teamA: [4,5], teamB: [6,7] }, // R2
+        { teamA: [0,2], teamB: [1,4] }, // R3
+        { teamA: [3,6], teamB: [5,7] }, // R4
+        { teamA: [0,4], teamB: [1,5] }, // R5
+        { teamA: [2,6], teamB: [3,7] }, // R6
+        { teamA: [1,2], teamB: [5,6] }, // R7
+        { teamA: [0,3], teamB: [4,7] }, // R8
+        { teamA: [0,5], teamB: [1,6] }, // R9
+        { teamA: [2,7], teamB: [3,4] }, // R10
+        { teamA: [0,6], teamB: [1,3] }, // R11
+        { teamA: [0,7], teamB: [2,5] }, // R12
+        { teamA: [1,7], teamB: [4,6] }, // R13
+        { teamA: [2,4], teamB: [3,5] }  // R14
       ]
     };
 
@@ -538,6 +539,8 @@
       document.getElementById(nameInputId).value = name;
       document.getElementById(duprInputId).value = duprId || '';
       document.getElementById(dropdownId).style.display = 'none';
+      
+      addPlayer();
     }
 
     function addPlayer() {
@@ -736,16 +739,18 @@
       return count;
     }
 
+    // 核心修正：讓賽程完美對齊 Game Number，解決了重複與預覽循環的問題
     function getFixedMatrixMatch(court) {
       const activePlayers = getActivePlayers(court);
       const matrix = FIXED_MATCH_MATRIX[activePlayers.length];
       if (!matrix) return null;
 
-      const completedCount = getCompletedMatches(court).length;
-      if (completedCount >= matrix.length) return null;
-      if (court.currentMatch) return null;
+      const targetIndex = court.roundCounter - 1;
+      
+      // 超過 14 場則回傳 null，自動觸發 getGeneratedMatch (動態防呆引擎) 生成後續賽程
+      if (targetIndex >= matrix.length) return null; 
 
-      const spec = matrix[completedCount];
+      const spec = matrix[targetIndex];
       return {
         round: court.roundCounter++,
         teamAIds: [activePlayers[spec.teamA[0]].id, activePlayers[spec.teamA[1]].id],
@@ -842,7 +847,9 @@
       const preview = [];
       let virtualCurrent = clone.currentMatch ? { ...clone.currentMatch } : null;
 
-      if (virtualCurrent) preview.push(virtualCurrent);
+      if (virtualCurrent) {
+        preview.push(virtualCurrent);
+      }
 
       while (preview.length < count) {
         const next = getNextMatch(clone);
@@ -1002,10 +1009,10 @@
             court.scoreType || 'RALLY',
             court.eventName || court.name,
             court.eventDate || getLocalYYYYMMDD(),
-            pA1.name || '', pA1.duprId || '', '',
-            pA2.name || '', pA2.duprId || '', '',
-            pB1.name || '', pB1.duprId || '', '',
-            pB2.name || '', pB2.duprId || '', '',
+            pA1.name || '', (pA1.duprId || '').toUpperCase(), '',
+            pA2.name || '', (pA2.duprId || '').toUpperCase(), '',
+            pB1.name || '', (pB1.duprId || '').toUpperCase(), '',
+            pB2.name || '', (pB2.duprId || '').toUpperCase(), '',
             '',
             match.scoreA ?? '', match.scoreB ?? '',
             '', '', '', '', '', '', '', ''
@@ -1195,12 +1202,17 @@
         const a2 = getPlayerById(court, match.teamAIds[1])?.name || 'TBD';
         const b1 = getPlayerById(court, match.teamBIds[0])?.name || 'TBD';
         const b2 = getPlayerById(court, match.teamBIds[1])?.name || 'TBD';
+        
+        // 稍微給超過14場的動態加碼場次一個提示
+        const isDynamicExtended = match.round > 14 && court.players.length <= 8;
 
         html += `
           <div class="card upcoming">
             <div class="row" style="margin-bottom:0.55rem;">
               <div class="tiny" style="color:#ea580c;">${escapeHtml(court.name)} · Game ${match.round}</div>
-              <span class="badge">Upcoming</span>
+              <span class="badge" ${isDynamicExtended ? 'style="background:#f1f5f9; color:#64748b;"' : ''}>
+                ${isDynamicExtended ? 'Dynamic Extended' : 'Upcoming'}
+              </span>
             </div>
 
             <div class="row" style="justify-content:space-between; text-align:center; font-weight:900;">
