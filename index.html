@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>MatchFlow - v12.7.7</title>
+  <title>MatchFlow - v12.7.8</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
@@ -215,77 +215,77 @@
     const DEFAULT_RATING = 3.5;
     const UPCOMING_PREVIEW_COUNT = 8;
 
-    // 100% matched with MatchList.txt
+    // Synchronized with MatchList_v2.txt
     const FIXED_MATCH_MATRIX = {
       5: [
-        { teamA: [0,1], teamB: [2,3] }, // R1
-        { teamA: [0,2], teamB: [1,4] }, // R2
-        { teamA: [0,3], teamB: [2,4] }, // R3
-        { teamA: [0,4], teamB: [1,3] }, // R4
-        { teamA: [1,2], teamB: [3,4] }, // R5
-        { teamA: [0,1], teamB: [2,3] }, // R6 (R1 repeat)
-        { teamA: [0,2], teamB: [1,4] }, // R7 (R2 repeat)
-        { teamA: [0,3], teamB: [2,4] }, // R8 (R3 repeat)
-        { teamA: [0,4], teamB: [1,3] }, // R9 (R4 repeat)
-        { teamA: [1,2], teamB: [3,4] }, // R10 (R5 repeat)
-        { teamA: [0,1], teamB: [2,3] }, // R11 (R1 repeat)
-        { teamA: [0,2], teamB: [1,4] }, // R12 (R2 repeat)
-        { teamA: [0,3], teamB: [2,4] }, // R13 (R3 repeat)
-        { teamA: [0,4], teamB: [1,3] }  // R14 (R4 repeat)
+        { teamA: [0,1], teamB: [2,3] }, 
+        { teamA: [0,2], teamB: [1,4] }, 
+        { teamA: [0,3], teamB: [2,4] }, 
+        { teamA: [0,4], teamB: [1,3] }, 
+        { teamA: [1,2], teamB: [3,4] }, 
+        { teamA: [0,1], teamB: [2,3] }, 
+        { teamA: [0,2], teamB: [1,4] }, 
+        { teamA: [0,3], teamB: [2,4] }, 
+        { teamA: [0,4], teamB: [1,3] }, 
+        { teamA: [1,2], teamB: [3,4] }, 
+        { teamA: [0,1], teamB: [2,3] }, 
+        { teamA: [0,2], teamB: [1,4] }, 
+        { teamA: [0,3], teamB: [2,4] }, 
+        { teamA: [0,4], teamB: [1,3] }  
       ],
       6: [
-        { teamA: [0,1], teamB: [2,3] }, // R1
-        { teamA: [0,2], teamB: [4,5] }, // R2
-        { teamA: [1,4], teamB: [3,5] }, // R3
-        { teamA: [0,3], teamB: [1,2] }, // R4
-        { teamA: [0,4], teamB: [2,5] }, // R5
-        { teamA: [1,5], teamB: [3,4] }, // R6
-        { teamA: [0,2], teamB: [1,3] }, // R7
-        { teamA: [0,5], teamB: [2,4] }, // R8
-        { teamA: [1,3], teamB: [4,5] }, // R9
-        { teamA: [0,2], teamB: [1,3] }, // R10
-        { teamA: [0,2], teamB: [4,5] }, // R11
-        { teamA: [1,3], teamB: [4,5] }, // R12
-        { teamA: [0,2], teamB: [1,3] }, // R13
-        { teamA: [0,2], teamB: [4,5] }  // R14
+        { teamA: [0, 1], teamB: [2, 3] }, // R1
+        { teamA: [0, 4], teamB: [1, 5] }, // R2
+        { teamA: [2, 4], teamB: [3, 5] }, // R3
+        { teamA: [0, 2], teamB: [1, 3] }, // R4
+        { teamA: [0, 5], teamB: [1, 4] }, // R5
+        { teamA: [2, 5], teamB: [3, 4] }, // R6
+        { teamA: [0, 3], teamB: [1, 2] }, // R7
+        { teamA: [0, 1], teamB: [4, 5] }, // R8
+        { teamA: [2, 4], teamB: [3, 5] }, // R9
+        { teamA: [0, 3], teamB: [1, 2] }, // R10
+        { teamA: [0, 1], teamB: [4, 5] }, // R11
+        { teamA: [2, 5], teamB: [3, 4] }, // R12
+        { teamA: [0, 2], teamB: [1, 3] }, // R13
+        { teamA: [0, 4], teamB: [1, 5] }  // R14
       ],
       7: [
-        { teamA: [0,1], teamB: [2,3] }, // R1
-        { teamA: [0,4], teamB: [5,6] }, // R2
-        { teamA: [1,2], teamB: [3,4] }, // R3
-        { teamA: [0,5], teamB: [1,6] }, // R4
-        { teamA: [0,3], teamB: [2,4] }, // R5
-        { teamA: [1,5], teamB: [2,6] }, // R6
-        { teamA: [0,6], teamB: [1,3] }, // R7
-        { teamA: [0,2], teamB: [4,5] }, // R8
-        { teamA: [1,4], teamB: [3,6] }, // R9
-        { teamA: [0,3], teamB: [2,5] }, // R10
-        { teamA: [1,2], teamB: [4,6] }, // R11
-        { teamA: [0,4], teamB: [3,5] }, // R12
-        { teamA: [0,2], teamB: [1,6] }, // R13
-        { teamA: [3,4], teamB: [5,6] }  // R14
+        { teamA: [3, 5], teamB: [4, 6] }, // R1
+        { teamA: [0, 1], teamB: [2, 6] }, // R2
+        { teamA: [2, 3], teamB: [4, 5] }, // R3
+        { teamA: [0, 5], teamB: [1, 6] }, // R4
+        { teamA: [1, 3], teamB: [2, 4] }, // R5
+        { teamA: [0, 4], teamB: [5, 6] }, // R6
+        { teamA: [0, 3], teamB: [1, 2] }, // R7
+        { teamA: [3, 6], teamB: [4, 5] }, // R8
+        { teamA: [0, 2], teamB: [1, 6] }, // R9
+        { teamA: [2, 5], teamB: [3, 4] }, // R10
+        { teamA: [0, 6], teamB: [1, 5] }, // R11
+        { teamA: [1, 4], teamB: [2, 3] }, // R12
+        { teamA: [0, 4], teamB: [5, 6] }, // R13
+        { teamA: [0, 1], teamB: [2, 3] }  // R14
       ],
       8: [
-        { teamA: [0,1], teamB: [2,3] }, // R1
-        { teamA: [4,5], teamB: [6,7] }, // R2
-        { teamA: [0,2], teamB: [1,4] }, // R3
-        { teamA: [3,6], teamB: [5,7] }, // R4
-        { teamA: [0,4], teamB: [1,5] }, // R5
-        { teamA: [2,6], teamB: [3,7] }, // R6
-        { teamA: [1,2], teamB: [5,6] }, // R7
-        { teamA: [0,3], teamB: [4,7] }, // R8
-        { teamA: [0,5], teamB: [1,6] }, // R9
-        { teamA: [2,7], teamB: [3,4] }, // R10
-        { teamA: [0,6], teamB: [1,3] }, // R11
-        { teamA: [0,7], teamB: [2,5] }, // R12
-        { teamA: [1,7], teamB: [4,6] }, // R13
-        { teamA: [2,4], teamB: [3,5] }  // R14
+        { teamA: [0,1], teamB: [2,3] }, 
+        { teamA: [4,5], teamB: [6,7] }, 
+        { teamA: [0,2], teamB: [1,3] }, 
+        { teamA: [4,6], teamB: [5,7] }, 
+        { teamA: [0,3], teamB: [1,2] }, 
+        { teamA: [4,7], teamB: [5,6] }, 
+        { teamA: [0,4], teamB: [1,5] }, 
+        { teamA: [2,6], teamB: [3,7] }, 
+        { teamA: [0,5], teamB: [1,4] }, 
+        { teamA: [2,7], teamB: [3,6] }, 
+        { teamA: [0,6], teamB: [1,7] }, 
+        { teamA: [2,4], teamB: [3,5] }, 
+        { teamA: [0,7], teamB: [1,6] }, 
+        { teamA: [2,5], teamB: [3,4] }
       ]
     };
 
     const STORAGE_KEYS = {
-      state: 'pickleMatchV12_7_5_state',
-      memoryPlayers: 'pickleMatchV12_7_5_memoryPlayers'
+      state: 'pickleMatchV12_7_8_state',
+      memoryPlayers: 'pickleMatchV12_7_8_memoryPlayers'
     };
 
     let state = loadState();
@@ -302,12 +302,10 @@
         completedMatches: [],
         currentMatch: null,
         roundCounter: 1,
-        futureMatches: [],
         pairingHistory: {},
         matchupHistory: {},
         recentAppearances: {},
         matchHistory: [],
-        editTargetRound: null
       };
     }
 
@@ -316,13 +314,9 @@
         const saved = localStorage.getItem(STORAGE_KEYS.state);
         if (saved) {
           const parsed = JSON.parse(saved);
-          if (parsed?.courts?.length) {
-            if (!parsed.leaderboardMode) parsed.leaderboardMode = 'court';
-            return parsed;
-          }
+          if (parsed?.courts?.length) return parsed;
         }
       } catch (e) {}
-
       const firstCourt = createCourt(1);
       return {
         activeTab: 'players',
@@ -339,52 +333,35 @@
     function loadMemoryPlayers() {
       try {
         return JSON.parse(localStorage.getItem(STORAGE_KEYS.memoryPlayers) || '[]');
-      } catch (e) {
-        return [];
-      }
+      } catch (e) { return []; }
     }
 
     function saveMemoryPlayers(players) {
       localStorage.setItem(STORAGE_KEYS.memoryPlayers, JSON.stringify(players));
     }
 
-    function getMemoryPlayers() {
-      return loadMemoryPlayers();
-    }
-
     function toTitleCase(str) {
-      return String(str || '')
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, ' ')
-        .split(' ')
-        .map(word => word ? word.charAt(0).toUpperCase() + word.slice(1) : '')
-        .join(' ');
+      return String(str || '').trim().toLowerCase().replace(/\s+/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
     }
 
     function upsertMemoryPlayer(name, duprId = '') {
-      const trimmed = toTitleCase(name || '');
+      const trimmed = toTitleCase(name);
       if (!trimmed) return;
-
-      const list = getMemoryPlayers();
-      const key = trimmed.toLowerCase();
-      const existing = list.find(p => p.name.toLowerCase() === key);
-
+      const list = loadMemoryPlayers();
+      const existing = list.find(p => p.name.toLowerCase() === trimmed.toLowerCase());
       if (existing) {
         existing.name = trimmed;
         if (duprId !== undefined) existing.duprId = (duprId || '').trim();
       } else {
         list.push({ name: trimmed, duprId: (duprId || '').trim() });
       }
-
       list.sort((a, b) => a.name.localeCompare(b.name));
       saveMemoryPlayers(list);
       updateEventsList();
     }
 
     function deleteMemoryPlayer(name) {
-      const key = (name || '').trim().toLowerCase();
-      const filtered = getMemoryPlayers().filter(p => p.name.toLowerCase() !== key);
+      const filtered = loadMemoryPlayers().filter(p => p.name.toLowerCase() !== name.toLowerCase());
       saveMemoryPlayers(filtered);
       updateEventsList();
     }
@@ -396,50 +373,18 @@
       dl.innerHTML = events.map(ev => `<option value="${escapeHtml(ev)}"></option>`).join('');
     }
 
-    function getCourtById(id) {
-      return state.courts.find(c => c.id === id);
-    }
+    function getCourtById(id) { return state.courts.find(c => c.id === id); }
+    function getSelectedCourt() { return getCourtById(state.activeCourtId) || state.courts[0]; }
+    function getPlayerById(court, playerId) { return court.players.find(p => p.id === playerId); }
+    function getActivePlayers(court) { return court.players.filter(p => p.isActive !== false); }
+    function getCompletedMatches(court) { return court.completedMatches || []; }
+    function getLocalYYYYMMDD() { return new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10); }
 
-    function getSelectedCourt() {
-      return getCourtById(state.activeCourtId) || state.courts[0];
-    }
-
-    function getPlayerById(court, playerId) {
-      return court.players.find(p => p.id === playerId);
-    }
-
-    function getActivePlayers(court) {
-      return court.players.filter(p => p.isActive !== false);
-    }
-
-    function getCompletedMatches(court) {
-      return court.completedMatches || [];
-    }
-
-    function getLocalYYYYMMDD() {
-      const now = new Date();
-      const tzOffset = now.getTimezoneOffset() * 60000;
-      return new Date(now - tzOffset).toISOString().slice(0, 10);
-    }
-
-    function switchTab(tab) {
-      state.activeTab = tab;
-      saveState();
-      renderApp();
-    }
-
-    function switchCourt(courtId) {
-      state.activeCourtId = courtId;
-      saveState();
-      renderApp();
-    }
+    function switchTab(tab) { state.activeTab = tab; saveState(); renderApp(); }
+    function switchCourt(courtId) { state.activeCourtId = courtId; saveState(); renderApp(); }
 
     function addCourt() {
-      if (state.courts.length >= MAX_COURTS) {
-        alert(`Maximum ${MAX_COURTS} courts allowed.`);
-        return;
-      }
-
+      if (state.courts.length >= MAX_COURTS) return alert(`Max ${MAX_COURTS} courts.`);
       const newCourt = createCourt(state.courts.length + 1);
       state.courts.push(newCourt);
       state.activeCourtId = newCourt.id;
@@ -448,896 +393,221 @@
     }
 
     function clearData() {
-      const ok = confirm('Clear all current event data? Player Name and DUPR ID memory will be kept.');
-      if (!ok) return;
-
-      const preservedMemory = getMemoryPlayers();
+      if (!confirm('Clear event data?')) return;
       const firstCourt = createCourt(1);
-
-      state = {
-        activeTab: 'players',
-        activeCourtId: firstCourt.id,
-        leaderboardMode: 'court',
-        courts: [firstCourt]
-      };
-
-      saveMemoryPlayers(preservedMemory);
+      state = { activeTab: 'players', activeCourtId: firstCourt.id, leaderboardMode: 'court', courts: [firstCourt] };
       saveState();
-      updateEventsList();
       renderApp();
     }
 
     function editCourtEventName() {
       const court = getSelectedCourt();
-      const nextName = prompt('Edit Event Name', court.eventName || court.name);
-      if (nextName === null) return;
-      court.eventName = (nextName || '').trim() || court.name;
-      saveState();
-      updateEventsList();
-      renderApp();
+      const next = prompt('Edit Event Name', court.eventName || court.name);
+      if (next !== null) { court.eventName = next.trim() || court.name; saveState(); renderApp(); }
     }
 
-    function updateCourtScoreType(value) {
-      const court = getSelectedCourt();
-      court.scoreType = value || 'RALLY';
-      saveState();
-      renderApp();
-    }
+    function updateCourtScoreType(val) { getSelectedCourt().scoreType = val; saveState(); renderApp(); }
+    function toggleLeaderboardMode(mode) { state.leaderboardMode = mode; saveState(); renderApp(); }
 
-    function toggleLeaderboardMode(mode) {
-      state.leaderboardMode = mode;
-      saveState();
-      renderApp();
-    }
+    function escapeHtml(str) { return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
-    function escapeHtml(str) {
-      return String(str ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    }
-
-    function showPlayerSuggestions(nameInputId, duprInputId, dropdownId) {
-      const nameInput = document.getElementById(nameInputId);
-      const duprInput = document.getElementById(duprInputId);
+    function showPlayerSuggestions(inputId, duprId, dropdownId) {
+      const query = document.getElementById(inputId).value.trim().toLowerCase();
       const dropdown = document.getElementById(dropdownId);
-      const query = (nameInput.value || '').trim().toLowerCase();
-
       const activeNames = new Set(state.courts.flatMap(c => c.players.map(p => p.name.toLowerCase())));
-      const list = getMemoryPlayers()
-        .filter(p => !activeNames.has(p.name.toLowerCase()))
-        .filter(p => !query || p.name.toLowerCase().includes(query));
+      const list = loadMemoryPlayers().filter(p => !activeNames.has(p.name.toLowerCase()) && (!query || p.name.toLowerCase().includes(query)));
 
-      if (!list.length) {
-        dropdown.style.display = 'none';
-        dropdown.innerHTML = '';
-        return;
-      }
-
-      dropdown.innerHTML = list.map(player => `
-        <div class="autocomplete-item">
-          <div onclick="selectMemoryPlayerAndAdd('${escapeHtml(player.name)}', '${escapeHtml(player.duprId || '')}', '${nameInputId}', '${duprInputId}', '${dropdownId}')">
-            ${escapeHtml(player.name)}${player.duprId ? ` <span class="muted">· ${escapeHtml(player.duprId)}</span>` : ''}
-          </div>
-          <div class="danger-x" onclick="event.stopPropagation(); deleteMemoryPlayer('${escapeHtml(player.name)}'); showPlayerSuggestions('${nameInputId}','${duprInputId}','${dropdownId}');">×</div>
-        </div>
-      `).join('');
-
+      if (!list.length) { dropdown.style.display = 'none'; return; }
+      dropdown.innerHTML = list.map(p => `<div class="autocomplete-item"><div onclick="selectMemoryPlayerAndAdd('${escapeHtml(p.name)}','${escapeHtml(p.duprId)}','${inputId}','${duprId}','${dropdownId}')">${escapeHtml(p.name)} ${p.duprId ? `<span class="muted">· ${p.duprId}</span>` : ''}</div><div class="danger-x" onclick="event.stopPropagation(); deleteMemoryPlayer('${p.name}'); showPlayerSuggestions('${inputId}','${duprId}','${dropdownId}')">×</div></div>`).join('');
       dropdown.style.display = 'block';
-      if (duprInput) duprInput.value = '';
     }
 
-    function hideAutocompleteLists() {
-      document.querySelectorAll('.autocomplete-list').forEach(el => {
-        el.style.display = 'none';
-      });
-    }
-
-    function selectMemoryPlayerAndAdd(name, duprId, nameInputId, duprInputId, dropdownId) {
-      document.getElementById(nameInputId).value = name;
-      document.getElementById(duprInputId).value = duprId || '';
+    function selectMemoryPlayerAndAdd(name, dupr, inputId, duprId, dropdownId) {
+      document.getElementById(inputId).value = name;
+      document.getElementById(duprId).value = dupr || '';
       document.getElementById(dropdownId).style.display = 'none';
-      
       addPlayer();
     }
 
     function addPlayer() {
       const court = getSelectedCourt();
-      const nameInput = document.getElementById('add-name');
-      const duprInput = document.getElementById('add-dupr');
-
-      const name = toTitleCase((nameInput.value || '').trim());
-      const duprId = (duprInput.value || '').trim();
-
+      const nIn = document.getElementById('add-name');
+      const dIn = document.getElementById('add-dupr');
+      const name = toTitleCase(nIn.value);
       if (!name) return;
-
-      const duplicate = court.players.some(p => p.name.toLowerCase() === name.toLowerCase());
-      if (duplicate) {
-        alert('Player already exists on this court.');
-        return;
-      }
-
-      court.players.push({
-        id: Date.now() + Math.random(),
-        name,
-        duprId,
-        rating: DEFAULT_RATING,
-        wins: 0,
-        losses: 0,
-        isActive: true
-      });
-
-      upsertMemoryPlayer(name, duprId);
-
-      nameInput.value = '';
-      duprInput.value = '';
-      hideAutocompleteLists();
-
+      if (court.players.some(p => p.name.toLowerCase() === name.toLowerCase())) return alert('Duplicate player.');
+      
+      court.players.push({ id: Date.now() + Math.random(), name, duprId: dIn.value.trim(), rating: DEFAULT_RATING, wins: 0, losses: 0, isActive: true });
+      upsertMemoryPlayer(name, dIn.value.trim());
+      nIn.value = ''; dIn.value = '';
       ensureMatchExists(court);
-      saveState();
-      renderApp();
+      saveState(); renderApp();
     }
 
-    function editPlayer(playerId) {
+    function editPlayer(id) {
       const court = getSelectedCourt();
-      const player = getPlayerById(court, playerId);
-      if (!player) return;
-
-      const nextName = prompt('Edit Player Name', player.name);
-      if (nextName === null) return;
-
-      const trimmedName = toTitleCase(nextName.trim());
-      if (!trimmedName) return;
-
-      const duprId = prompt('Edit DUPR ID', player.duprId || '');
-      if (duprId === null) return;
-
-      player.name = trimmedName;
-      player.duprId = duprId.trim();
-      upsertMemoryPlayer(player.name, player.duprId);
-
-      saveState();
-      renderApp();
+      const p = getPlayerById(court, id);
+      const n = prompt('Name', p.name); if (!n) return;
+      const d = prompt('DUPR', p.duprId);
+      p.name = toTitleCase(n); p.duprId = (d || '').trim();
+      upsertMemoryPlayer(p.name, p.duprId);
+      saveState(); renderApp();
     }
 
-    function movePlayerToCourt(playerId, targetCourtId) {
-      const fromCourt = getSelectedCourt();
-      const toCourt = getCourtById(Number(targetCourtId));
-      if (!fromCourt || !toCourt || fromCourt.id === toCourt.id) return;
-
-      const playerIndex = fromCourt.players.findIndex(p => p.id === playerId);
-      if (playerIndex < 0) return;
-
-      const player = fromCourt.players[playerIndex];
-      const nameConflict = toCourt.players.some(p => p.name.toLowerCase() === player.name.toLowerCase());
-      if (nameConflict) {
-        alert('A player with the same name already exists on that court.');
-        return;
-      }
-
-      fromCourt.players.splice(playerIndex, 1);
-      player.isActive = true;
-      toCourt.players.push(player);
-
-      rebuildCourtScheduling(fromCourt);
-      ensureMatchExists(toCourt);
-
-      saveState();
-      renderApp();
+    function movePlayerToCourt(id, targetId) {
+      const from = getSelectedCourt();
+      const to = getCourtById(Number(targetId));
+      const idx = from.players.findIndex(p => p.id === id);
+      const p = from.players[idx];
+      if (to.players.some(tp => tp.name.toLowerCase() === p.name.toLowerCase())) return alert('Duplicate on target.');
+      from.players.splice(idx, 1);
+      p.isActive = true;
+      to.players.push(p);
+      rebuildCourtScheduling(from);
+      ensureMatchExists(to);
+      saveState(); renderApp();
     }
 
-    function handleDrop(playerId) {
+    function handleDrop(id) { getPlayerById(getSelectedCourt(), id).isActive = false; rebuildCourtScheduling(getSelectedCourt()); saveState(); renderApp(); }
+    function handleActivate(id) { getPlayerById(getSelectedCourt(), id).isActive = true; ensureMatchExists(getSelectedCourt()); saveState(); renderApp(); }
+    function removePlayerPermanently(id) {
       const court = getSelectedCourt();
-      const player = getPlayerById(court, playerId);
-      if (!player) return;
-      player.isActive = false;
+      court.players = court.players.filter(p => p.id !== id);
       rebuildCourtScheduling(court);
-      saveState();
-      renderApp();
-    }
-
-    function handleActivate(playerId) {
-      const court = getSelectedCourt();
-      const player = getPlayerById(court, playerId);
-      if (!player) return;
-      player.isActive = true;
-      ensureMatchExists(court);
-      saveState();
-      renderApp();
-    }
-
-    function removePlayerPermanently(playerId) {
-      const court = getSelectedCourt();
-      const idx = court.players.findIndex(p => p.id === playerId);
-      if (idx < 0) return;
-      court.players.splice(idx, 1);
-      rebuildCourtScheduling(court);
-      saveState();
-      renderApp();
+      saveState(); renderApp();
     }
 
     function ensureMatchExists(court) {
-      if (court.currentMatch) return;
-      const activePlayers = getActivePlayers(court);
-      if (activePlayers.length < 4) return;
-
-      const nextMatch = getNextMatch(court);
-      if (nextMatch) {
-        court.currentMatch = nextMatch;
-      }
+      if (!court.currentMatch && getActivePlayers(court).length >= 4) court.currentMatch = getNextMatch(court);
     }
 
     function rebuildCourtScheduling(court) {
-      court.completedMatches = (court.completedMatches || []).filter(match =>
-        match.teamAIds.every(id => getPlayerById(court, id)?.isActive !== false) &&
-        match.teamBIds.every(id => getPlayerById(court, id)?.isActive !== false)
-      );
-
-      if (court.currentMatch) {
-        const allIds = [...court.currentMatch.teamAIds, ...court.currentMatch.teamBIds];
-        const valid = allIds.every(id => getPlayerById(court, id)?.isActive !== false);
-        if (!valid) court.currentMatch = null;
-      }
-
-      court.futureMatches = [];
-      court.pairingHistory = {};
-      court.matchupHistory = {};
-      court.recentAppearances = {};
-      court.matchHistory = [];
-      court.roundCounter = 1;
-      court.editTargetRound = null;
-
-      for (const match of court.completedMatches) {
-        applySchedulingHistory(court, match);
-        court.roundCounter = Math.max(court.roundCounter, match.round + 1);
-      }
-
-      if (court.currentMatch) {
-        applySchedulingHistory(court, court.currentMatch);
-        court.roundCounter = Math.max(court.roundCounter, court.currentMatch.round + 1);
-      } else {
-        ensureMatchExists(court);
-      }
+      court.completedMatches = (court.completedMatches || []).filter(m => [...m.teamAIds, ...m.teamBIds].every(id => getPlayerById(court, id)?.isActive));
+      if (court.currentMatch && ![...court.currentMatch.teamAIds, ...court.currentMatch.teamBIds].every(id => getPlayerById(court, id)?.isActive)) court.currentMatch = null;
+      court.pairingHistory = {}; court.matchupHistory = {}; court.recentAppearances = {}; court.matchHistory = []; court.roundCounter = 1;
+      court.completedMatches.forEach(m => { applySchedulingHistory(court, m); court.roundCounter = Math.max(court.roundCounter, m.round + 1); });
+      if (court.currentMatch) { applySchedulingHistory(court, court.currentMatch); court.roundCounter = Math.max(court.roundCounter, court.currentMatch.round + 1); }
+      else ensureMatchExists(court);
     }
 
-    function incrementMapCounter(map, key, amount = 1) {
-      map[key] = (map[key] || 0) + amount;
+    function pairKey(a, b) { return [a, b].sort((x, y) => x - y).join('_'); }
+    function matchupKey(tA, tB) { return [[...tA].sort().join('-'), [...tB].sort().join('-')].sort().join('__'); }
+
+    function applySchedulingHistory(court, m) {
+      const ids = [...m.teamAIds, ...m.teamBIds];
+      court.matchHistory.push({ round: m.round, players: ids });
+      ids.forEach(id => court.recentAppearances[id] = (court.recentAppearances[id] || 0) + 1);
+      const inc = (map, k) => map[k] = (map[k] || 0) + 1;
+      inc(court.pairingHistory, pairKey(m.teamAIds[0], m.teamAIds[1]));
+      inc(court.pairingHistory, pairKey(m.teamBIds[0], m.teamBIds[1]));
+      inc(court.matchupHistory, matchupKey(m.teamAIds, m.teamBIds));
     }
 
-    function pairKey(a, b) {
-      return [a, b].sort((x, y) => x - y).join('_');
-    }
-
-    function matchupKey(teamAIds, teamBIds) {
-      const sideA = [...teamAIds].sort((a, b) => a - b).join('-');
-      const sideB = [...teamBIds].sort((a, b) => a - b).join('-');
-      return [sideA, sideB].sort().join('__');
-    }
-
-    function applySchedulingHistory(court, match) {
-      const participants = [...match.teamAIds, ...match.teamBIds];
-      court.matchHistory.push({ round: match.round, players: participants });
-
-      participants.forEach(id => {
-        court.recentAppearances[id] = (court.recentAppearances[id] || 0) + 1;
-      });
-
-      incrementMapCounter(court.pairingHistory, pairKey(match.teamAIds[0], match.teamAIds[1]));
-      incrementMapCounter(court.pairingHistory, pairKey(match.teamBIds[0], match.teamBIds[1]));
-      incrementMapCounter(court.matchupHistory, matchupKey(match.teamAIds, match.teamBIds));
-    }
-
-    function getConsecutiveCount(court, playerId) {
-      let count = 0;
-      for (let i = court.matchHistory.length - 1; i >= 0; i--) {
-        const played = court.matchHistory[i].players.includes(playerId);
-        if (!played) break;
-        count++;
-      }
-      return count;
-    }
-
-    // 核心修正：讓賽程完美對齊 Game Number，解決了重複與預覽循環的問題
     function getFixedMatrixMatch(court) {
-      const activePlayers = getActivePlayers(court);
-      const matrix = FIXED_MATCH_MATRIX[activePlayers.length];
-      if (!matrix) return null;
-
-      const targetIndex = court.roundCounter - 1;
-      
-      // 超過 14 場則回傳 null，自動觸發 getGeneratedMatch (動態防呆引擎) 生成後續賽程
-      if (targetIndex >= matrix.length) return null; 
-
-      const spec = matrix[targetIndex];
-      return {
-        round: court.roundCounter++,
-        teamAIds: [activePlayers[spec.teamA[0]].id, activePlayers[spec.teamA[1]].id],
-        teamBIds: [activePlayers[spec.teamB[0]].id, activePlayers[spec.teamB[1]].id],
-        scoreA: null,
-        scoreB: null
-      };
-    }
-
-    function combinations(arr, k) {
-      const result = [];
-      function backtrack(start, combo) {
-        if (combo.length === k) {
-          result.push([...combo]);
-          return;
-        }
-        for (let i = start; i < arr.length; i++) {
-          combo.push(arr[i]);
-          backtrack(i + 1, combo);
-          combo.pop();
-        }
-      }
-      backtrack(0, []);
-      return result;
-    }
-
-    function buildCandidateMatch(court, teamA, teamB) {
-      const participants = [...teamA, ...teamB];
-      const consecutivePenalty = participants.reduce((sum, id) => {
-        const count = getConsecutiveCount(court, id);
-        return sum + (count >= 2 ? 1000 : count * 20);
-      }, 0);
-
-      const pairPenalty =
-        (court.pairingHistory[pairKey(teamA[0], teamA[1])] || 0) * 200 +
-        (court.pairingHistory[pairKey(teamB[0], teamB[1])] || 0) * 200;
-
-      const matchupPenalty =
-        (court.matchupHistory[matchupKey(teamA, teamB)] || 0) * 60;
-
-      const usagePenalty = participants.reduce((sum, id) => sum + (court.recentAppearances[id] || 0), 0);
-
-      return {
-        score: consecutivePenalty + pairPenalty + matchupPenalty + usagePenalty,
-        round: court.roundCounter,
-        teamAIds: [...teamA],
-        teamBIds: [...teamB],
-        scoreA: null,
-        scoreB: null
-      };
+      const active = getActivePlayers(court);
+      const matrix = FIXED_MATCH_MATRIX[active.length];
+      if (!matrix || court.roundCounter > matrix.length) return null;
+      const s = matrix[court.roundCounter - 1];
+      return { round: court.roundCounter++, teamAIds: [active[s.teamA[0]].id, active[s.teamA[1]].id], teamBIds: [active[s.teamB[0]].id, active[s.teamB[1]].id], scoreA: null, scoreB: null };
     }
 
     function getGeneratedMatch(court) {
-      const activePlayers = getActivePlayers(court).map(p => p.id);
-      if (activePlayers.length < 4) return null;
-
-      const allTeams = combinations(activePlayers, 2);
+      const ids = getActivePlayers(court).map(p => p.id);
+      if (ids.length < 4) return null;
       let best = null;
-
-      for (let i = 0; i < allTeams.length; i++) {
-        for (let j = i + 1; j < allTeams.length; j++) {
-          const teamA = allTeams[i];
-          const teamB = allTeams[j];
-          const unique = new Set([...teamA, ...teamB]);
-          if (unique.size !== 4) continue;
-
-          const candidate = buildCandidateMatch(court, teamA, teamB);
-          if (!best || candidate.score < best.score) best = candidate;
+      for (let i = 0; i < ids.length; i++) {
+        for (let j = i + 1; j < ids.length; j++) {
+          for (let k = 0; k < ids.length; k++) {
+            if (k === i || k === j) continue;
+            for (let l = k + 1; l < ids.length; l++) {
+              if (l === i || l === j) continue;
+              const tA = [ids[i], ids[j]], tB = [ids[k], ids[l]];
+              const score = (ids.reduce((s, id) => s + (court.matchHistory[court.matchHistory.length-1]?.players.includes(id) ? 20 : 0), 0)) + 
+                            (court.pairingHistory[pairKey(tA[0], tA[1])] || 0) * 200 + (court.matchupHistory[matchupKey(tA, tB)] || 0) * 60;
+              if (!best || score < best.score) best = { score, round: court.roundCounter, teamAIds: tA, teamBIds: tB, scoreA: null, scoreB: null };
+            }
+          }
         }
       }
-
-      if (!best) return null;
-      best.round = court.roundCounter++;
+      if (best) court.roundCounter++;
       return best;
     }
 
-    function getNextMatch(court) {
-      const fixed = getFixedMatrixMatch(court);
-      if (fixed) return fixed;
-      return getGeneratedMatch(court);
-    }
+    function getNextMatch(court) { return getFixedMatrixMatch(court) || getGeneratedMatch(court); }
 
-    function getUpcomingMatchesPreview(court, count = 8) {
-      const clone = JSON.parse(JSON.stringify(court));
-      clone.players = court.players.map(p => ({ ...p }));
-      clone.currentMatch = court.currentMatch ? { ...court.currentMatch } : null;
-      clone.completedMatches = (court.completedMatches || []).map(m => ({ ...m }));
-      clone.futureMatches = [];
-      clone.pairingHistory = JSON.parse(JSON.stringify(court.pairingHistory || {}));
-      clone.matchupHistory = JSON.parse(JSON.stringify(court.matchupHistory || {}));
-      clone.recentAppearances = JSON.parse(JSON.stringify(court.recentAppearances || {}));
-      clone.matchHistory = (court.matchHistory || []).map(m => ({ ...m }));
-
-      const preview = [];
-      let virtualCurrent = clone.currentMatch ? { ...clone.currentMatch } : null;
-
-      if (virtualCurrent) {
-        preview.push(virtualCurrent);
-      }
-
-      while (preview.length < count) {
-        const next = getNextMatch(clone);
-        if (!next) break;
-        preview.push(next);
-        applySchedulingHistory(clone, next);
-      }
-
-      return preview;
-    }
-
-    function expectedScore(teamRatingA, teamRatingB) {
-      return 1 / (1 + Math.pow(10, (teamRatingB - teamRatingA) / 0.6));
-    }
-
-    function updateRatings(court, match) {
-      const teamAPlayers = match.teamAIds.map(id => getPlayerById(court, id)).filter(Boolean);
-      const teamBPlayers = match.teamBIds.map(id => getPlayerById(court, id)).filter(Boolean);
-      if (teamAPlayers.length !== 2 || teamBPlayers.length !== 2) return;
-
-      const ratingA = (teamAPlayers[0].rating + teamAPlayers[1].rating) / 2;
-      const ratingB = (teamBPlayers[0].rating + teamBPlayers[1].rating) / 2;
-
-      const expA = expectedScore(ratingA, ratingB);
-      const expB = expectedScore(ratingB, ratingA);
-
-      const actualA = match.scoreA > match.scoreB ? 1 : 0;
-      const actualB = match.scoreB > match.scoreA ? 1 : 0;
-
-      const pointDiff = Math.abs(match.scoreA - match.scoreB);
-      const diffFactor = 1 + pointDiff / 11;
-      const k = 0.3;
-
-      const deltaA = k * diffFactor * (actualA - expA);
-      const deltaB = k * diffFactor * (actualB - expB);
-
-      teamAPlayers.forEach(player => {
-        player.rating = Number((player.rating + deltaA).toFixed(3));
-        if (actualA > actualB) player.wins = (player.wins || 0) + 1;
-        else player.losses = (player.losses || 0) + 1;
-      });
-
-      teamBPlayers.forEach(player => {
-        player.rating = Number((player.rating + deltaB).toFixed(3));
-        if (actualB > actualA) player.wins = (player.wins || 0) + 1;
-        else player.losses = (player.losses || 0) + 1;
-      });
-    }
-
-    function rollbackRatings(court, match) {
-      const teamAPlayers = match.teamAIds.map(id => getPlayerById(court, id)).filter(Boolean);
-      const teamBPlayers = match.teamBIds.map(id => getPlayerById(court, id)).filter(Boolean);
-      if (teamAPlayers.length !== 2 || teamBPlayers.length !== 2) return;
-
-      const ratingA = (teamAPlayers[0].rating + teamAPlayers[1].rating) / 2;
-      const ratingB = (teamBPlayers[0].rating + teamBPlayers[1].rating) / 2;
-
-      const expA = expectedScore(ratingA, ratingB);
-      const expB = expectedScore(ratingB, ratingA);
-
-      const actualA = match.scoreA > match.scoreB ? 1 : 0;
-      const actualB = match.scoreB > match.scoreA ? 1 : 0;
-
-      const pointDiff = Math.abs(match.scoreA - match.scoreB);
-      const diffFactor = 1 + pointDiff / 11;
-      const k = 0.3;
-
-      const deltaA = k * diffFactor * (actualA - expA);
-      const deltaB = k * diffFactor * (actualB - expB);
-
-      teamAPlayers.forEach(player => {
-        player.rating = Number((player.rating - deltaA).toFixed(3));
-        if (actualA > actualB) player.wins = Math.max(0, (player.wins || 0) - 1);
-        else player.losses = Math.max(0, (player.losses || 0) - 1);
-      });
-
-      teamBPlayers.forEach(player => {
-        player.rating = Number((player.rating - deltaB).toFixed(3));
-        if (actualB > actualA) player.wins = Math.max(0, (player.wins || 0) - 1);
-        else player.losses = Math.max(0, (player.losses || 0) - 1);
-      });
-    }
-
-    function submitScoreAction(scoreA, scoreB) {
+    function submitScoreAction(sA, sB) {
       const court = getSelectedCourt();
-      if (!court.currentMatch) return;
-
-      const a = Number(scoreA);
-      const b = Number(scoreB);
-
-      if (!Number.isInteger(a) || !Number.isInteger(b)) {
-        alert('Please enter valid integer scores.');
-        return;
-      }
-      if (a < 0 || b < 0) {
-        alert('Scores cannot be negative.');
-        return;
-      }
-      if (a === b) {
-        alert('Scores cannot be tied.');
-        return;
-      }
-
-      court.currentMatch.scoreA = a;
-      court.currentMatch.scoreB = b;
-
+      const a = parseInt(sA), b = parseInt(sB);
+      if (isNaN(a) || isNaN(b) || a === b) return alert('Invalid score.');
+      court.currentMatch.scoreA = a; court.currentMatch.scoreB = b;
       updateRatings(court, court.currentMatch);
-
-      const finalized = { ...court.currentMatch };
-      court.completedMatches.push(finalized);
+      court.completedMatches.push({ ...court.currentMatch });
       court.currentMatch = null;
-
       ensureMatchExists(court);
-
-      saveState();
-      renderApp();
+      saveState(); renderApp();
     }
 
-    function handleEdit(round) {
-      const court = getSelectedCourt();
-      const match = court.completedMatches.find(m => m.round === round);
-      if (!match) return;
-
-      rollbackRatings(court, match);
-      court.completedMatches = court.completedMatches.filter(m => m.round !== round);
-      court.currentMatch = { ...match };
-      rebuildCourtScheduling(court);
-
-      saveState();
-      renderApp();
+    function updateRatings(court, m) {
+      const pA = m.teamAIds.map(id => getPlayerById(court, id)), pB = m.teamBIds.map(id => getPlayerById(court, id));
+      const rA = (pA[0].rating + pA[1].rating) / 2, rB = (pB[0].rating + pB[1].rating) / 2;
+      const expA = 1 / (1 + Math.pow(10, (rB - rA) / 0.6));
+      const actA = m.scoreA > m.scoreB ? 1 : 0;
+      const delta = 0.3 * (1 + Math.abs(m.scoreA - m.scoreB) / 11) * (actA - expA);
+      pA.forEach(p => { p.rating = parseFloat((p.rating + delta).toFixed(3)); if (actA) p.wins++; else p.losses++; });
+      pB.forEach(p => { p.rating = parseFloat((p.rating - delta).toFixed(3)); if (!actA) p.wins++; else p.losses++; });
     }
 
     function exportDUPRCSV() {
-      const rows = [];
-      rows.push([
-        '<leave empty>','<leave empty>','<leave empty>',
-        'matchType','scoreType','event','date',
-        'playerA1','playerA1DuprId','playerA1ExternalId',
-        'playerA2','playerA2DuprId','playerA2ExternalId',
-        'playerB1','playerB1DuprId','playerB1ExternalId',
-        'playerB2','playerB2DuprId','playerB2ExternalId',
-        '<leave empty>',
-        'teamAGame1','teamBGame1','teamAGame2','teamBGame2',
-        'teamAGame3','teamBGame3','teamAGame4','teamBGame4','teamAGame5','teamBGame5'
-      ]);
-
-      state.courts.forEach(court => {
-        getCompletedMatches(court).forEach(match => {
-          const pA1 = getPlayerById(court, match.teamAIds[0]) || {};
-          const pA2 = getPlayerById(court, match.teamAIds[1]) || {};
-          const pB1 = getPlayerById(court, match.teamBIds[0]) || {};
-          const pB2 = getPlayerById(court, match.teamBIds[1]) || {};
-
-          rows.push([
-            '', '', '',
-            'D',
-            court.scoreType || 'RALLY',
-            court.eventName || court.name,
-            court.eventDate || getLocalYYYYMMDD(),
-            pA1.name || '', (pA1.duprId || '').toUpperCase(), '',
-            pA2.name || '', (pA2.duprId || '').toUpperCase(), '',
-            pB1.name || '', (pB1.duprId || '').toUpperCase(), '',
-            pB2.name || '', (pB2.duprId || '').toUpperCase(), '',
-            '',
-            match.scoreA ?? '', match.scoreB ?? '',
-            '', '', '', '', '', '', '', ''
-          ]);
-        });
-      });
-
-      if (rows.length === 1) {
-        alert('No completed matches to export.');
-        return;
-      }
-
-      const csv = '\uFEFF' + rows.map(row =>
-        row.map(value => `"${String(value ?? '').replace(/"/g, '""')}"`).join(',')
-      ).join('\n');
-
+      let csv = '\uFEFF"","","","matchType","scoreType","event","date","playerA1","playerA1DuprId","","playerA2","playerA2DuprId","","playerB1","playerB1DuprId","","playerB2","playerB2DuprId","","","teamAGame1","teamBGame1"\n';
+      state.courts.forEach(c => c.completedMatches.forEach(m => {
+        const getP = (id) => getPlayerById(c, id) || {};
+        const p = [getP(m.teamAIds[0]), getP(m.teamAIds[1]), getP(m.teamBIds[0]), getP(m.teamBIds[1])];
+        csv += `,"","","D","${c.scoreType}","${c.eventName}","${c.eventDate}","${p[0].name}","${p[0].duprId}","","${p[1].name}","${p[1].duprId}","","${p[2].name}","${p[2].duprId}","","${p[3].name}","${p[3].duprId}","","","${m.scoreA}","${m.scoreB}"\n`;
+      }));
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
-      anchor.href = url;
-      anchor.download = `DUPR_${(getSelectedCourt().eventName || 'Event').replace(/[\/\\?%*:|"<>]/g, '_')}_${getLocalYYYYMMDD()}.csv`;
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
-      URL.revokeObjectURL(url);
-    }
-
-    function renderCourtBar() {
-      const courtBar = document.getElementById('court-bar');
-      courtBar.innerHTML = state.courts.map(court => `
-        <button class="court-pill ${court.id === state.activeCourtId ? 'active' : ''}" onclick="switchCourt(${court.id})">
-          ${escapeHtml(court.name)}
-        </button>
-      `).join('') + (state.courts.length < MAX_COURTS ? `
-        <button class="court-pill add" onclick="addCourt()">+</button>
-      ` : '');
-    }
-
-    function renderCurrentMatch() {
-      const court = getSelectedCourt();
-      const wrap = document.getElementById('current-match-ui');
-
-      if (!court.currentMatch) {
-        wrap.innerHTML = `
-          <div class="card center" style="margin-bottom:0; background:#111827; border-color:#1f2937; color:#fff;">
-            <div class="tiny" style="color:#94a3b8; margin-bottom:0.35rem;">${escapeHtml(court.name)}</div>
-            <div class="title" style="font-size:0.95rem;">Waiting for at least 4 active players</div>
-          </div>
-        `;
-        return;
-      }
-
-      const match = court.currentMatch;
-      const a1 = getPlayerById(court, match.teamAIds[0])?.name || 'TBD';
-      const a2 = getPlayerById(court, match.teamAIds[1])?.name || 'TBD';
-      const b1 = getPlayerById(court, match.teamBIds[0])?.name || 'TBD';
-      const b2 = getPlayerById(court, match.teamBIds[1])?.name || 'TBD';
-
-      wrap.innerHTML = `
-        <div class="card live" style="margin-bottom:0;">
-          <div class="row" style="margin-bottom:0.8rem;">
-            <div>
-              <div class="tiny muted">${escapeHtml(court.name)}</div>
-              <div class="title">Game ${match.round}</div>
-            </div>
-            <span class="badge">Current Match</span>
-          </div>
-
-          <div class="row" style="justify-content:space-between; text-align:center; font-weight:900; margin-bottom:1rem;">
-            <div style="width:40%;">${escapeHtml(a1)}<br>${escapeHtml(a2)}</div>
-            <div class="vs">VS</div>
-            <div style="width:40%;">${escapeHtml(b1)}<br>${escapeHtml(b2)}</div>
-          </div>
-
-          <div class="row" style="justify-content:center; gap:0.75rem; margin-bottom:1rem;">
-            <input id="scoreA-input" class="score-box" type="number" min="0" inputmode="numeric" placeholder="0" />
-            <input id="scoreB-input" class="score-box" type="number" min="0" inputmode="numeric" placeholder="0" />
-          </div>
-
-          <button class="btn orange" onclick="submitScoreAction(document.getElementById('scoreA-input').value, document.getElementById('scoreB-input').value)">Submit Score</button>
-        </div>
-      `;
-    }
-
-    function renderPlayersTab() {
-      const court = getSelectedCourt();
-      const card = document.getElementById('player-list-card');
-      const label = document.getElementById('active-court-add-label');
-
-      label.textContent = `Add Player to ${court.name}`;
-
-      const players = court.players;
-      card.innerHTML = players.length ? players.map((player, index) => `
-        <div class="player-row">
-          <div class="player-left">
-            <div class="player-number">${index + 1}.</div>
-            <div style="min-width:0;">
-              <div class="title" style="font-size:0.95rem; word-break:break-word;">
-                ${escapeHtml(player.name)}
-                ${player.isActive === false ? `<span style="display:inline-block; margin-left:0.35rem; padding:0.12rem 0.45rem; border-radius:999px; background:#fef3c7; color:#b45309; font-size:0.72rem; vertical-align:middle;">Dropped</span>` : ''}
-              </div>
-              <div class="tiny muted" style="margin-top:0.3rem;">
-                ${player.duprId ? `DUPR: ${escapeHtml(player.duprId)}` : 'No DUPR ID'}
-              </div>
-            </div>
-          </div>
-
-          <div class="row">
-            ${player.isActive === false
-              ? `<button class="small-btn dark" onclick="editPlayer(${player.id})">Edit</button>
-                 <button class="small-btn dark" onclick="handleActivate(${player.id})">Activate</button>
-                 <button class="small-btn red" onclick="removePlayerPermanently(${player.id})">Remove</button>`
-              : `<select class="small-select" onchange="movePlayerToCourt(${player.id}, this.value)">
-                   ${state.courts.map(c => `<option value="${c.id}" ${c.id === court.id ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('')}
-                 </select>
-                 <button class="small-btn dark" onclick="editPlayer(${player.id})">Edit</button>
-                 <button class="small-btn red" onclick="handleDrop(${player.id})">Drop</button>`}
-          </div>
-        </div>
-      `).join('') : `
-        <div class="card center muted" style="border:none; margin:0; border-radius:0; font-weight:900;">
-          No players yet.
-        </div>
-      `;
-    }
-
-    function renderScheduleTab() {
-      const court = getSelectedCourt();
-      const list = document.getElementById('schedule-list');
-
-      let html = '';
-
-      const completed = getCompletedMatches(court).sort((a, b) => a.round - b.round);
-      completed.forEach(match => {
-        const a1 = getPlayerById(court, match.teamAIds[0])?.name || 'Unknown';
-        const a2 = getPlayerById(court, match.teamAIds[1])?.name || 'Unknown';
-        const b1 = getPlayerById(court, match.teamBIds[0])?.name || 'Unknown';
-        const b2 = getPlayerById(court, match.teamBIds[1])?.name || 'Unknown';
-
-        html += `
-          <div class="card done">
-            <div class="row" style="margin-bottom:0.7rem;">
-              <div class="tiny" style="color:rgba(255,255,255,0.7);">${escapeHtml(court.name)} · Game ${match.round}</div>
-              <div>
-                <span class="badge" style="background:rgba(249,115,22,0.18); color:#f97316;">Done</span>
-                <button class="small-btn" style="color:#fff; text-decoration:underline; margin-left:0.45rem;" onclick="handleEdit(${match.round})">Edit</button>
-              </div>
-            </div>
-
-            <div class="row" style="justify-content:space-between; text-align:center; font-weight:900;">
-              <div style="width:40%;">${escapeHtml(a1)}<br>${escapeHtml(a2)}<div style="font-size:1.8rem; color:#f97316; font-weight:900;">${match.scoreA}</div></div>
-              <div class="vs">VS</div>
-              <div style="width:40%;">${escapeHtml(b1)}<br>${escapeHtml(b2)}<div style="font-size:1.8rem; color:#f97316; font-weight:900;">${match.scoreB}</div></div>
-            </div>
-          </div>
-        `;
-      });
-
-      if (court.currentMatch) {
-        const m = court.currentMatch;
-        const a1 = getPlayerById(court, m.teamAIds[0])?.name || 'TBD';
-        const a2 = getPlayerById(court, m.teamAIds[1])?.name || 'TBD';
-        const b1 = getPlayerById(court, m.teamBIds[0])?.name || 'TBD';
-        const b2 = getPlayerById(court, m.teamBIds[1])?.name || 'TBD';
-
-        html += `
-          <div class="card live">
-            <div class="row" style="margin-bottom:0.55rem;">
-              <div class="tiny" style="color:#f97316;">${escapeHtml(court.name)} · Game ${m.round}</div>
-              <span class="badge">Live</span>
-            </div>
-
-            <div class="row" style="justify-content:space-between; text-align:center; font-weight:900;">
-              <div style="width:40%;">${escapeHtml(a1)}<br>${escapeHtml(a2)}</div>
-              <div class="vs">VS</div>
-              <div style="width:40%;">${escapeHtml(b1)}<br>${escapeHtml(b2)}</div>
-            </div>
-          </div>
-        `;
-      }
-
-      const upcoming = getUpcomingMatchesPreview(court, UPCOMING_PREVIEW_COUNT)
-        .filter(match => !court.currentMatch || match.round !== court.currentMatch.round);
-
-      upcoming.forEach(match => {
-        const a1 = getPlayerById(court, match.teamAIds[0])?.name || 'TBD';
-        const a2 = getPlayerById(court, match.teamAIds[1])?.name || 'TBD';
-        const b1 = getPlayerById(court, match.teamBIds[0])?.name || 'TBD';
-        const b2 = getPlayerById(court, match.teamBIds[1])?.name || 'TBD';
-        
-        // 稍微給超過14場的動態加碼場次一個提示
-        const isDynamicExtended = match.round > 14 && court.players.length <= 8;
-
-        html += `
-          <div class="card upcoming">
-            <div class="row" style="margin-bottom:0.55rem;">
-              <div class="tiny" style="color:#ea580c;">${escapeHtml(court.name)} · Game ${match.round}</div>
-              <span class="badge" ${isDynamicExtended ? 'style="background:#f1f5f9; color:#64748b;"' : ''}>
-                ${isDynamicExtended ? 'Dynamic Extended' : 'Upcoming'}
-              </span>
-            </div>
-
-            <div class="row" style="justify-content:space-between; text-align:center; font-weight:900;">
-              <div style="width:40%;">${escapeHtml(a1)}<br>${escapeHtml(a2)}</div>
-              <div class="vs">VS</div>
-              <div style="width:40%;">${escapeHtml(b1)}<br>${escapeHtml(b2)}</div>
-            </div>
-          </div>
-        `;
-      });
-
-      list.innerHTML = html || `<div class="card center muted" style="font-weight:900;">No matches in ${escapeHtml(court.name)} yet.</div>`;
-    }
-
-    function renderLeaderboardTab() {
-      const court = getSelectedCourt();
-      const meta = document.getElementById('leaderboard-meta');
-      const list = document.getElementById('leaderboard-list');
-
-      meta.innerHTML = `
-        <div class="card">
-          <div class="row wrap">
-            <div style="flex:1; min-width:0;">
-              <div class="tiny muted" style="margin-bottom:0.35rem;">Event Name</div>
-              <div class="title" style="word-break:break-word;">${escapeHtml(court.eventName || court.name)}</div>
-              <div class="tiny" style="color:#94a3b8; margin-top:0.35rem;">${escapeHtml(court.name)} · ${escapeHtml(court.eventDate || getLocalYYYYMMDD())}</div>
-            </div>
-            <div class="row">
-              <button class="btn dark" style="padding:0.75rem 1rem; font-size:0.72rem;" onclick="editCourtEventName()">Edit</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="tiny muted" style="margin-bottom:0.5rem;">Score Type</div>
-          <select class="select" onchange="updateCourtScoreType(this.value)">
-            <option value="RALLY" ${court.scoreType === 'RALLY' ? 'selected' : ''}>Rally</option>
-            <option value="SIDEOUT" ${court.scoreType === 'SIDEOUT' ? 'selected' : ''}>SideOut</option>
-          </select>
-        </div>
-
-        <div class="toggle-row">
-          <button class="toggle-btn ${state.leaderboardMode === 'court' ? 'active' : ''}" onclick="toggleLeaderboardMode('court')">${escapeHtml(court.name)}</button>
-          <button class="toggle-btn ${state.leaderboardMode === 'all' ? 'active' : ''}" onclick="toggleLeaderboardMode('all')">All Courts</button>
-        </div>
-
-        <button class="btn green" onclick="exportDUPRCSV()">Export to DUPR CSV</button>
-      `;
-
-      const pool = state.leaderboardMode === 'all'
-        ? state.courts.flatMap(c => c.players.map(p => ({ ...p, _courtName: c.name })))
-        : court.players.map(p => ({ ...p, _courtName: court.name }));
-
-      const sorted = [...pool].sort((a, b) => (b.rating || DEFAULT_RATING) - (a.rating || DEFAULT_RATING));
-
-      list.innerHTML = sorted.map((player, index) => `
-        <div class="card">
-          <div class="row">
-            <div style="display:flex; align-items:center;">
-              <div style="font-size:1.35rem; font-weight:900; color:#64748b; min-width:2.5rem;">#${index + 1}</div>
-              <div>
-                <div class="title">${escapeHtml(player.name)}${player.isActive === false ? ' <span style="display:inline-block; margin-left:0.35rem; padding:0.12rem 0.45rem; border-radius:999px; background:#fef3c7; color:#b45309; font-size:0.72rem; vertical-align:middle;">Dropped</span>' : ''}</div>
-                <div class="tiny" style="color:#94a3b8; margin-top:0.25rem;">
-                  ${(player.isActive === false || state.leaderboardMode !== 'all') ? '' : `${escapeHtml(player._courtName)} · `}W: ${player.wins || 0} / L: ${player.losses || 0}
-                </div>
-              </div>
-            </div>
-            <div style="font-size:1.45rem; font-weight:900; color:#f97316;">${(player.rating || DEFAULT_RATING).toFixed(3)}</div>
-          </div>
-        </div>
-      `).join('') || `<div class="card center muted" style="font-weight:900;">No leaderboard data available.</div>`;
-    }
-
-    function renderTabs() {
-      document.getElementById('tab-players').classList.toggle('active', state.activeTab === 'players');
-      document.getElementById('tab-schedule').classList.toggle('active', state.activeTab === 'schedule');
-      document.getElementById('tab-leaderboard').classList.toggle('active', state.activeTab === 'leaderboard');
-
-      document.getElementById('view-players').classList.toggle('hidden', state.activeTab !== 'players');
-      document.getElementById('view-schedule').classList.toggle('hidden', state.activeTab !== 'schedule');
-      document.getElementById('view-leaderboard').classList.toggle('hidden', state.activeTab !== 'leaderboard');
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `DUPR_${getLocalYYYYMMDD()}.csv`; a.click();
     }
 
     function renderApp() {
-      if (!getCourtById(state.activeCourtId)) {
-        state.activeCourtId = state.courts[0]?.id;
-      }
-
+      const court = getSelectedCourt();
       renderCourtBar();
-      renderCurrentMatch();
-      renderPlayersTab();
-      renderScheduleTab();
-      renderLeaderboardTab();
-      renderTabs();
+      renderCurrentMatchUI(court);
+      renderPlayersTabUI(court);
+      renderScheduleTabUI(court);
+      renderLeaderboardTabUI(court);
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.id === `tab-${state.activeTab}`));
+      document.querySelectorAll('main > section').forEach(s => s.classList.toggle('hidden', s.id !== `view-${state.activeTab}`));
     }
 
-    document.addEventListener('click', event => {
-      if (!event.target.closest('.autocomplete')) {
-        hideAutocompleteLists();
-      }
-    });
+    function renderCourtBar() {
+      document.getElementById('court-bar').innerHTML = state.courts.map(c => `<button class="court-pill ${c.id === state.activeCourtId ? 'active' : ''}" onclick="switchCourt(${c.id})">${escapeHtml(c.name)}</button>`).join('') + (state.courts.length < MAX_COURTS ? '<button class="court-pill add" onclick="addCourt()">+</button>' : '');
+    }
 
-    window.switchTab = switchTab;
-    window.switchCourt = switchCourt;
-    window.toggleLeaderboardMode = toggleLeaderboardMode;
-    window.updateCourtScoreType = updateCourtScoreType;
-    window.editCourtEventName = editCourtEventName;
-    window.showPlayerSuggestions = showPlayerSuggestions;
-    window.selectMemoryPlayerAndAdd = selectMemoryPlayerAndAdd;
-    window.deleteMemoryPlayer = deleteMemoryPlayer;
-    window.addPlayer = addPlayer;
-    window.editPlayer = editPlayer;
-    window.movePlayerToCourt = movePlayerToCourt;
-    window.handleDrop = handleDrop;
-    window.handleActivate = handleActivate;
-    window.removePlayerPermanently = removePlayerPermanently;
-    window.submitScoreAction = submitScoreAction;
-    window.handleEdit = handleEdit;
-    window.exportDUPRCSV = exportDUPRCSV;
-    window.clearData = clearData;
-    window.addCourt = addCourt;
+    function renderCurrentMatchUI(court) {
+      const wrap = document.getElementById('current-match-ui');
+      if (!court.currentMatch) { wrap.innerHTML = `<div class="card center" style="background:#111827; color:#fff;"><div class="tiny muted">${escapeHtml(court.name)}</div><div class="title">Waiting for players</div></div>`; return; }
+      const m = court.currentMatch; const p = (id) => getPlayerById(court, id)?.name || 'TBD';
+      wrap.innerHTML = `<div class="card live"><div class="row"><div class="tiny muted">${escapeHtml(court.name)} · Game ${m.round}</div><span class="badge">Live</span></div><div class="row" style="text-align:center; font-weight:900; margin:1rem 0;"><div style="width:40%">${p(m.teamAIds[0])}<br>${p(m.teamAIds[1])}</div><div class="vs">VS</div><div style="width:40%">${p(m.teamBIds[0])}<br>${p(m.teamBIds[1])}</div></div><div class="row" style="justify-content:center; gap:1rem;"><input id="scA" class="score-box" type="number" placeholder="0"><input id="scB" class="score-box" type="number" placeholder="0"></div><button class="btn orange" style="margin-top:1rem;" onclick="submitScoreAction(document.getElementById('scA').value, document.getElementById('scB').value)">Submit</button></div>`;
+    }
 
-    updateEventsList();
-    saveState();
-    renderApp();
+    function renderPlayersTabUI(court) {
+      document.getElementById('active-court-add-label').textContent = `Add to ${court.name}`;
+      document.getElementById('player-list-card').innerHTML = court.players.length ? court.players.map((p, i) => `<div class="player-row"><div class="player-left"><div class="player-number">${i+1}</div><div><div class="title">${escapeHtml(p.name)} ${p.isActive ? '' : '<span class="badge">Dropped</span>'}</div><div class="tiny muted">DUPR: ${p.duprId || 'N/A'}</div></div></div><div class="row">${p.isActive ? `<select class="small-select" onchange="movePlayerToCourt(${p.id}, this.value)">${state.courts.map(c => `<option value="${c.id}" ${c.id === court.id ? 'selected' : ''}>${c.name}</option>`).join('')}</select><button class="small-btn dark" onclick="editPlayer(${p.id})">Edit</button><button class="small-btn red" onclick="handleDrop(${p.id})">Drop</button>` : `<button class="small-btn dark" onclick="handleActivate(${p.id})">Activate</button><button class="small-btn red" onclick="removePlayerPermanently(${p.id})">Del</button>`}</div></div>`).join('') : '<div class="card center muted">No players</div>';
+    }
+
+    function renderScheduleTabUI(court) {
+      let html = court.completedMatches.map(m => `<div class="card done"><div class="tiny" style="color:#94a3b8;">Game ${m.round} · Done</div><div class="row" style="text-align:center;"><div style="width:40%">${getPlayerById(court,m.teamAIds[0]).name}<br>${getPlayerById(court,m.teamAIds[1]).name}<div style="font-size:1.5rem; color:#f97316;">${m.scoreA}</div></div><div class="vs">VS</div><div style="width:40%">${getPlayerById(court,m.teamBIds[0]).name}<br>${getPlayerById(court,m.teamBIds[1]).name}<div style="font-size:1.5rem; color:#f97316;">${m.scoreB}</div></div></div></div>`).join('');
+      document.getElementById('schedule-list').innerHTML = html || '<div class="card center muted">No matches yet</div>';
+    }
+
+    function renderLeaderboardTabUI(court) {
+      document.getElementById('leaderboard-meta').innerHTML = `<div class="card"><div class="row"><div><div class="tiny muted">Event</div><div class="title">${escapeHtml(court.eventName)}</div></div><button class="btn dark" onclick="editCourtEventName()">Edit</button></div><select class="select" style="margin-top:1rem;" onchange="updateCourtScoreType(this.value)"><option value="RALLY" ${court.scoreType==='RALLY'?'selected':''}>Rally</option><option value="SIDEOUT" ${court.scoreType==='SIDEOUT'?'selected':''}>SideOut</option></select><button class="btn green" style="margin-top:1rem;" onclick="exportDUPRCSV()">Export CSV</button></div>`;
+      const pool = state.leaderboardMode === 'all' ? state.courts.flatMap(c => c.players) : court.players;
+      document.getElementById('leaderboard-list').innerHTML = [...pool].sort((a,b) => b.rating - a.rating).map((p, i) => `<div class="card"><div class="row"><div style="display:flex; align-items:center;"><div style="font-size:1.2rem; font-weight:900; color:#64748b; width:2rem;">#${i+1}</div><div><div class="title">${escapeHtml(p.name)}</div><div class="tiny muted">W:${p.wins} L:${p.losses}</div></div></div><div style="font-size:1.2rem; font-weight:900; color:#f97316;">${p.rating.toFixed(3)}</div></div></div>`).join('');
+    }
+
+    document.addEventListener('click', e => { if (!e.target.closest('.autocomplete')) document.querySelectorAll('.autocomplete-list').forEach(l => l.style.display='none'); });
+    updateEventsList(); renderApp();
   </script>
 </body>
 </html>
