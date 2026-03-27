@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>MatchFlow - v12.7.13</title>
+  <title>MatchFlow - v12.7.15</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
@@ -95,7 +95,7 @@
     .autocomplete-item:hover { background: #f8fafc; }
     .danger-x {
       color: #ef4444; font-size: 1.35rem; font-weight: 900; line-height: 1;
-      padding: 0 0.35rem; border-radius: 999px;
+      padding: 0 0.35rem; border-radius: 999px; cursor: pointer;
     }
     .danger-x:hover { background: #fee2e2; }
 
@@ -215,7 +215,7 @@
     const DEFAULT_RATING = 3.5;
     const UPCOMING_PREVIEW_COUNT = 8;
 
-    // Fully aligned with MatchList_v2.txt (0-indexed translation)
+    // Fixed Matrix updated to the ultimate versions (0-indexed)
     const FIXED_MATCH_MATRIX = {
       5: [
         { teamA: [0, 1], teamB: [2, 3] }, // R1
@@ -225,36 +225,34 @@
         { teamA: [1, 2], teamB: [3, 4] }  // R5
       ],
       6: [
-        { teamA: [0, 1], teamB: [2, 3] }, // R1
-        { teamA: [0, 4], teamB: [1, 5] }, // R2
-        { teamA: [2, 4], teamB: [3, 5] }, // R3
-        { teamA: [0, 2], teamB: [1, 3] }, // R4
-        { teamA: [0, 5], teamB: [1, 4] }, // R5
-        { teamA: [2, 5], teamB: [3, 4] }, // R6
-        { teamA: [0, 3], teamB: [1, 2] }, // R7
-        { teamA: [0, 1], teamB: [4, 5] }, // R8
-        { teamA: [2, 4], teamB: [3, 5] }, // R9
-        { teamA: [0, 3], teamB: [1, 2] }, // R10
-        { teamA: [0, 1], teamB: [4, 5] }, // R11
-        { teamA: [2, 5], teamB: [3, 4] }, // R12
-        { teamA: [0, 2], teamB: [1, 3] }, // R13
-        { teamA: [0, 4], teamB: [1, 5] }  // R14
+        { teamA: [0, 2], teamB: [1, 5] }, // R1: 1 3 v 2 6
+        { teamA: [0, 4], teamB: [2, 3] }, // R2: 5 1 v 4 3
+        { teamA: [4, 5], teamB: [1, 3] }, // R3: 6 5 v 2 4
+        { teamA: [0, 1], teamB: [2, 5] }, // R4: 1 2 v 3 6
+        { teamA: [2, 4], teamB: [0, 3] }, // R5: 5 3 v 4 1
+        { teamA: [1, 4], teamB: [3, 5] }, // R6: 2 5 v 6 4
+        { teamA: [0, 5], teamB: [1, 2] }, // R7: 1 6 v 3 2
+        { teamA: [3, 4], teamB: [0, 2] }, // R8: 4 5 v 3 1
+        { teamA: [4, 5], teamB: [1, 3] }, // R9: 6 5 v 2 4
+        { teamA: [0, 1], teamB: [2, 5] }, // R10: 1 2 v 3 6
+        { teamA: [0, 4], teamB: [2, 3] }, // R11: 5 1 v 4 3
+        { teamA: [1, 4], teamB: [3, 5] }  // R12: 2 5 v 6 4
       ],
       7: [
-        { teamA: [3, 5], teamB: [4, 6] }, // R1
-        { teamA: [0, 1], teamB: [2, 6] }, // R2
-        { teamA: [2, 3], teamB: [4, 5] }, // R3
-        { teamA: [0, 5], teamB: [1, 6] }, // R4
-        { teamA: [1, 3], teamB: [2, 4] }, // R5
-        { teamA: [0, 4], teamB: [5, 6] }, // R6
-        { teamA: [0, 3], teamB: [1, 2] }, // R7
-        { teamA: [3, 6], teamB: [4, 5] }, // R8
-        { teamA: [0, 2], teamB: [1, 6] }, // R9
-        { teamA: [2, 5], teamB: [3, 4] }, // R10
-        { teamA: [0, 6], teamB: [1, 5] }, // R11
-        { teamA: [1, 4], teamB: [2, 3] }, // R12
-        { teamA: [0, 4], teamB: [5, 6] }, // R13
-        { teamA: [0, 1], teamB: [2, 3] }  // R14
+        { teamA: [3, 5], teamB: [4, 6] }, // R1:  4 6 v 5 7
+        { teamA: [0, 1], teamB: [2, 6] }, // R2:  1 2 v 3 7
+        { teamA: [2, 3], teamB: [4, 5] }, // R3:  3 4 v 5 6
+        { teamA: [0, 4], teamB: [5, 6] }, // R4:  1 5 v 6 7
+        { teamA: [0, 3], teamB: [1, 2] }, // R5:  1 4 v 2 3
+        { teamA: [1, 5], teamB: [3, 6] }, // R6:  2 6 v 4 7
+        { teamA: [0, 6], teamB: [2, 5] }, // R7:  1 7 v 3 6
+        { teamA: [1, 3], teamB: [2, 4] }, // R8:  2 4 v 3 5
+        { teamA: [0, 5], teamB: [1, 6] }, // R9:  1 6 v 2 7
+        { teamA: [0, 2], teamB: [3, 4] }, // R10: 1 3 v 4 5
+        { teamA: [1, 4], teamB: [2, 3] }, // R11: 2 5 v 3 4
+        { teamA: [0, 1], teamB: [5, 6] }, // R12: 1 2 v 6 7
+        { teamA: [0, 4], teamB: [2, 5] }, // R13: 1 5 v 3 6
+        { teamA: [1, 3], teamB: [4, 6] }  // R14: 2 4 v 5 7
       ],
       8: [
         { teamA: [0, 1], teamB: [2, 3] }, // R1
@@ -275,8 +273,8 @@
     };
 
     const STORAGE_KEYS = {
-      state: 'pickleMatchV12_7_13_state',
-      memoryPlayers: 'pickleMatchV12_7_13_memoryPlayers'
+      state: 'pickleMatchV12_7_15_state',
+      memoryPlayers: 'pickleMatchV12_7_15_memoryPlayers'
     };
 
     let state = loadState();
@@ -507,10 +505,11 @@
         return;
       }
 
+      // 修正：擴大點擊範圍並防止刪除按鈕觸發加入動作
       dropdown.innerHTML = list.map(player => `
-        <div class="autocomplete-item">
-          <div onclick="selectMemoryPlayerAndAdd('${escapeHtml(player.name)}', '${escapeHtml(player.duprId || '')}', '${nameInputId}', '${duprInputId}', '${dropdownId}')">
-            ${escapeHtml(player.name)}${player.duprId ? ` <span class="muted">· ${escapeHtml(player.duprId)}</span>` : ''}
+        <div class="autocomplete-item" onclick="selectMemoryPlayerAndAdd('${escapeHtml(player.name)}', '${escapeHtml(player.duprId || '')}', '${nameInputId}', '${duprInputId}', '${dropdownId}')">
+          <div style="flex:1;">
+            ${escapeHtml(player.name)}${player.duprId ? ` <span class="muted" style="font-weight:400; font-size:0.75rem;">· ${escapeHtml(player.duprId)}</span>` : ''}
           </div>
           <div class="danger-x" onclick="event.stopPropagation(); deleteMemoryPlayer('${escapeHtml(player.name)}'); showPlayerSuggestions('${nameInputId}','${duprInputId}','${dropdownId}');">×</div>
         </div>
@@ -566,7 +565,7 @@
       duprInput.value = '';
       hideAutocompleteLists();
 
-      // THE FIX: Anytime a player is added, kill the unplayed match and recalculate.
+      // Anytime a player is added, kill the unplayed match and recalculate.
       court.currentMatch = null;
       rebuildCourtScheduling(court);
 
@@ -612,13 +611,11 @@
       }
 
       fromCourt.players.splice(playerIndex, 1);
-      // THE FIX: Recalculate scheduling for the court losing the player
       fromCourt.currentMatch = null;
       rebuildCourtScheduling(fromCourt);
 
       player.isActive = true;
       toCourt.players.push(player);
-      // THE FIX: Recalculate scheduling for the court gaining the player
       toCourt.currentMatch = null;
       rebuildCourtScheduling(toCourt);
 
@@ -632,7 +629,6 @@
       if (!player) return;
       player.isActive = false;
       
-      // THE FIX: Force recalculation for the new player pool
       court.currentMatch = null;
       rebuildCourtScheduling(court);
       
@@ -646,7 +642,6 @@
       if (!player) return;
       player.isActive = true;
       
-      // THE FIX: Force recalculation for the new player pool
       court.currentMatch = null;
       rebuildCourtScheduling(court);
 
@@ -660,7 +655,6 @@
       if (idx < 0) return;
       court.players.splice(idx, 1);
       
-      // THE FIX: Force recalculation for the new player pool
       court.currentMatch = null;
       rebuildCourtScheduling(court);
 
@@ -755,8 +749,6 @@
       if (!matrix) return null;
 
       const targetIndex = court.roundCounter - 1;
-      
-      // Fallback to dynamic if rounds exceed the matrix
       if (targetIndex >= matrix.length) return null; 
 
       const spec = matrix[targetIndex];
@@ -1212,7 +1204,7 @@
         const b1 = getPlayerById(court, match.teamBIds[0])?.name || 'TBD';
         const b2 = getPlayerById(court, match.teamBIds[1])?.name || 'TBD';
         
-        const isDynamicExtended = match.round > 14 && court.players.length <= 8;
+        const isDynamicExtended = match.round > (court.players.length === 6 ? 12 : 14) && court.players.length <= 8;
 
         html += `
           <div class="card upcoming">
