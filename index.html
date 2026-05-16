@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>MatchFlow - v12.7.2</title>
+  <title>MatchFlow - v12.8.1 (Cumulative Score Mode)</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
@@ -212,7 +212,7 @@
 
   <script>
     const MAX_COURTS = 6;
-    const DEFAULT_RATING = 3.5;
+    const DEFAULT_SCORE = 0;
     const UPCOMING_PREVIEW_COUNT = 8;
 
     // Fixed Matrix updated to the ultimate versions (0-indexed)
@@ -505,7 +505,6 @@
         return;
       }
 
-      // 修正：擴大點擊範圍並防止刪除按鈕觸發加入動作
       dropdown.innerHTML = list.map(player => `
         <div class="autocomplete-item" onclick="selectMemoryPlayerAndAdd('${escapeHtml(player.name)}', '${escapeHtml(player.duprId || '')}', '${nameInputId}', '${duprInputId}', '${dropdownId}')">
           <div style="flex:1;">
@@ -553,7 +552,7 @@
         id: Date.now() + Math.random(),
         name,
         duprId,
-        rating: DEFAULT_RATING,
+        totalScore: DEFAULT_SCORE,
         wins: 0,
         losses: 0,
         isActive: true
@@ -565,7 +564,6 @@
       duprInput.value = '';
       hideAutocompleteLists();
 
-      // Anytime a player is added, kill the unplayed match and recalculate.
       court.currentMatch = null;
       rebuildCourtScheduling(court);
 
@@ -862,39 +860,22 @@
       return preview;
     }
 
-    function expectedScore(teamRatingA, teamRatingB) {
-      return 1 / (1 + Math.pow(10, (teamRatingB - teamRatingA) / 0.6));
-    }
-
     function updateRatings(court, match) {
       const teamAPlayers = match.teamAIds.map(id => getPlayerById(court, id)).filter(Boolean);
       const teamBPlayers = match.teamBIds.map(id => getPlayerById(court, id)).filter(Boolean);
       if (teamAPlayers.length !== 2 || teamBPlayers.length !== 2) return;
 
-      const ratingA = (teamAPlayers[0].rating + teamAPlayers[1].rating) / 2;
-      const ratingB = (teamBPlayers[0].rating + teamBPlayers[1].rating) / 2;
-
-      const expA = expectedScore(ratingA, ratingB);
-      const expB = expectedScore(ratingB, ratingA);
-
       const actualA = match.scoreA > match.scoreB ? 1 : 0;
       const actualB = match.scoreB > match.scoreA ? 1 : 0;
 
-      const pointDiff = Math.abs(match.scoreA - match.scoreB);
-      const diffFactor = 1 + pointDiff / 11;
-      const k = 0.3;
-
-      const deltaA = k * diffFactor * (actualA - expA);
-      const deltaB = k * diffFactor * (actualB - expB);
-
       teamAPlayers.forEach(player => {
-        player.rating = Number((player.rating + deltaA).toFixed(3));
+        player.totalScore = (player.totalScore || 0) + match.scoreA;
         if (actualA > actualB) player.wins = (player.wins || 0) + 1;
         else player.losses = (player.losses || 0) + 1;
       });
 
       teamBPlayers.forEach(player => {
-        player.rating = Number((player.rating + deltaB).toFixed(3));
+        player.totalScore = (player.totalScore || 0) + match.scoreB;
         if (actualB > actualA) player.wins = (player.wins || 0) + 1;
         else player.losses = (player.losses || 0) + 1;
       });
@@ -905,30 +886,17 @@
       const teamBPlayers = match.teamBIds.map(id => getPlayerById(court, id)).filter(Boolean);
       if (teamAPlayers.length !== 2 || teamBPlayers.length !== 2) return;
 
-      const ratingA = (teamAPlayers[0].rating + teamAPlayers[1].rating) / 2;
-      const ratingB = (teamBPlayers[0].rating + teamBPlayers[1].rating) / 2;
-
-      const expA = expectedScore(ratingA, ratingB);
-      const expB = expectedScore(ratingB, ratingA);
-
       const actualA = match.scoreA > match.scoreB ? 1 : 0;
       const actualB = match.scoreB > match.scoreA ? 1 : 0;
 
-      const pointDiff = Math.abs(match.scoreA - match.scoreB);
-      const diffFactor = 1 + pointDiff / 11;
-      const k = 0.3;
-
-      const deltaA = k * diffFactor * (actualA - expA);
-      const deltaB = k * diffFactor * (actualB - expB);
-
       teamAPlayers.forEach(player => {
-        player.rating = Number((player.rating - deltaA).toFixed(3));
+        player.totalScore = Math.max(0, (player.totalScore || 0) - match.scoreA);
         if (actualA > actualB) player.wins = Math.max(0, (player.wins || 0) - 1);
         else player.losses = Math.max(0, (player.losses || 0) - 1);
       });
 
       teamBPlayers.forEach(player => {
-        player.rating = Number((player.rating - deltaB).toFixed(3));
+        player.totalScore = Math.max(0, (player.totalScore || 0) - match.scoreB);
         if (actualB > actualA) player.wins = Math.max(0, (player.wins || 0) - 1);
         else player.losses = Math.max(0, (player.losses || 0) - 1);
       });
@@ -969,49 +937,43 @@
       renderApp();
     }
 
-   function handleEdit(round) {
-  const court = getSelectedCourt();
-  const match = court.completedMatches.find(m => m.round === round);
-  if (!match) return;
+    function handleEdit(round) {
+      const court = getSelectedCourt();
+      const match = court.completedMatches.find(m => m.round === round);
+      if (!match) return;
 
-  // 1. Capture new data via synchronous prompts
-  const newScoreA = prompt(`Edit Score for Team A (Current: ${match.scoreA}):`, match.scoreA);
-  if (newScoreA === null) return; // User cancelled
+      const newScoreA = prompt(`Edit Score for Team A (Current: ${match.scoreA}):`, match.scoreA);
+      if (newScoreA === null) return; 
 
-  const newScoreB = prompt(`Edit Score for Team B (Current: ${match.scoreB}):`, match.scoreB);
-  if (newScoreB === null) return; // User cancelled
+      const newScoreB = prompt(`Edit Score for Team B (Current: ${match.scoreB}):`, match.scoreB);
+      if (newScoreB === null) return; 
 
-  const a = Number(newScoreA);
-  const b = Number(newScoreB);
+      const a = Number(newScoreA);
+      const b = Number(newScoreB);
 
-  // 2. Validate Constraints
-  if (!Number.isInteger(a) || !Number.isInteger(b)) {
-    alert('Logic Error: Scores must be valid integers.');
-    return;
-  }
-  if (a < 0 || b < 0) {
-    alert('Logic Error: Scores cannot be negative.');
-    return;
-  }
-  if (a === b) {
-    alert('Logic Error: Matches cannot end in a tie.');
-    return;
-  }
+      if (!Number.isInteger(a) || !Number.isInteger(b)) {
+        alert('Logic Error: Scores must be valid integers.');
+        return;
+      }
+      if (a < 0 || b < 0) {
+        alert('Logic Error: Scores cannot be negative.');
+        return;
+      }
+      if (a === b) {
+        alert('Logic Error: Matches cannot end in a tie.');
+        return;
+      }
 
-  // 3. Execute In-Place Mutation
-  rollbackRatings(court, match); // Reverse mathematical impact of old scores
-  
-  match.scoreA = a;              // Inject new data
-  match.scoreB = b;
-  
-  updateRatings(court, match);   // Apply mathematical impact of new scores
+      rollbackRatings(court, match); 
+      
+      match.scoreA = a;              
+      match.scoreB = b;
+      
+      updateRatings(court, match);   
 
-  // Note: court.currentMatch and rebuildCourtScheduling() are deliberately BYPASSED.
-
-  // 4. Persist and Render
-  saveState();
-  renderApp();
-}
+      saveState();
+      renderApp();
+    }
 
     function exportDUPRCSV() {
       const rows = [];
@@ -1297,7 +1259,7 @@
         ? state.courts.flatMap(c => c.players.map(p => ({ ...p, _courtName: c.name })))
         : court.players.map(p => ({ ...p, _courtName: court.name }));
 
-      const sorted = [...pool].sort((a, b) => (b.rating || DEFAULT_RATING) - (a.rating || DEFAULT_RATING));
+      const sorted = [...pool].sort((a, b) => (b.totalScore || DEFAULT_SCORE) - (a.totalScore || DEFAULT_SCORE));
 
       list.innerHTML = sorted.map((player, index) => `
         <div class="card">
@@ -1311,7 +1273,7 @@
                 </div>
               </div>
             </div>
-            <div style="font-size:1.45rem; font-weight:900; color:#f97316;">${(player.rating || DEFAULT_RATING).toFixed(3)}</div>
+            <div style="font-size:1.45rem; font-weight:900; color:#f97316;">${player.totalScore || DEFAULT_SCORE}</div>
           </div>
         </div>
       `).join('') || `<div class="card center muted" style="font-weight:900;">No leaderboard data available.</div>`;
