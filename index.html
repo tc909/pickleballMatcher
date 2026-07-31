@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>MatchFlow - v12.8.1 (Cumulative Score Mode)</title>
+  <title>MatchFlow - v12.8.2 (DUPR Template 02)</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
@@ -286,6 +286,7 @@
         name: `Court ${index}`,
         eventName: `Event ${index}`,
         eventDate: getLocalYYYYMMDD(),
+        location: '',
         scoreType: 'RALLY',
         players: [],
         completedMatches: [],
@@ -307,6 +308,10 @@
           const parsed = JSON.parse(saved);
           if (parsed?.courts?.length) {
             if (!parsed.leaderboardMode) parsed.leaderboardMode = 'court';
+            parsed.courts.forEach(court => {
+              if (typeof court.location !== 'string') court.location = '';
+              if (!court.scoreType) court.scoreType = 'RALLY';
+            });
             return parsed;
           }
         }
@@ -463,6 +468,15 @@
       court.eventName = (nextName || '').trim() || court.name;
       saveState();
       updateEventsList();
+      renderApp();
+    }
+
+    function editCourtLocation() {
+      const court = getSelectedCourt();
+      const nextLocation = prompt('Edit Event Location', court.location || '');
+      if (nextLocation === null) return;
+      court.location = (nextLocation || '').trim();
+      saveState();
       renderApp();
     }
 
@@ -975,21 +989,19 @@
       renderApp();
     }
 
-    function exportDUPRCSV() {
-      const rows = [];
-      rows.push([
-        '<leave empty>','<leave empty>','<leave empty>',
-        'matchType','scoreType','event','date',
+    function buildDUPRTemplate02Rows(courts) {
+      const rows = [[
+        'matchType','event','date',
         'playerA1','playerA1DuprId','playerA1ExternalId',
         'playerA2','playerA2DuprId','playerA2ExternalId',
         'playerB1','playerB1DuprId','playerB1ExternalId',
         'playerB2','playerB2DuprId','playerB2ExternalId',
-        '<leave empty>',
         'teamAGame1','teamBGame1','teamAGame2','teamBGame2',
-        'teamAGame3','teamBGame3','teamAGame4','teamBGame4','teamAGame5','teamBGame5'
-      ]);
+        'teamAGame3','teamBGame3','teamAGame4','teamBGame4','teamAGame5','teamBGame5',
+        'location','scoreType'
+      ]];
 
-      state.courts.forEach(court => {
+      courts.forEach(court => {
         getCompletedMatches(court).forEach(match => {
           const pA1 = getPlayerById(court, match.teamAIds[0]) || {};
           const pA2 = getPlayerById(court, match.teamAIds[1]) || {};
@@ -997,30 +1009,42 @@
           const pB2 = getPlayerById(court, match.teamBIds[1]) || {};
 
           rows.push([
-            '', '', '',
             'D',
-            court.scoreType || 'RALLY',
             court.eventName || court.name,
             court.eventDate || getLocalYYYYMMDD(),
             pA1.name || '', (pA1.duprId || '').toUpperCase(), '',
             pA2.name || '', (pA2.duprId || '').toUpperCase(), '',
             pB1.name || '', (pB1.duprId || '').toUpperCase(), '',
             pB2.name || '', (pB2.duprId || '').toUpperCase(), '',
-            '',
             match.scoreA ?? '', match.scoreB ?? '',
-            '', '', '', '', '', '', '', ''
+            '', '', '', '', '', '', '', '',
+            court.location || '',
+            court.scoreType || 'RALLY'
           ]);
         });
       });
+
+      return rows;
+    }
+
+    function escapeCSVValue(value) {
+      const text = String(value ?? '');
+      return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    }
+
+    function serializeCSV(rows) {
+      return rows.map(row => row.map(escapeCSVValue).join(',')).join('\n') + '\n';
+    }
+
+    function exportDUPRCSV() {
+      const rows = buildDUPRTemplate02Rows(state.courts);
 
       if (rows.length === 1) {
         alert('No completed matches to export.');
         return;
       }
 
-      const csv = '\uFEFF' + rows.map(row =>
-        row.map(value => `"${String(value ?? '').replace(/"/g, '""')}"`).join(',')
-      ).join('\n');
+      const csv = serializeCSV(rows);
 
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
@@ -1247,6 +1271,16 @@
           </select>
         </div>
 
+        <div class="card">
+          <div class="row wrap">
+            <div style="flex:1; min-width:0;">
+              <div class="tiny muted" style="margin-bottom:0.35rem;">Location</div>
+              <div class="title" style="font-size:0.95rem; word-break:break-word;">${court.location ? escapeHtml(court.location) : '<span class="muted">Not set</span>'}</div>
+            </div>
+            <button class="btn dark" style="padding:0.75rem 1rem; font-size:0.72rem;" onclick="editCourtLocation()">Edit</button>
+          </div>
+        </div>
+
         <div class="toggle-row">
           <button class="toggle-btn ${state.leaderboardMode === 'court' ? 'active' : ''}" onclick="toggleLeaderboardMode('court')">${escapeHtml(court.name)}</button>
           <button class="toggle-btn ${state.leaderboardMode === 'all' ? 'active' : ''}" onclick="toggleLeaderboardMode('all')">All Courts</button>
@@ -1313,6 +1347,7 @@
     window.toggleLeaderboardMode = toggleLeaderboardMode;
     window.updateCourtScoreType = updateCourtScoreType;
     window.editCourtEventName = editCourtEventName;
+    window.editCourtLocation = editCourtLocation;
     window.showPlayerSuggestions = showPlayerSuggestions;
     window.selectMemoryPlayerAndAdd = selectMemoryPlayerAndAdd;
     window.deleteMemoryPlayer = deleteMemoryPlayer;
